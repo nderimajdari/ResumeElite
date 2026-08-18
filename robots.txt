@@ -1,4 +1,13 @@
 User-agent: *
 Allow: /
 
+# editor.html (and its ?template= variants) must stay crawlable so the
+# "noindex, follow" meta tag on it can actually be read and obeyed.
+# Do not add a Disallow for it: a blocked URL can still be indexed as a bare link.
+
+# Assets crawlers need in order to render pages correctly
+Allow: /styles.css
+Allow: /app.js
+Allow: /og-image.png
+
 Sitemap: https://resume-elite.com/sitemap.xml

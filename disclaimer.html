@@ -3,39 +3,103 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Disclaimer | ResumeElite</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Disclaimer — ResumeElite</title>
   <meta name="description" content="Read the Disclaimer for ResumeElite. Understand constraints regarding resume writing advice, template suitability, and employment guarantees." />
-  <meta name="robots" content="index, follow" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
   <meta name="author" content="ResumeElite" />
-  <meta name="theme-color" content="#0f172a" />
+  <meta name="theme-color" content="#f7fbff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)" />
+
+
+  <link rel="canonical" href="https://resume-elite.com/disclaimer.html" />
+
+  <meta property="og:site_name" content="ResumeElite" />
+  <meta property="og:title" content="ResumeElite Disclaimer" />
+  <meta property="og:description" content="Read the Disclaimer for ResumeElite. Understand constraints regarding resume writing advice, template suitability, and employment guarantees." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://resume-elite.com/disclaimer.html" />
+  <meta property="og:image" content="https://resume-elite.com/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ResumeElite Disclaimer" />
+  <meta name="twitter:description" content="Read the Disclaimer for ResumeElite. Understand constraints regarding resume writing advice, template suitability, and employment guarantees." />
+  <meta name="twitter:image" content="https://resume-elite.com/og-image.png" />
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "ResumeElite Disclaimer",
+  "url": "https://resume-elite.com/disclaimer.html",
+  "description": "Read the Disclaimer for ResumeElite. Understand constraints regarding resume writing advice, template suitability, and employment guarantees.",
+  "isPartOf": {
+    "@type": "WebSite",
+    "@id": "https://resume-elite.com/#website"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "ResumeElite",
+    "url": "https://resume-elite.com/"
+  },
+  "inLanguage": "en"
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://resume-elite.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Disclaimer",
+      "item": "https://resume-elite.com/disclaimer.html"
+    }
+  ]
+}
+  </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=homepage-redesign-20260515" />
+  <link rel="stylesheet" href="styles.css?v=modern-2026" />
 </head>
 
 <body class="landing-page info-page">
 
+  <a class="skip-link" href="#main">Skip to main content</a>
+
   <!-- Navbar -->
-  <nav class="navbar">
+  <header class="navbar">
     <div class="nav-inner">
-      <a href="index.html" class="logo">
-        <span class="logo-icon">RE</span>
+      <a href="/" class="logo" aria-label="ResumeElite home">
+        <span class="logo-icon" aria-hidden="true">RE</span>
         <span class="logo-text">ResumeElite</span>
       </a>
-      <div class="nav-links">
-        <a href="index.html#templates">Templates</a>
-        <a href="index.html#features">Features</a>
-        <a href="index.html#process">How it works</a>
+      <nav class="nav-links" id="nav-links" aria-label="Main navigation">
+        <a href="/#templates">Templates</a>
+        <a href="/#features">Features</a>
+        <a href="/#process">How it works</a>
+        <a href="/#guide">Resume guide</a>
+        <a href="/#faq">FAQ</a>
         <a href="editor.html" class="btn-nav-cta">Open Builder</a>
-      </div>
+      </nav>
+      <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"
+        aria-label="Toggle navigation menu">
+        <span class="nav-toggle-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+      </button>
     </div>
-  </nav>
+  </header>
 
   <!-- Content Container -->
-  <main class="info-page-container">
+  <main class="info-page-container" id="main">
     <div class="info-header">
       <h1>Disclaimer</h1>
       <p class="info-updated">Last Updated: May 19, 2026</p>
@@ -78,7 +142,7 @@
     <div class="container">
       <div class="footer-grid">
         <div class="footer-col footer-brand">
-          <a href="index.html" class="logo">
+          <a href="/" class="logo">
             <span class="logo-icon">RE</span>
             <span class="logo-text">ResumeElite</span>
           </a>
@@ -87,9 +151,9 @@
         <div class="footer-col">
           <h4>Navigation</h4>
           <ul class="footer-links">
-            <li><a href="index.html#templates">Resume Templates</a></li>
-            <li><a href="index.html#features">Features</a></li>
-            <li><a href="index.html#process">How It Works</a></li>
+            <li><a href="/#templates">Resume Templates</a></li>
+            <li><a href="/#features">Features</a></li>
+            <li><a href="/#process">How It Works</a></li>
             <li><a href="editor.html">Open Resume Builder</a></li>
           </ul>
         </div>
@@ -110,6 +174,7 @@
     </div>
   </footer>
 
+  <script defer src="app.js?v=modern-2026"></script>
 </body>
 
 </html>

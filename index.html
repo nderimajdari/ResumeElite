@@ -3,942 +3,1134 @@
 
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
-  <script>
-    if (window.location.pathname.endsWith("index.html")) {
-      window.location.replace("https://resume-elite.com/");
-    }
-  </script>
+  <title>Free Resume Builder — 50 ATS-Friendly CV Templates | ResumeElite</title>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Build a professional, ATS-friendly resume free in minutes. 50 modern CV templates, live preview, custom colours, photo support and instant PDF download. No signup, no watermark." />
 
-  <title>
-    Free Resume Builder & ATS-Friendly CV Templates | ResumeElite
-  </title>
-
-  <meta
-    name="description"
-    content="Create a professional ATS-friendly resume in minutes with ResumeElite. Choose modern CV templates, customize instantly, preview live, and download PDF resumes for free."
-  />
-
-  <meta
-    name="keywords"
-    content="free resume builder, ATS resume builder, CV maker online, professional resume templates, resume creator, online CV builder, PDF resume builder, modern CV templates"
-  />
-
-  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
   <meta name="author" content="ResumeElite" />
-  <meta name="theme-color" content="#0f172a" />
+  <meta name="theme-color" content="#f7fbff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)" />
+  <meta name="format-detection" content="telephone=no" />
 
   <link rel="canonical" href="https://resume-elite.com/" />
 
   <!-- Open Graph -->
-  <meta
-    property="og:title"
-    content="ResumeElite - Free ATS-Friendly Resume Builder"
-  />
-
-  <meta
-    property="og:description"
-    content="Build professional resumes with modern templates, live preview, and instant PDF export."
-  />
-
+  <meta property="og:site_name" content="ResumeElite" />
+  <meta property="og:title" content="Free Resume Builder — 50 ATS-Friendly CV Templates" />
+  <meta property="og:description"
+    content="Create a professional resume free: 50 modern templates, live preview and instant PDF export. No signup required." />
   <meta property="og:type" content="website" />
+  <meta property="og:locale" content="en_US" />
   <meta property="og:url" content="https://resume-elite.com/" />
-
-  <meta
-    property="og:image"
-    content="https://resume-elite.com/og-image.png"
-  />
+  <meta property="og:image" content="https://resume-elite.com/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="The ResumeElite resume builder editor with a live resume preview" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Free Resume Builder — 50 ATS-Friendly CV Templates" />
+  <meta name="twitter:description"
+    content="50 modern resume templates, live preview and instant PDF export. Free, no signup." />
+  <meta name="twitter:image" content="https://resume-elite.com/og-image.png" />
 
-  <meta
-    name="twitter:title"
-    content="ResumeElite - Professional Resume Builder"
-  />
-
-  <meta
-    name="twitter:description"
-    content="Create ATS-friendly resumes online with modern templates and PDF export."
-  />
-
-  <meta
-    name="twitter:image"
-    content="https://resume-elite.com/og-image.png"
-  />
-
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+  <link rel="preload" as="style"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="styles.css?v=modern-2026" />
 
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "ResumeElite",
-    "url": "https://resume-elite.com/",
-    "description": "Free ATS-friendly resume builder with modern CV templates and PDF export."
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://resume-elite.com/#organization",
+        "name": "ResumeElite",
+        "url": "https://resume-elite.com/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://resume-elite.com/og-image.png"
+        },
+        "description": "Free online resume builder with ATS-friendly CV templates and instant PDF export."
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://resume-elite.com/#website",
+        "url": "https://resume-elite.com/",
+        "name": "ResumeElite",
+        "inLanguage": "en",
+        "publisher": { "@id": "https://resume-elite.com/#organization" },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://resume-elite.com/?template={search_term_string}#templates"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "WebApplication",
+        "@id": "https://resume-elite.com/#app",
+        "name": "ResumeElite Resume Builder",
+        "url": "https://resume-elite.com/editor.html",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Any (web browser)",
+        "browserRequirements": "Requires JavaScript",
+        "isAccessibleForFree": true,
+        "inLanguage": "en",
+        "publisher": { "@id": "https://resume-elite.com/#organization" },
+        "description": "Create ATS-friendly resumes with 50 templates, live preview, section reordering and PDF export.",
+        "featureList": [
+          "50 professional resume templates",
+          "Live preview while you type",
+          "ATS-friendly plain-text layouts",
+          "Custom accent colours and photo support",
+          "Drag-and-drop section reordering",
+          "Instant PDF download",
+          "Local auto-save, no account required"
+        ],
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://resume-elite.com/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is ResumeElite really free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Every one of the 50 templates, all editor features and PDF export are free. There is no signup, no trial, no watermark and no paywall before download."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Are the resume templates ATS-friendly?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Templates in the ATS category — including ATS Friendly, Harvard Style, Chronological, Functional, Federal Style, Minimal and Compact — use a single readable text flow, standard section headings and no text inside images, so applicant tracking systems can parse them. Creative templates with sidebars still export real selectable text, but the plain layouts parse most reliably."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Do I need to create an account?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No account is needed. Your resume is stored locally in your own browser using localStorage, so nothing is uploaded to a server and you can come back later to keep editing on the same device."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which resume template should I choose?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "For corporate and agency applications choose Professional, Modern or Executive. For roles screened by software choose an ATS template. Developers do well with Software Engineer, Tech, Impact or Terminal. Students and researchers should pick Graduate, Student, Academic CV or Harvard Style. Designers and creatives can use Aurora, Spectrum, Vogue, Brutalist, Portfolio or Editorial."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I switch templates without losing my content?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Your content is stored separately from the design, so you can switch between all 50 templates at any point and every section, date and bullet carries across instantly."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How long should my resume be?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "One page for early-career and most industry roles, two pages once you have several relevant roles to show, and longer only for academic CVs and federal applications. The editor shows page breaks live, and the Compact and Consulting templates are built to fit dense histories on a single page."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does the PDF keep my links clickable?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Email addresses, phone numbers, LinkedIn profiles, portfolio websites and project URLs stay as live clickable links in the exported PDF."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I add a photo to my resume?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, and many templates have a dedicated photo slot. Photos are common in Europe and much of Asia but are usually left off resumes in the US, UK and Canada, so check the convention for the country you are applying to."
+            }
+          }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": "https://resume-elite.com/#breadcrumb",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://resume-elite.com/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Resume Templates",
+            "item": "https://resume-elite.com/#templates"
+          }
+        ]
+      }
+    ]
   }
   </script>
-
-<link
-  rel="preload"
-  href="https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTcviYwY.woff2"
-  as="font"
-  type="font/woff2"
-  crossorigin
-/>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap"
-    rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=homepage-redesign-20260515" />
 </head>
 
 <body class="landing-page">
 
+  <a class="skip-link" href="#main">Skip to main content</a>
+
   <!-- Navbar -->
-  <nav class="navbar">
+  <header class="navbar" id="navbar">
     <div class="nav-inner">
-      <a href="index.html" class="logo">
-        <span class="logo-icon">RE</span>
+      <a href="/" class="logo" aria-label="ResumeElite home">
+        <span class="logo-icon" aria-hidden="true">RE</span>
         <span class="logo-text">ResumeElite</span>
       </a>
-      <div class="nav-links">
+
+      <nav class="nav-links" id="nav-links" aria-label="Main navigation">
         <a href="#templates">Templates</a>
         <a href="#features">Features</a>
         <a href="#process">How it works</a>
+        <a href="#guide">Resume guide</a>
+        <a href="#faq">FAQ</a>
         <a href="editor.html" class="btn-nav-cta">Open Builder</a>
-      </div>
-    </div>
-  </nav>
+      </nav>
 
-  <!-- Hero -->
-  <section class="hero">
-    <div class="hero-content">
-      <div class="hero-badge">Free resume builder for serious applications</div>
-      <h1 class="hero-title">Free Professional Resume Builder</h1>
-      <p class="hero-subtitle">Create a clean, ATS-friendly resume with polished templates, live editing, custom colors,
-        photo support, section control, and PDF export from one focused workspace.</p>
-      <div class="hero-checks">
-        <span>ATS-friendly structure</span>
-        <span>No signup required</span>
-        <span>Auto-saves locally</span>
+      <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"
+        aria-label="Toggle navigation menu">
+        <span class="nav-toggle-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- Hero -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-content">
+        <p class="hero-badge">50 templates &middot; free &middot; no signup</p>
+        <h1 class="hero-title" id="hero-title">Free Resume Builder with ATS-Friendly Templates</h1>
+        <p class="hero-subtitle">Write, design and export a professional resume in one screen. Pick from 50 modern CV
+          templates, edit with live preview, set your own colours and sections, then download a clean PDF &mdash; no
+          account, no watermark.</p>
+
+        <ul class="hero-checks">
+          <li>ATS-friendly structure</li>
+          <li>No signup required</li>
+          <li>Saves in your browser</li>
+        </ul>
+
+        <div class="hero-actions">
+          <a href="editor.html" class="btn-primary btn-xl" id="hero-start-btn">
+            <span>Build your resume</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </a>
+          <a href="#templates" class="btn-ghost btn-xl">Browse 50 templates</a>
+        </div>
+
+        <dl class="hero-stats">
+          <div class="stat">
+            <dt>Resume templates</dt>
+            <dd>50</dd>
+          </div>
+          <div class="stat">
+            <dt>Preview</dt>
+            <dd>Live</dd>
+          </div>
+          <div class="stat">
+            <dt>Export</dt>
+            <dd>PDF</dd>
+          </div>
+          <div class="stat">
+            <dt>Price</dt>
+            <dd>Free</dd>
+          </div>
+        </dl>
+
+        <p class="hero-trust"><span>Built for</span> <strong>job applications</strong> <strong>internships</strong>
+          <strong>career moves</strong></p>
       </div>
-      <div class="hero-actions">
-        <a href="editor.html" class="btn-primary btn-xl" id="hero-start-btn">
-          <span>Build Your Resume</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+      <!-- Hero preview mockup -->
+      <div class="hero-mockup" aria-hidden="true">
+        <div class="hero-mini-panel hero-mini-panel-top">
+          <span>Structure</span>
+          <strong>ATS ready</strong>
+        </div>
+        <div class="mockup-browser">
+          <div class="mockup-floating-card">
+            <span class="floating-label">Template</span>
+            <strong>Professional</strong>
+          </div>
+          <div class="mockup-bar">
+            <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+          </div>
+          <div class="mockup-content">
+            <div class="mock-resume classic-mock">
+              <div class="mock-header">
+                <div class="mock-avatar"></div>
+                <div>
+                  <div class="mock-name-bar"></div>
+                  <div class="mock-title-bar"></div>
+                  <div class="mock-contact-row">
+                    <div class="mock-contact-item"></div>
+                    <div class="mock-contact-item"></div>
+                    <div class="mock-contact-item"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="mock-section-title"></div>
+              <div class="mock-line w80"></div>
+              <div class="mock-line w60"></div>
+              <div class="mock-section-title"></div>
+              <div class="mock-line w90"></div>
+              <div class="mock-line w70"></div>
+              <div class="mock-line w50"></div>
+              <div class="mock-section-title"></div>
+              <div class="mock-skills">
+                <div class="mock-skill-tag"></div>
+                <div class="mock-skill-tag"></div>
+                <div class="mock-skill-tag"></div>
+                <div class="mock-skill-tag w-sm"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-mini-panel hero-mini-panel-bottom">
+          <span>Export</span>
+          <strong>PDF ready</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- Templates Gallery -->
+    <section class="templates-section" id="templates" aria-labelledby="templates-title">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <p class="section-label">Templates</p>
+          <h2 class="section-title" id="templates-title">50 resume templates that already look finished</h2>
+          <p class="section-subtitle">Every preview below is the real template rendering live &mdash; not a picture.
+            Filter by what you need, open it in the builder, then change colours, sections and order without losing a
+            word of your content.</p>
+        </div>
+
+        <div class="gallery-controls" data-reveal>
+          <div class="gallery-filters" id="template-filters" role="group" aria-label="Filter templates by category">
+          <button class="tfilter is-active" type="button" data-cat="all">All templates</button>
+          <button class="tfilter" type="button" data-cat="trending">Trending 2026</button>
+          <button class="tfilter" type="button" data-cat="professional">Professional</button>
+          <button class="tfilter" type="button" data-cat="ats">ATS / Plain</button>
+          <button class="tfilter" type="button" data-cat="creative">Creative</button>
+          <button class="tfilter" type="button" data-cat="tech">Tech</button>
+          <button class="tfilter" type="button" data-cat="academic">Academic</button>
+          </div>
+
+          <label class="gallery-search" for="gallery-search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true">
+              <circle cx="11" cy="11" r="7" /><path d="M20 20l-4.3-4.3" />
+            </svg>
+            <input type="search" id="gallery-search" placeholder="Search templates&hellip;" autocomplete="off"
+              aria-label="Search resume templates" />
+          </label>
+
+          <p class="gallery-count"><strong id="gallery-count">50</strong> templates</p>
+        </div>
+
+        <div class="templates-grid" id="templates-grid">
+        <article class="template-card" data-template="professional" data-cat="professional trending" data-name="Professional">
+          <div class="template-preview" data-live-thumb="professional" role="img" aria-label="Professional resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Professional</h3>
+            <span class="template-badge popular">Editor's pick</span>
+          </div>
+          <p class="template-desc">Two-column layout with a timeline spine and photo header — the all-round favourite for corporate applications.</p>
+          <a href="editor.html?template=professional" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="aurora" data-cat="trending creative" data-name="Aurora">
+          <div class="template-preview" data-live-thumb="aurora" role="img" aria-label="Aurora resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Aurora</h3>
+            <span class="template-badge new">New</span>
+          </div>
+          <p class="template-desc">Gradient mesh masthead with a glass side rail. Built for design, marketing and product roles.</p>
+          <a href="editor.html?template=aurora" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="spectrum" data-cat="trending creative" data-name="Spectrum">
+          <div class="template-preview" data-live-thumb="spectrum" role="img" aria-label="Spectrum resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Spectrum</h3>
+            <span class="template-badge new">New</span>
+          </div>
+          <p class="template-desc">Colour-spine layout with gradient section rules and a soft card rail for skills.</p>
+          <a href="editor.html?template=spectrum" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="impact" data-cat="trending professional tech" data-name="Impact">
+          <div class="template-preview" data-live-thumb="impact" role="img" aria-label="Impact resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Impact</h3>
+            <span class="template-badge new">New</span>
+          </div>
+          <p class="template-desc">Recruiter-first layout: oversized role titles, heavy accent bars and a highlighted summary block.</p>
+          <a href="editor.html?template=impact" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="metro" data-cat="trending professional" data-name="Metro">
+          <div class="template-preview" data-live-thumb="metro" role="img" aria-label="Metro resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Metro</h3>
+            <span class="template-badge new">New</span>
+          </div>
+          <p class="template-desc">Diagonal two-tone header with ribbon section titles — confident and easy to scan.</p>
+          <a href="editor.html?template=metro" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="terminal" data-cat="trending tech" data-name="Terminal">
+          <div class="template-preview" data-live-thumb="terminal" role="img" aria-label="Terminal resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Terminal</h3>
+            <span class="template-badge new">New</span>
+          </div>
+          <p class="template-desc">Dark IDE aesthetic in monospace with a code-comment section style. Made for developers.</p>
+          <a href="editor.html?template=terminal" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="brutalist" data-cat="trending creative" data-name="Brutalist">
+          <div class="template-preview" data-live-thumb="brutalist" role="img" aria-label="Brutalist resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Brutalist</h3>
+            <span class="template-badge new">New</span>
+          </div>
+          <p class="template-desc">Neo-brutalist blocks, thick rules and hard offset shadows for portfolios that need to stand out.</p>
+          <a href="editor.html?template=brutalist" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="swiss" data-cat="trending creative" data-name="Swiss">
+          <div class="template-preview" data-live-thumb="swiss" role="img" aria-label="Swiss resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Swiss</h3>
+            <span class="template-badge new">New</span>
+          </div>
+          <p class="template-desc">International Typographic Style: numbered sections, hairline rules and a huge uppercase name.</p>
+          <a href="editor.html?template=swiss" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="vogue" data-cat="trending creative" data-name="Vogue">
+          <div class="template-preview" data-live-thumb="vogue" role="img" aria-label="Vogue resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Vogue</h3>
+            <span class="template-badge new">New</span>
+          </div>
+          <p class="template-desc">Editorial fashion masthead with a two-column body and drop-cap profile.</p>
+          <a href="editor.html?template=vogue" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="luxe" data-cat="trending creative" data-name="Luxe">
+          <div class="template-preview" data-live-thumb="luxe" role="img" aria-label="Luxe resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Luxe</h3>
+            <span class="template-badge new">New</span>
+          </div>
+          <p class="template-desc">Ivory and gold minimal serif with wide letter-spacing for senior and luxury-sector roles.</p>
+          <a href="editor.html?template=luxe" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="atelier" data-cat="trending creative" data-name="Atelier">
+          <div class="template-preview" data-live-thumb="atelier" role="img" aria-label="Atelier resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Atelier</h3>
+            <span class="template-badge new">New</span>
+          </div>
+          <p class="template-desc">Vertical name spine with an asymmetric editorial content column and vertical section labels.</p>
+          <a href="editor.html?template=atelier" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="elite" data-cat="trending professional" data-name="Elite Flagship">
+          <div class="template-preview" data-live-thumb="elite" role="img" aria-label="Elite Flagship resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Elite Flagship</h3>
+            <span class="template-badge premium">Top 1%</span>
+          </div>
+          <p class="template-desc">Ultra-premium asymmetric layout with a dark gold-accented header band and sidebar.</p>
+          <a href="editor.html?template=elite" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="modern-executive" data-cat="trending professional" data-name="Modern Executive">
+          <div class="template-preview" data-live-thumb="modern-executive" role="img" aria-label="Modern Executive resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Modern Executive</h3>
+            <span class="template-badge premium">C-Suite</span>
+          </div>
+          <p class="template-desc">Premium C-suite columns with a divided contact grid and a quiet, authoritative tone.</p>
+          <a href="editor.html?template=modern-executive" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="infographic" data-cat="creative" data-name="Infographic">
+          <div class="template-preview" data-live-thumb="infographic" role="img" aria-label="Infographic resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Infographic</h3>
+            <span class="template-badge premium">Visual</span>
+          </div>
+          <p class="template-desc">Dual-column premium grid with a tinted sidebar for visual, data-led profiles.</p>
+          <a href="editor.html?template=infographic" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="classic" data-cat="professional ats" data-name="Classic">
+          <div class="template-preview" data-live-thumb="classic" role="img" aria-label="Classic resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Classic</h3>
+            <span class="template-badge free">Free</span>
+          </div>
+          <p class="template-desc">Clean single-column structure with a photo header. Safe, readable and ATS-friendly.</p>
+          <a href="editor.html?template=classic" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="modern" data-cat="professional" data-name="Modern">
+          <div class="template-preview" data-live-thumb="modern" role="img" aria-label="Modern resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Modern</h3>
+            <span class="template-badge popular">Popular</span>
+          </div>
+          <p class="template-desc">Sidebar layout with strong hierarchy — the most-used modern CV structure.</p>
+          <a href="editor.html?template=modern" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="creative" data-cat="creative" data-name="Creative">
+          <div class="template-preview" data-live-thumb="creative" role="img" aria-label="Creative resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Creative</h3>
+            <span class="template-badge free">Free</span>
+          </div>
+          <p class="template-desc">Colour-blocked header with playful section markers for creative and agency roles.</p>
+          <a href="editor.html?template=creative" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="minimal" data-cat="ats professional" data-name="Minimal">
+          <div class="template-preview" data-live-thumb="minimal" role="img" aria-label="Minimal resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Minimal</h3>
+            <span class="template-badge free">Free</span>
+          </div>
+          <p class="template-desc">Type-only layout with generous whitespace and no decoration. Parses perfectly.</p>
+          <a href="editor.html?template=minimal" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="executive" data-cat="professional" data-name="Executive">
+          <div class="template-preview" data-live-thumb="executive" role="img" aria-label="Executive resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Executive</h3>
+            <span class="template-badge free">Free</span>
+          </div>
+          <p class="template-desc">Serif nameplate with a two-column body for senior management applications.</p>
+          <a href="editor.html?template=executive" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="tech" data-cat="tech" data-name="Tech">
+          <div class="template-preview" data-live-thumb="tech" role="img" aria-label="Tech resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Tech</h3>
+            <span class="template-badge free">Free</span>
+          </div>
+          <p class="template-desc">Two-column technical layout that puts your stack and projects up front.</p>
+          <a href="editor.html?template=tech" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="software-engineer" data-cat="tech" data-name="Software Engineer">
+          <div class="template-preview" data-live-thumb="software-engineer" role="img" aria-label="Software Engineer resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Software Engineer</h3>
+            <span class="template-badge popular">Popular</span>
+          </div>
+          <p class="template-desc">Skills-forward engineering layout with a tinted sidebar for tooling and certifications.</p>
+          <a href="editor.html?template=software-engineer" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="qa-engineer" data-cat="tech" data-name="QA Engineer">
+          <div class="template-preview" data-live-thumb="qa-engineer" role="img" aria-label="QA Engineer resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">QA Engineer</h3>
+            <span class="template-badge free">Free</span>
+          </div>
+          <p class="template-desc">Quality-assurance layout with room for test tooling, frameworks and coverage detail.</p>
+          <a href="editor.html?template=qa-engineer" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="elegant" data-cat="creative professional" data-name="Elegant">
+          <div class="template-preview" data-live-thumb="elegant" role="img" aria-label="Elegant resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Elegant</h3>
+            <span class="template-badge free">Free</span>
+          </div>
+          <p class="template-desc">Thin serif headings with hairline rules — understated and refined.</p>
+          <a href="editor.html?template=elegant" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="bold" data-cat="creative" data-name="Bold">
+          <div class="template-preview" data-live-thumb="bold" role="img" aria-label="Bold resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Bold</h3>
+            <span class="template-badge popular">Popular</span>
+          </div>
+          <p class="template-desc">High-contrast filled header with solid icons for confident, senior profiles.</p>
+          <a href="editor.html?template=bold" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="startup" data-cat="creative tech" data-name="Startup">
+          <div class="template-preview" data-live-thumb="startup" role="img" aria-label="Startup resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Startup</h3>
+            <span class="template-badge free">Free</span>
+          </div>
+          <p class="template-desc">Fast-scan layout for founders and early-stage teams, projects before history.</p>
+          <a href="editor.html?template=startup" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="corporate" data-cat="professional" data-name="Corporate">
+          <div class="template-preview" data-live-thumb="corporate" role="img" aria-label="Corporate resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Corporate</h3>
+            <span class="template-badge free">Free</span>
+          </div>
+          <p class="template-desc">Conservative structure with a ruled header for banking, legal and insurance.</p>
+          <a href="editor.html?template=corporate" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="modern-dark" data-cat="professional creative" data-name="Modern Dark">
+          <div class="template-preview" data-live-thumb="modern-dark" role="img" aria-label="Modern Dark resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Modern Dark</h3>
+            <span class="template-badge premium">Premium</span>
+          </div>
+          <p class="template-desc">Dark-panel header with solid icons and a bright accent for standout digital roles.</p>
+          <a href="editor.html?template=modern-dark" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="classic-blue" data-cat="professional" data-name="Classic Blue">
+          <div class="template-preview" data-live-thumb="classic-blue" role="img" aria-label="Classic Blue resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Classic Blue</h3>
+            <span class="template-badge free">Free</span>
+          </div>
+          <p class="template-desc">Traditional structure with a blue accent band — familiar and dependable.</p>
+          <a href="editor.html?template=classic-blue" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="minimal-formal" data-cat="professional ats" data-name="Minimal Formal">
+          <div class="template-preview" data-live-thumb="minimal-formal" role="img" aria-label="Minimal Formal resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Minimal Formal</h3>
+            <span class="template-badge free">Free</span>
+          </div>
+          <p class="template-desc">Formal minimal layout with an optional photo and a tightly ruled section grid.</p>
+          <a href="editor.html?template=minimal-formal" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="traditional-serif" data-cat="ats academic" data-name="Traditional Serif">
+          <div class="template-preview" data-live-thumb="traditional-serif" role="img" aria-label="Traditional Serif resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Traditional Serif</h3>
+            <span class="template-badge free">Free</span>
+          </div>
+          <p class="template-desc">Book-typography serif CV for academia, law and public institutions.</p>
+          <a href="editor.html?template=traditional-serif" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="europass" data-cat="ats academic" data-name="Europass">
+          <div class="template-preview" data-live-thumb="europass" role="img" aria-label="Europass resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Europass</h3>
+            <span class="template-badge free">Free</span>
+          </div>
+          <p class="template-desc">Europass-style structured CV with labelled personal-detail rows for EU applications.</p>
+          <a href="editor.html?template=europass" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="modern-right" data-cat="professional" data-name="Modern Right">
+          <div class="template-preview" data-live-thumb="modern-right" role="img" aria-label="Modern Right resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Modern Right</h3>
+            <span class="template-badge free">Free</span>
+          </div>
+          <p class="template-desc">Right-hand dark sidebar with icon contact rows and a wide main column.</p>
+          <a href="editor.html?template=modern-right" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="nordic" data-cat="creative" data-name="Nordic">
+          <div class="template-preview" data-live-thumb="nordic" role="img" aria-label="Nordic resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Nordic</h3>
+            <span class="template-badge free">Free</span>
+          </div>
+          <p class="template-desc">Scandinavian layout: boxed section blocks, warm paper tone and a rounded photo.</p>
+          <a href="editor.html?template=nordic" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="timeline" data-cat="creative" data-name="Timeline">
+          <div class="template-preview" data-live-thumb="timeline" role="img" aria-label="Timeline resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Timeline</h3>
+            <span class="template-badge popular">Popular</span>
+          </div>
+          <p class="template-desc">Connected timeline spine that makes career progression obvious at a glance.</p>
+          <a href="editor.html?template=timeline" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="mono" data-cat="creative ats" data-name="Mono">
+          <div class="template-preview" data-live-thumb="mono" role="img" aria-label="Mono resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Mono</h3>
+            <span class="template-badge free">Free</span>
+          </div>
+          <p class="template-desc">Typewriter monospace on warm paper with a dashed rule — distinctive but still plain-text safe.</p>
+          <a href="editor.html?template=mono" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="compact" data-cat="professional ats" data-name="Compact">
+          <div class="template-preview" data-live-thumb="compact" role="img" aria-label="Compact resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Compact</h3>
+            <span class="template-badge free">Free</span>
+          </div>
+          <p class="template-desc">High-density single page for long careers that must still fit one sheet.</p>
+          <a href="editor.html?template=compact" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="portfolio" data-cat="creative" data-name="Portfolio">
+          <div class="template-preview" data-live-thumb="portfolio" role="img" aria-label="Portfolio resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Portfolio</h3>
+            <span class="template-badge premium">Premium</span>
+          </div>
+          <p class="template-desc">Deep navy sidebar with a rounded avatar for portfolio-led creative applications.</p>
+          <a href="editor.html?template=portfolio" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="graduate" data-cat="academic" data-name="Graduate">
+          <div class="template-preview" data-live-thumb="graduate" role="img" aria-label="Graduate resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Graduate</h3>
+            <span class="template-badge free">Free</span>
+          </div>
+          <p class="template-desc">Education-first academic layout with a double-rule header for new graduates.</p>
+          <a href="editor.html?template=graduate" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="student" data-cat="academic" data-name="Student">
+          <div class="template-preview" data-live-thumb="student" role="img" aria-label="Student resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Student</h3>
+            <span class="template-badge free">Free</span>
+          </div>
+          <p class="template-desc">Friendly rounded-card layout that foregrounds coursework, projects and activities.</p>
+          <a href="editor.html?template=student" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="freelancer" data-cat="creative" data-name="Freelancer">
+          <div class="template-preview" data-live-thumb="freelancer" role="img" aria-label="Freelancer resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Freelancer</h3>
+            <span class="template-badge free">Free</span>
+          </div>
+          <p class="template-desc">Warm light layout with a right service rail for independent contractors.</p>
+          <a href="editor.html?template=freelancer" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="clean-sidebar" data-cat="professional" data-name="Clean Sidebar">
+          <div class="template-preview" data-live-thumb="clean-sidebar" role="img" aria-label="Clean Sidebar resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Clean Sidebar</h3>
+            <span class="template-badge free">Free</span>
+          </div>
+          <p class="template-desc">Quiet grey right sidebar with a large name block and roomy main column.</p>
+          <a href="editor.html?template=clean-sidebar" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="editorial" data-cat="creative" data-name="Editorial">
+          <div class="template-preview" data-live-thumb="editorial" role="img" aria-label="Editorial resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Editorial</h3>
+            <span class="template-badge free">Free</span>
+          </div>
+          <p class="template-desc">Magazine layout with a rotated section label and a wide serif nameplate.</p>
+          <a href="editor.html?template=editorial" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="ats-friendly" data-cat="ats" data-name="ATS Friendly">
+          <div class="template-preview" data-live-thumb="ats-friendly" role="img" aria-label="ATS Friendly resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">ATS Friendly</h3>
+            <span class="template-badge popular">ATS</span>
+          </div>
+          <p class="template-desc">Strict monochrome, single column, no graphics. Built to pass applicant tracking systems.</p>
+          <a href="editor.html?template=ats-friendly" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="latex-style" data-cat="academic ats" data-name="LaTeX Style">
+          <div class="template-preview" data-live-thumb="latex-style" role="img" aria-label="LaTeX Style resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">LaTeX Style</h3>
+            <span class="template-badge free">Academic</span>
+          </div>
+          <p class="template-desc">Crisp Times-set academic layout that reads like a LaTeX CV class.</p>
+          <a href="editor.html?template=latex-style" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="harvard-style" data-cat="academic ats" data-name="Harvard Style">
+          <div class="template-preview" data-live-thumb="harvard-style" role="img" aria-label="Harvard Style resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Harvard Style</h3>
+            <span class="template-badge free">Classic</span>
+          </div>
+          <p class="template-desc">Centred Garamond header with a double rule — the Ivy League finance standard.</p>
+          <a href="editor.html?template=harvard-style" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="federal-style" data-cat="ats" data-name="Federal Style">
+          <div class="template-preview" data-live-thumb="federal-style" role="img" aria-label="Federal Style resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Federal Style</h3>
+            <span class="template-badge free">Government</span>
+          </div>
+          <p class="template-desc">Boxed government layout with an explicit personal-details block for federal applications.</p>
+          <a href="editor.html?template=federal-style" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="functional" data-cat="ats professional" data-name="Functional">
+          <div class="template-preview" data-live-thumb="functional" role="img" aria-label="Functional resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Functional</h3>
+            <span class="template-badge free">Skills-First</span>
+          </div>
+          <p class="template-desc">Skills-first functional CV for career changers and gaps in employment history.</p>
+          <a href="editor.html?template=functional" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="chronological" data-cat="ats professional" data-name="Chronological">
+          <div class="template-preview" data-live-thumb="chronological" role="img" aria-label="Chronological resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Chronological</h3>
+            <span class="template-badge popular">Trending</span>
+          </div>
+          <p class="template-desc">Reverse-chronological layout with a dotted connector on every entry.</p>
+          <a href="editor.html?template=chronological" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="consulting-style" data-cat="professional" data-name="Consulting">
+          <div class="template-preview" data-live-thumb="consulting-style" role="img" aria-label="Consulting resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Consulting</h3>
+            <span class="template-badge popular">McKinsey</span>
+          </div>
+          <p class="template-desc">High-density consulting format with a burgundy rule and right-aligned contact stack.</p>
+          <a href="editor.html?template=consulting-style" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+        <article class="template-card" data-template="academic-cv" data-cat="academic" data-name="Academic CV">
+          <div class="template-preview" data-live-thumb="academic-cv" role="img" aria-label="Academic CV resume template preview"></div>
+          <div class="template-info">
+            <h3 class="template-name">Academic CV</h3>
+            <span class="template-badge free">Scholar</span>
+          </div>
+          <p class="template-desc">Spacious research CV with hanging-indent entries for publications and grants.</p>
+          <a href="editor.html?template=academic-cv" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
+        </article>
+      </div>
+
+      <p class="gallery-empty" id="gallery-empty" hidden>No templates match that search. Try &ldquo;modern&rdquo;,
+        &ldquo;ATS&rdquo; or &ldquo;academic&rdquo;.</p>
+    </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features-section" id="features" aria-labelledby="features-title">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <p class="section-label">Why it feels better</p>
+          <h2 class="section-title" id="features-title">Everything important stays in front of you</h2>
+          <p class="section-subtitle">Writing, layout, template choice and export live inside one calm editing flow, so
+            you finish faster without fighting the formatting.</p>
+        </div>
+        <div class="features-grid">
+          <article class="feature-card" data-reveal>
+            <span class="feature-icon" aria-hidden="true">01</span>
+            <h3>Live preview</h3>
+            <p>Type, reorder sections and refine details while the A4 page updates as you go, page breaks included.</p>
+          </article>
+          <article class="feature-card" data-reveal>
+            <span class="feature-icon" aria-hidden="true">02</span>
+            <h3>50 professional templates</h3>
+            <p>Corporate, creative, technical, ATS-safe and academic layouts, each designed for a different kind of
+              application.</p>
+          </article>
+          <article class="feature-card" data-reveal>
+            <span class="feature-icon" aria-hidden="true">03</span>
+            <h3>Controlled styling</h3>
+            <p>Set the accent colour, add or remove a photo and show only the sections that help your application.</p>
+          </article>
+          <article class="feature-card" data-reveal>
+            <span class="feature-icon" aria-hidden="true">04</span>
+            <h3>Real PDF export</h3>
+            <p>Download a print-ready PDF with selectable text and clickable email, phone, LinkedIn and project links.
+            </p>
+          </article>
+          <article class="feature-card" data-reveal>
+            <span class="feature-icon" aria-hidden="true">05</span>
+            <h3>Drag-and-drop sections</h3>
+            <p>Move experience above education, add internships, courses, references or a custom section, and reorder
+              by dragging.</p>
+          </article>
+          <article class="feature-card" data-reveal>
+            <span class="feature-icon" aria-hidden="true">06</span>
+            <h3>Private auto-save</h3>
+            <p>Your draft is stored in your own browser. Nothing is uploaded, and no account is ever required.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Process -->
+    <section class="process-section" id="process" aria-labelledby="process-title">
+      <div class="container process-inner">
+        <div class="process-copy" data-reveal>
+          <p class="section-label">How it works</p>
+          <h2 class="section-title" id="process-title">From blank page to polished PDF in minutes</h2>
+          <p>No tutorial, no template licence, no export credits. Three steps and you are done.</p>
+        </div>
+        <ol class="process-steps">
+          <li class="process-step" data-reveal>
+            <span aria-hidden="true">1</span>
+            <strong>Choose a template</strong>
+            <p>Start from a layout that matches your role, experience level and the country you are applying in.</p>
+          </li>
+          <li class="process-step" data-reveal>
+            <span aria-hidden="true">2</span>
+            <strong>Fill in your details</strong>
+            <p>Add experience, education, skills, projects, languages, certifications and any custom section you need.
+            </p>
+          </li>
+          <li class="process-step" data-reveal>
+            <span aria-hidden="true">3</span>
+            <strong>Export the result</strong>
+            <p>Check the live preview, switch templates if you want a second look, then download the PDF.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Resume guide (content depth for search) -->
+    <section class="guide-section" id="guide" aria-labelledby="guide-title">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <p class="section-label">Resume guide</p>
+          <h2 class="section-title" id="guide-title">How to write a resume that passes ATS and still reads well</h2>
+          <p class="section-subtitle">Most applications are read twice: once by parsing software, once by a person with
+            about seven seconds to spare. These are the choices that matter for both.</p>
+        </div>
+
+        <div class="guide-grid">
+          <article class="guide-card" data-reveal>
+            <h3>1. Pick the layout your reader expects</h3>
+            <p>An applicant tracking system reads your resume as a stream of text. Single-column layouts with standard
+              headings &mdash; <em>Work Experience</em>, <em>Education</em>, <em>Skills</em> &mdash; parse most
+              reliably, which is why the <a href="editor.html?template=ats-friendly">ATS Friendly</a> and
+              <a href="editor.html?template=chronological">Chronological</a> templates keep decoration to a minimum.
+              Sidebar designs still export real text, so use them when a human screens first: agencies, studios,
+              startups and referrals.</p>
+          </article>
+          <article class="guide-card" data-reveal>
+            <h3>2. Lead every bullet with the result</h3>
+            <p>Replace duties with outcomes. &ldquo;Responsible for onboarding&rdquo; becomes &ldquo;Cut onboarding
+              drop-off 34% by rebuilding the first-run flow&rdquo;. Put the number first, then the action, then the
+              scope. Three to five bullets per role is enough; older roles need one or two.</p>
+          </article>
+          <article class="guide-card" data-reveal>
+            <h3>3. Mirror the job posting's vocabulary</h3>
+            <p>Parsers and recruiters both match on keywords. If the posting says &ldquo;stakeholder
+              management&rdquo;, use that phrase rather than a synonym, and spell out acronyms once
+              (&ldquo;Search Engine Optimisation (SEO)&rdquo;). Keep your skills section to genuine, current
+              skills &mdash; padding it is easy to spot in an interview.</p>
+          </article>
+          <article class="guide-card" data-reveal>
+            <h3>4. Respect the one-page rule until you can't</h3>
+            <p>One page for students and early-career applicants, two once you have several relevant roles worth
+              detail. Academic CVs and federal applications are the exception and run longer.
+              <a href="editor.html?template=compact">Compact</a> and
+              <a href="editor.html?template=consulting-style">Consulting</a> are built for dense histories that must
+              still fit one sheet.</p>
+          </article>
+          <article class="guide-card" data-reveal>
+            <h3>5. Get the contact block right</h3>
+            <p>Name, city and country, phone with country code, a professional email address and a LinkedIn URL. Add a
+              portfolio or GitHub link if the work is public. A photo is expected across much of Europe and Asia and
+              usually left off in the US, UK and Canada &mdash; check the local convention before you export.</p>
+          </article>
+          <article class="guide-card" data-reveal>
+            <h3>6. Export as PDF, not a screenshot</h3>
+            <p>PDF preserves your layout on every device and keeps the text selectable so parsers can read it. Never
+              submit a resume as an image, and name the file clearly &mdash;
+              <code>firstname-lastname-resume.pdf</code> &mdash; because that filename is what a recruiter sees in
+              their inbox.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq-section" id="faq" aria-labelledby="faq-title">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <p class="section-label">FAQ</p>
+          <h2 class="section-title" id="faq-title">Frequently asked questions</h2>
+        </div>
+        <div class="faq-list" data-reveal>
+
+          <div class="faq-item">
+            <h3><button class="faq-q" type="button" aria-expanded="false">Is ResumeElite really free?<span
+                  class="faq-mark" aria-hidden="true"></span></button></h3>
+            <div class="faq-a">
+              <p>Yes. Every one of the 50 templates, all editor features and PDF export are free. There is no signup, no
+                trial, no watermark and no paywall before download.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <h3><button class="faq-q" type="button" aria-expanded="false">Are the resume templates ATS-friendly?<span
+                  class="faq-mark" aria-hidden="true"></span></button></h3>
+            <div class="faq-a">
+              <p>Templates in the ATS category &mdash; including ATS Friendly, Harvard Style, Chronological, Functional,
+                Federal Style, Minimal and Compact &mdash; use a single readable text flow, standard section headings
+                and no text inside images, so applicant tracking systems can parse them. Creative templates with
+                sidebars still export real selectable text, but the plain layouts parse most reliably.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <h3><button class="faq-q" type="button" aria-expanded="false">Do I need to create an account?<span
+                  class="faq-mark" aria-hidden="true"></span></button></h3>
+            <div class="faq-a">
+              <p>No account is needed. Your resume is stored locally in your own browser using localStorage, so nothing
+                is uploaded to a server and you can come back later to keep editing on the same device.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <h3><button class="faq-q" type="button" aria-expanded="false">Which resume template should I choose?<span
+                  class="faq-mark" aria-hidden="true"></span></button></h3>
+            <div class="faq-a">
+              <p>For corporate and agency applications choose <a href="editor.html?template=professional">Professional</a>,
+                <a href="editor.html?template=modern">Modern</a> or <a href="editor.html?template=executive">Executive</a>.
+                For roles screened by software choose an ATS template. Developers do well with
+                <a href="editor.html?template=software-engineer">Software Engineer</a>,
+                <a href="editor.html?template=impact">Impact</a> or <a href="editor.html?template=terminal">Terminal</a>.
+                Students and researchers should pick <a href="editor.html?template=graduate">Graduate</a>,
+                <a href="editor.html?template=academic-cv">Academic CV</a> or
+                <a href="editor.html?template=harvard-style">Harvard Style</a>. Designers can use
+                <a href="editor.html?template=aurora">Aurora</a>, <a href="editor.html?template=vogue">Vogue</a> or
+                <a href="editor.html?template=portfolio">Portfolio</a>.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <h3><button class="faq-q" type="button" aria-expanded="false">Can I switch templates without losing my
+                content?<span class="faq-mark" aria-hidden="true"></span></button></h3>
+            <div class="faq-a">
+              <p>Yes. Your content is stored separately from the design, so you can switch between all 50 templates at
+                any point and every section, date and bullet carries across instantly.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <h3><button class="faq-q" type="button" aria-expanded="false">How long should my resume be?<span
+                  class="faq-mark" aria-hidden="true"></span></button></h3>
+            <div class="faq-a">
+              <p>One page for early-career and most industry roles, two pages once you have several relevant roles to
+                show, and longer only for academic CVs and federal applications. The editor shows page breaks live, and
+                the Compact and Consulting templates are built to fit dense histories on a single page.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <h3><button class="faq-q" type="button" aria-expanded="false">Does the PDF keep my links clickable?<span
+                  class="faq-mark" aria-hidden="true"></span></button></h3>
+            <div class="faq-a">
+              <p>Yes. Email addresses, phone numbers, LinkedIn profiles, portfolio websites and project URLs stay as
+                live clickable links in the exported PDF.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <h3><button class="faq-q" type="button" aria-expanded="false">Can I add a photo to my resume?<span
+                  class="faq-mark" aria-hidden="true"></span></button></h3>
+            <div class="faq-a">
+              <p>Yes, and many templates have a dedicated photo slot. Photos are common in Europe and much of Asia but
+                are usually left off resumes in the US, UK and Canada, so check the convention for the country you are
+                applying to.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section" aria-labelledby="cta-title">
+      <div class="cta-glow" aria-hidden="true"></div>
+      <div class="container cta-content" data-reveal>
+        <h2 id="cta-title">Build a resume you can send with confidence.</h2>
+        <p>Open the builder, choose a template, tune the details and export a polished PDF &mdash; free, in minutes.</p>
+        <a href="editor.html" class="btn-primary btn-xl" id="cta-build-btn">
+          <span>Start building</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            aria-hidden="true">
             <path d="M5 12h14M12 5l7 7-7 7" />
           </svg>
         </a>
-        <a href="#templates" class="btn-ghost btn-xl">Browse Templates</a>
       </div>
-      <div class="hero-stats">
-        <div class="stat"><strong>34+</strong><span>Resume layouts</span></div>
-        <div class="stat-divider"></div>
-        <div class="stat"><strong>Live</strong><span>Preview editor</span></div>
-        <div class="stat-divider"></div>
-        <div class="stat"><strong>PDF</strong><span>Export Ready</span></div>
-      </div>
-      <div class="hero-trust">
-        <span>Built for</span>
-        <strong>job applications</strong>
-        <strong>internships</strong>
-        <strong>career moves</strong>
-      </div>
-    </div>
-    <!-- Hero Preview Mockup -->
-    <div class="hero-mockup">
-      <div class="hero-mini-panel hero-mini-panel-top">
-        <span>Resume score</span>
-        <strong>96%</strong>
-      </div>
-      <div class="mockup-browser">
-        <div class="mockup-floating-card">
-          <span class="floating-label">Template</span>
-          <strong>Professional</strong>
-        </div>
-        <div class="mockup-bar">
-          <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-        </div>
-        <div class="mockup-content">
-          <div class="mock-resume classic-mock">
-            <div class="mock-header">
-              <div class="mock-avatar"></div>
-              <div>
-                <div class="mock-name-bar"></div>
-                <div class="mock-title-bar"></div>
-                <div class="mock-contact-row">
-                  <div class="mock-contact-item"></div>
-                  <div class="mock-contact-item"></div>
-                  <div class="mock-contact-item"></div>
-                </div>
-              </div>
-            </div>
-            <div class="mock-section-title"></div>
-            <div class="mock-line w80"></div>
-            <div class="mock-line w60"></div>
-            <div class="mock-section-title"></div>
-            <div class="mock-line w90"></div>
-            <div class="mock-line w70"></div>
-            <div class="mock-line w50"></div>
-            <div class="mock-section-title"></div>
-            <div class="mock-skills">
-              <div class="mock-skill-tag"></div>
-              <div class="mock-skill-tag"></div>
-              <div class="mock-skill-tag"></div>
-              <div class="mock-skill-tag w-sm"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="hero-mini-panel hero-mini-panel-bottom">
-        <span>Export</span>
-        <strong>PDF ready</strong>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Features -->
-  <section class="features-section" id="features">
-    <div class="container">
-      <div class="section-label">Why it feels better</div>
-      <h2 class="section-title">Everything important stays in front of you</h2>
-      <p class="section-subtitle">ResumeElite keeps writing, layout, template choice, and export inside one calm editing
-        flow so you can finish faster without fighting formatting.</p>
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">01</div>
-          <h3>Live Preview</h3>
-          <p>Write, reorder sections, and refine details while the resume updates immediately on the page.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">02</div>
-          <h3>Professional Templates</h3>
-          <p>Choose from classic, modern, executive, elegant, Europass, and other layouts built for different roles.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">03</div>
-          <h3>Controlled Styling</h3>
-          <p>Adjust template, accent color, photo, and visible sections without fighting the document formatting.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">04</div>
-          <h3>PDF Export</h3>
-          <p>Download a clean PDF version when your resume is ready to send, print, or archive.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">05</div>
-          <h3>Section Control</h3>
-          <p>Add the content that matters for your profile and hide sections that do not help your application.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">06</div>
-          <h3>Auto-Save</h3>
-          <p>Your work is saved locally in your browser so you can return and continue editing later.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Process -->
-  <section class="process-section" id="process">
-    <div class="container process-inner">
-      <div class="process-copy">
-        <div class="section-label">How it works</div>
-        <h2 class="section-title">From blank page to polished PDF in minutes</h2>
-      </div>
-      <div class="process-steps">
-        <div class="process-step">
-          <span>1</span>
-          <strong>Choose a template</strong>
-          <p>Start with a layout that matches your role, experience level, and preferred visual style.</p>
-        </div>
-        <div class="process-step">
-          <span>2</span>
-          <strong>Fill your details</strong>
-          <p>Add experience, education, skills, projects, languages, certifications, and custom sections.</p>
-        </div>
-        <div class="process-step">
-          <span>3</span>
-          <strong>Export the result</strong>
-          <p>Review the live preview and download a clean PDF when ready.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Templates Gallery -->
-  <section class="templates-section" id="templates">
-    <div class="container">
-      <div class="section-label">Templates</div>
-      <h2 class="section-title">Start with a design that already looks finished</h2>
-      <p class="section-subtitle">Pick a structure for the role, then adjust the details, colors, and sections in the
-        editor.</p>
-      <div class="templates-grid">
-
-        <div class="template-card" data-template="classic">
-          <div class="template-preview tp-classic">
-            <div class="tp-header tp-h-classic">
-              <div class="tp-avatar"></div>
-              <div class="tp-info">
-                <div class="tp-name"></div>
-                <div class="tp-role"></div>
-              </div>
-            </div>
-            <div class="tp-body">
-              <div class="tp-sec-title tp-st-blue"></div>
-              <div class="tp-line w75"></div>
-              <div class="tp-line w55"></div>
-              <div class="tp-sec-title tp-st-blue"></div>
-              <div class="tp-line w85"></div>
-              <div class="tp-line w65"></div>
-              <div class="tp-tags">
-                <div class="tp-tag"></div>
-                <div class="tp-tag"></div>
-                <div class="tp-tag"></div>
-              </div>
-            </div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Classic</span>
-            <span class="template-badge free">Free</span>
-          </div>
-          <a href="editor.html?template=classic" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card featured" data-template="modern">
-          <div class="template-preview tp-modern">
-            <div class="tp-sidebar"></div>
-            <div class="tp-main-col">
-              <div class="tp-name-mod"></div>
-              <div class="tp-role-mod"></div>
-              <div class="tp-sec-title tp-st-accent"></div>
-              <div class="tp-line w80"></div>
-              <div class="tp-line w60"></div>
-              <div class="tp-sec-title tp-st-accent"></div>
-              <div class="tp-line w85"></div>
-              <div class="tp-line w50"></div>
-            </div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Modern</span>
-            <span class="template-badge popular">Popular</span>
-          </div>
-          <a href="editor.html?template=modern" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="creative">
-          <div class="template-preview tp-creative">
-            <div class="tp-creative-header">
-              <div class="tp-name-cr"></div>
-              <div class="tp-role-cr"></div>
-            </div>
-            <div class="tp-body">
-              <div class="tp-sec-title tp-st-cr"></div>
-              <div class="tp-line w70"></div>
-              <div class="tp-line w55"></div>
-              <div class="tp-sec-title tp-st-cr"></div>
-              <div class="tp-line w80"></div>
-              <div class="tp-line w60"></div>
-            </div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Creative</span>
-            <span class="template-badge free">Free</span>
-          </div>
-          <a href="editor.html?template=creative" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="minimal">
-          <div class="template-preview tp-minimal">
-            <div class="tp-name-min"></div>
-            <div class="tp-divider-min"></div>
-            <div class="tp-role-min"></div>
-            <div class="tp-sec-title tp-st-min"></div>
-            <div class="tp-line w75"></div>
-            <div class="tp-line w55"></div>
-            <div class="tp-sec-title tp-st-min"></div>
-            <div class="tp-line w80"></div>
-            <div class="tp-line w50"></div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Minimal</span>
-            <span class="template-badge free">Free</span>
-          </div>
-          <a href="editor.html?template=minimal" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="executive">
-          <div class="template-preview tp-executive">
-            <div class="tp-exec-top">
-              <div class="tp-name-exec"></div>
-              <div class="tp-role-exec"></div>
-              <div class="tp-exec-line"></div>
-            </div>
-            <div class="tp-two-col">
-              <div class="tp-left-col">
-                <div class="tp-sec-title tp-st-exec"></div>
-                <div class="tp-line w80"></div>
-                <div class="tp-line w60"></div>
-              </div>
-              <div class="tp-right-col">
-                <div class="tp-sec-title tp-st-exec"></div>
-                <div class="tp-line w75"></div>
-                <div class="tp-line w55"></div>
-              </div>
-            </div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Executive</span>
-            <span class="template-badge free">Free</span>
-          </div>
-          <a href="editor.html?template=executive" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="tech">
-          <div class="template-preview tp-tech">
-            <div class="tp-tech-header">
-              <div class="tp-tech-name"></div>
-              <div class="tp-tech-role"></div>
-              <div class="tp-tech-tags">
-                <div class="tp-tech-tag"></div>
-                <div class="tp-tech-tag"></div>
-                <div class="tp-tech-tag"></div>
-              </div>
-            </div>
-            <div class="tp-body tp-tech-body">
-              <div class="tp-sec-title tp-st-tech"></div>
-              <div class="tp-line w85"></div>
-              <div class="tp-line w65"></div>
-              <div class="tp-sec-title tp-st-tech"></div>
-              <div class="tp-line w70"></div>
-              <div class="tp-line w50"></div>
-            </div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Tech</span>
-            <span class="template-badge free">Free</span>
-          </div>
-          <a href="editor.html?template=tech" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card featured" data-template="software-engineer">
-          <div class="template-preview tp-software-engineer-new">
-            <div class="tp-code-bar"></div>
-            <div class="tp-code-grid"></div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Software Engineer</span>
-            <span class="template-badge popular">New</span>
-          </div>
-          <a href="editor.html?template=software-engineer" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="qa-engineer">
-          <div class="template-preview tp-qa-engineer-new">
-            <div class="tp-qa-checks"></div>
-            <div class="tp-qa-lines"></div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Quality Assurance Engineer</span>
-            <span class="template-badge free">New</span>
-          </div>
-          <a href="editor.html?template=qa-engineer" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="elegant">
-          <div class="template-preview tp-elegant">
-            <div class="tp-elegant-header">
-              <div class="tp-elegant-avatar"></div>
-              <div>
-                <div class="tp-elegant-name"></div>
-                <div class="tp-elegant-role"></div>
-              </div>
-            </div>
-            <div class="tp-body">
-              <div class="tp-sec-title tp-st-el"></div>
-              <div class="tp-line w80"></div>
-              <div class="tp-line w60"></div>
-              <div class="tp-sec-title tp-st-el"></div>
-              <div class="tp-line w75"></div>
-              <div class="tp-line w55"></div>
-            </div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Elegant</span>
-            <span class="template-badge free">Free</span>
-          </div>
-          <a href="editor.html?template=elegant" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card featured" data-template="bold">
-          <div class="template-preview tp-bold">
-            <div class="tp-bold-sidebar"></div>
-            <div class="tp-bold-main">
-              <div class="tp-bold-name"></div>
-              <div class="tp-bold-role"></div>
-              <div class="tp-sec-title tp-st-bold"></div>
-              <div class="tp-line w85"></div>
-              <div class="tp-line w70"></div>
-            </div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Bold</span>
-            <span class="template-badge popular">Popular</span>
-          </div>
-          <a href="editor.html?template=bold" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="startup">
-          <div class="template-preview tp-startup">
-            <div class="tp-startup-header">
-              <div class="tp-startup-name"></div>
-              <div class="tp-startup-role"></div>
-            </div>
-            <div class="tp-body tp-startup-body">
-              <div class="tp-startup-box">
-                <div class="tp-sec-title tp-st-start"></div>
-                <div class="tp-line w80"></div>
-              </div>
-              <div class="tp-startup-box">
-                <div class="tp-sec-title tp-st-start"></div>
-                <div class="tp-line w75"></div>
-              </div>
-            </div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Startup</span>
-            <span class="template-badge free">Free</span>
-          </div>
-          <a href="editor.html?template=startup" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="corporate">
-          <div class="template-preview tp-corporate">
-            <div class="tp-corp-header">
-              <div class="tp-corp-name"></div>
-              <div class="tp-corp-role"></div>
-            </div>
-            <div class="tp-corp-two-col">
-              <div class="tp-corp-left">
-                <div class="tp-sec-title tp-st-corp"></div>
-                <div class="tp-line w80"></div>
-                <div class="tp-line w60"></div>
-              </div>
-              <div class="tp-corp-right">
-                <div class="tp-sec-title tp-st-corp"></div>
-                <div class="tp-line w70"></div>
-              </div>
-            </div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Corporate</span>
-            <span class="template-badge free">Free</span>
-          </div>
-          <a href="editor.html?template=corporate" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="professional">
-          <div class="template-preview tp-professional">
-            <div class="tp-prof-header">
-              <div class="tp-prof-name"></div>
-              <div class="tp-prof-role"></div>
-              <div class="tp-prof-avatar"></div>
-            </div>
-            <div class="tp-prof-body">
-              <div class="tp-prof-row">
-                <div class="tp-prof-label"></div>
-                <div class="tp-prof-main">
-                  <div class="tp-line w80"></div>
-                  <div class="tp-line w60"></div>
-                </div>
-              </div>
-              <div class="tp-prof-row">
-                <div class="tp-prof-label"></div>
-                <div class="tp-prof-main">
-                  <div class="tp-line w70"></div>
-                  <div class="tp-line w50"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Professional</span>
-            <span class="template-badge free">Free</span>
-          </div>
-          <a href="editor.html?template=professional" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card featured" data-template="modern-dark">
-          <div class="template-preview tp-modern-dark">
-            <div class="tp-md-header">
-              <div class="tp-md-name"></div>
-              <div class="tp-md-role"></div>
-            </div>
-            <div class="tp-md-body">
-              <div class="tp-md-left">
-                <div class="tp-sec-title tp-st-yellow"></div>
-                <div class="tp-line w80"></div>
-                <div class="tp-line w60"></div>
-              </div>
-              <div class="tp-md-right">
-                <div class="tp-sec-title tp-st-yellow"></div>
-                <div class="tp-md-skill-dots"></div>
-                <div class="tp-md-skill-dots"></div>
-              </div>
-            </div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Modern Dark</span>
-            <span class="template-badge premium">Premium</span>
-          </div>
-          <a href="editor.html?template=modern-dark" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="nordic">
-          <div class="template-preview tp-nordic">
-            <div class="tp-new-head"></div>
-            <div class="tp-new-row wide"></div>
-            <div class="tp-new-grid"></div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Nordic</span>
-            <span class="template-badge free">New</span>
-          </div>
-          <a href="editor.html?template=nordic" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card featured" data-template="timeline">
-          <div class="template-preview tp-timeline-new">
-            <div class="tp-timeline-rail"></div>
-            <div class="tp-new-line"></div>
-            <div class="tp-new-line short"></div>
-            <div class="tp-new-line"></div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Timeline</span>
-            <span class="template-badge popular">New</span>
-          </div>
-          <a href="editor.html?template=timeline" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="mono">
-          <div class="template-preview tp-mono-new">
-            <div class="tp-mono-title"></div>
-            <div class="tp-mono-rule"></div>
-            <div class="tp-new-line"></div>
-            <div class="tp-new-line short"></div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Mono</span>
-            <span class="template-badge free">New</span>
-          </div>
-          <a href="editor.html?template=mono" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="compact">
-          <div class="template-preview tp-compact-new">
-            <div class="tp-new-head"></div>
-            <div class="tp-compact-lines"></div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Compact</span>
-            <span class="template-badge free">New</span>
-          </div>
-          <a href="editor.html?template=compact" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card featured" data-template="portfolio">
-          <div class="template-preview tp-portfolio-new">
-            <div class="tp-new-side"></div>
-            <div class="tp-new-main"></div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Portfolio</span>
-            <span class="template-badge premium">New</span>
-          </div>
-          <a href="editor.html?template=portfolio" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="graduate">
-          <div class="template-preview tp-graduate-new">
-            <div class="tp-grad-title"></div>
-            <div class="tp-grad-rule"></div>
-            <div class="tp-new-line"></div>
-            <div class="tp-new-line short"></div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Graduate</span>
-            <span class="template-badge free">New</span>
-          </div>
-          <a href="editor.html?template=graduate" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="student">
-          <div class="template-preview tp-student-new">
-            <div class="tp-student-ribbon"></div>
-            <div class="tp-grad-title"></div>
-            <div class="tp-new-line"></div>
-            <div class="tp-new-line short"></div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Student</span>
-            <span class="template-badge free">New</span>
-          </div>
-          <a href="editor.html?template=student" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card featured" data-template="freelancer">
-          <div class="template-preview tp-freelancer-new">
-            <div class="tp-freelance-side"></div>
-            <div class="tp-freelance-main"></div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Freelancer</span>
-            <span class="template-badge premium">New</span>
-          </div>
-          <a href="editor.html?template=freelancer" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="clean-sidebar">
-          <div class="template-preview tp-clean-sidebar-new">
-            <div class="tp-new-main"></div>
-            <div class="tp-new-side light"></div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Clean Sidebar</span>
-            <span class="template-badge free">New</span>
-          </div>
-          <a href="editor.html?template=clean-sidebar" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="editorial">
-          <div class="template-preview tp-editorial-new">
-            <div class="tp-editorial-label"></div>
-            <div class="tp-editorial-copy"></div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Editorial</span>
-            <span class="template-badge free">New</span>
-          </div>
-          <a href="editor.html?template=editorial" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="ats-friendly">
-          <div class="template-preview tp-ats-friendly-new">
-            <div class="tp-ats-header"></div>
-            <div class="tp-new-line"></div>
-            <div class="tp-new-line short"></div>
-            <div class="tp-new-line"></div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">ATS Friendly</span>
-            <span class="template-badge popular">ATS</span>
-          </div>
-          <a href="editor.html?template=ats-friendly" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="latex-style">
-          <div class="template-preview tp-latex-style-new">
-            <div class="tp-latex-head"></div>
-            <div class="tp-latex-rule"></div>
-            <div class="tp-new-line"></div>
-            <div class="tp-latex-rule"></div>
-            <div class="tp-new-line short"></div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">LaTeX Style</span>
-            <span class="template-badge free">Academic</span>
-          </div>
-          <a href="editor.html?template=latex-style" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="harvard-style">
-          <div class="template-preview tp-harvard-style-new">
-            <div class="tp-harvard-head"></div>
-            <div class="tp-new-line center"></div>
-            <div class="tp-new-line"></div>
-            <div class="tp-new-line short"></div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Harvard Style</span>
-            <span class="template-badge free">Classic</span>
-          </div>
-          <a href="editor.html?template=harvard-style" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="federal-style">
-          <div class="template-preview tp-federal-style-new">
-            <div class="tp-fed-head"></div>
-            <div class="tp-fed-grid"></div>
-            <div class="tp-new-line"></div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Federal Style</span>
-            <span class="template-badge free">Government</span>
-          </div>
-          <a href="editor.html?template=federal-style" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="functional">
-          <div class="template-preview tp-functional-new">
-            <div class="tp-func-top"></div>
-            <div class="tp-func-skills"></div>
-            <div class="tp-new-line"></div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Functional</span>
-            <span class="template-badge free">Skills-First</span>
-          </div>
-          <a href="editor.html?template=functional" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="chronological">
-          <div class="template-preview tp-chronological-new">
-            <div class="tp-chrono-header"></div>
-            <div class="tp-chrono-timeline"></div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Chronological</span>
-            <span class="template-badge popular">Trending</span>
-          </div>
-          <a href="editor.html?template=chronological" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card featured" data-template="consulting-style">
-          <div class="template-preview tp-consulting-style-new">
-            <div class="tp-cons-head"></div>
-            <div class="tp-cons-divider"></div>
-            <div class="tp-new-line"></div>
-            <div class="tp-cons-divider"></div>
-            <div class="tp-new-line short"></div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Consulting Style</span>
-            <span class="template-badge popular">McKinsey</span>
-          </div>
-          <a href="editor.html?template=consulting-style" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card" data-template="academic-cv">
-          <div class="template-preview tp-academic-cv-new">
-            <div class="tp-acad-head"></div>
-            <div class="tp-acad-section"></div>
-            <div class="tp-acad-section"></div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Academic CV</span>
-            <span class="template-badge free">Scholar</span>
-          </div>
-          <a href="editor.html?template=academic-cv" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card featured" data-template="infographic">
-          <div class="template-preview tp-infographic-new">
-            <div class="tp-info-sidebar"></div>
-            <div class="tp-info-main"></div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Visual Infographic</span>
-            <span class="template-badge premium">Creative</span>
-          </div>
-          <a href="editor.html?template=infographic" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card featured" data-template="modern-executive">
-          <div class="template-preview tp-modern-executive-new">
-            <div class="tp-exec-header">
-              <div class="tp-exec-avatar"></div>
-              <div class="tp-exec-text"></div>
-            </div>
-            <div class="tp-exec-body">
-              <div class="tp-exec-main"></div>
-              <div class="tp-exec-side"></div>
-            </div>
-          </div>
-          <div class="template-info">
-            <span class="template-name">Modern Executive</span>
-            <span class="template-badge premium">C-Suite</span>
-          </div>
-          <a href="editor.html?template=modern-executive" class="btn-template">Use Template →</a>
-        </div>
-
-        <div class="template-card featured" data-template="elite">
-          <div class="template-preview tp-elite-new">
-            <div class="tp-elite-header"></div>
-            <div class="tp-elite-body">
-              <div class="tp-elite-sidebar"></div>
-              <div class="tp-elite-main"></div>
-            </div>
-          </div>
-          <div class="template-info">
-            <span class="template-name" style="color:#c8a153;">Elite Flagship</span>
-            <span class="template-badge premium" style="background:#0a0f1c; color:#c8a153;">Top 1%</span>
-          </div>
-          <a href="editor.html?template=elite" class="btn-template">Use Template →</a>
-        </div>
-
-      </div>
-
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section class="cta-section">
-    <div class="cta-glow"></div>
-    <div class="container cta-content">
-      <h2>Build a resume you can send with confidence.</h2>
-      <p>Open the builder, choose a template, tune the details, and export a polished PDF.</p>
-      <a href="editor.html" class="btn-primary btn-xl" id="cta-build-btn">
-        <span>Start Building</span>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M5 12h14M12 5l7 7-7 7" />
-        </svg>
-      </a>
-    </div>
-  </section>
+  </main>
 
   <!-- Footer -->
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
         <div class="footer-col footer-brand">
-          <a href="index.html" class="logo">
-            <span class="logo-icon">RE</span>
+          <a href="/" class="logo" aria-label="ResumeElite home">
+            <span class="logo-icon" aria-hidden="true">RE</span>
             <span class="logo-text">ResumeElite</span>
           </a>
-          <p>Create professional, ATS-friendly resumes in minutes with our clean, elegant templates. Free, and no signup required.</p>
+          <p>Create professional, ATS-friendly resumes in minutes with 50 clean, modern templates. Free, private, and no
+            signup required.</p>
         </div>
-        <div class="footer-col">
-          <h4>Navigation</h4>
+        <nav class="footer-col" aria-labelledby="footer-nav-title">
+          <h2 class="footer-col-title" id="footer-nav-title">Navigation</h2>
           <ul class="footer-links">
-            <li><a href="#templates">Resume Templates</a></li>
+            <li><a href="#templates">Resume templates</a></li>
             <li><a href="#features">Features</a></li>
-            <li><a href="#process">How It Works</a></li>
-            <li><a href="editor.html">Open Resume Builder</a></li>
+            <li><a href="#process">How it works</a></li>
+            <li><a href="#guide">Resume writing guide</a></li>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="editor.html">Open resume builder</a></li>
           </ul>
-        </div>
-        <div class="footer-col">
-          <h4>Legal & Support</h4>
+        </nav>
+        <nav class="footer-col" aria-labelledby="footer-pop-title">
+          <h2 class="footer-col-title" id="footer-pop-title">Popular templates</h2>
           <ul class="footer-links">
-            <li><a href="about.html">About Us</a></li>
-            <li><a href="contact.html">Contact Us</a></li>
-            <li><a href="privacy.html">Privacy Policy</a></li>
-            <li><a href="terms.html">Terms of Service</a></li>
+            <li><a href="editor.html?template=professional">Professional resume template</a></li>
+            <li><a href="editor.html?template=ats-friendly">ATS-friendly resume template</a></li>
+            <li><a href="editor.html?template=modern">Modern CV template</a></li>
+            <li><a href="editor.html?template=software-engineer">Software engineer resume</a></li>
+            <li><a href="editor.html?template=europass">Europass CV template</a></li>
+            <li><a href="editor.html?template=harvard-style">Harvard style resume</a></li>
+            <li><a href="editor.html?template=graduate">Graduate resume template</a></li>
+            <li><a href="editor.html?template=aurora">Aurora creative template</a></li>
+          </ul>
+        </nav>
+        <nav class="footer-col" aria-labelledby="footer-legal-title">
+          <h2 class="footer-col-title" id="footer-legal-title">Legal &amp; support</h2>
+          <ul class="footer-links">
+            <li><a href="about.html">About us</a></li>
+            <li><a href="contact.html">Contact us</a></li>
+            <li><a href="privacy.html">Privacy policy</a></li>
+            <li><a href="terms.html">Terms of service</a></li>
             <li><a href="disclaimer.html">Disclaimer</a></li>
           </ul>
-        </div>
+        </nav>
       </div>
       <div class="footer-bottom">
-        <p class="footer-copy">© 2026 ResumeElite. All rights reserved.</p>
+        <p class="footer-copy">&copy; 2026 ResumeElite. All rights reserved.</p>
+        <p class="footer-note">Made for job seekers. Your data never leaves your browser.</p>
       </div>
     </div>
   </footer>
 
-  <script src="app.js"></script>
+  <!-- Sticky mobile CTA -->
+  <div class="mobile-cta" aria-hidden="false">
+    <a href="editor.html" class="btn-primary">Build your resume free</a>
+  </div>
+
+  <script defer src="app.js?v=modern-2026"></script>
 </body>
 
 </html>

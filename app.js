@@ -125,24 +125,41 @@ document.addEventListener('DOMContentLoaded', () => {
   bindSimpleFields();
   bindPhotoUpload();
   bindDownloadBtn();
+  bindAccentSwatches();
   renderAllDynamic();
   syncTemplateButtons();
   renderTemplateThumbnails();
   renderPreview();
   bindClearBtn();
   initSectionDragging();
-  window.addEventListener('resize', applyZoom);
+  initTemplateDrawer();
+  initEditorTabs();
+  window.addEventListener('resize', debounce(applyZoom, 120));
+  window.addEventListener('orientationchange', () => setTimeout(applyZoom, 200));
 });
+
+function debounce(fn, wait) {
+  let t;
+  return function (...args) {
+    clearTimeout(t);
+    t = setTimeout(() => fn.apply(this, args), wait);
+  };
+}
 
 // ---- Landing ----
 function initLanding() {
   document.querySelectorAll('.template-card').forEach(card => {
     card.addEventListener('click', (e) => {
-      if (e.target.classList.contains('btn-template')) return;
+      if (e.target.closest('a')) return;
       const t = card.dataset.template;
-      window.location.href = `editor.html?template=${t}`;
+      if (t) window.location.href = `editor.html?template=${t}`;
     });
   });
+  initMobileNav();
+  initGalleryFilters();
+  initFaq();
+  initReveal();
+  initLiveThumbnails();
 }
 
 function initFromUrl() {
@@ -228,7 +245,15 @@ function bindTemplateToggle() {
 
   toggle.addEventListener('click', () => {
     group.classList.toggle('is-collapsed');
-    toggle.setAttribute('aria-expanded', String(!group.classList.contains('is-collapsed')));
+    const open = !group.classList.contains('is-collapsed');
+    toggle.setAttribute('aria-expanded', String(open));
+    document.body.classList.toggle('drawer-open', open);
+    if (open) {
+      updateTemplateToggleLabel();
+      requestAnimationFrame(syncThumbScales);
+      const search = document.getElementById('template-search');
+      if (search && !window.matchMedia('(max-width: 900px)').matches) search.focus();
+    }
   });
 }
 
@@ -238,8 +263,11 @@ function getTemplateIds() {
 
 function syncTemplateButtons() {
   document.querySelectorAll('.tmpl-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.tmpl === state.template);
+    const on = btn.dataset.tmpl === state.template;
+    btn.classList.toggle('active', on);
+    btn.setAttribute('aria-pressed', String(on));
   });
+  updateTemplateToggleLabel();
 }
 
 // ---- Accent Color ----
@@ -396,24 +424,31 @@ function bindClearBtn() {
 }
 
 // ---- Zoom ----
-function zoomIn() { zoom = Math.min(zoom + 0.1, 1.5); applyZoom(); }
+function zoomIn() { zoom = Math.min(zoom + 0.1, 1.6); applyZoom(); }
 function zoomOut() { zoom = Math.max(zoom - 0.1, 0.4); applyZoom(); }
 function resetZoom() { zoom = 1; applyZoom(); }
+
+// The A4 page is a fixed 794px wide. Scale it down to whatever the preview
+// column can actually show, then multiply by the user's zoom on top of that.
 function applyZoom() {
   const w = document.getElementById('preview-wrapper');
   const page = document.getElementById('resume-preview');
   const scroll = document.querySelector('.preview-scroll');
   if (w && page && scroll) {
-    const isNarrow = window.matchMedia('(max-width: 768px)').matches;
     const pageWidth = page.offsetWidth || 794;
     const pageHeight = page.offsetHeight || 1122;
-    const fitScale = isNarrow ? Math.min(1, Math.max(0.28, (scroll.clientWidth - 24) / pageWidth)) : 1;
+    const gutter = window.matchMedia('(max-width: 900px)').matches ? 24 : 48;
+    const available = Math.max(200, scroll.clientWidth - gutter);
+    const fitScale = Math.min(1, Math.max(0.24, available / pageWidth));
     const scale = fitScale * zoom;
 
+    // Always scale from the top-left corner. The wrapper reserves exactly the
+    // scaled page size as layout space and is centred with auto margins, so a
+    // centre origin would shift the 794px child sideways out of its own box.
     w.style.transform = `scale(${scale})`;
-    w.style.transformOrigin = isNarrow ? 'top left' : 'top center';
-    w.style.width = isNarrow ? `${pageWidth * scale}px` : '';
-    w.style.height = isNarrow ? `${pageHeight * scale}px` : '';
+    w.style.transformOrigin = 'top left';
+    w.style.width = `${Math.round(pageWidth * scale)}px`;
+    w.style.height = `${Math.round(pageHeight * scale)}px`;
   }
   const lbl = document.getElementById('zoom-level');
   if (lbl) lbl.textContent = Math.round(zoom * 100) + '%';
@@ -1113,8 +1148,11 @@ function paginateResume(root, options = {}) {
     }
   });
 
+  // Sub-pixel layout rounding routinely leaves a few stray pixels past the page
+  // edge. Counting those as a new page produced an entirely blank trailing sheet
+  // in the preview and in the exported PDF, so ignore anything under the guard.
   const totalHeight = Math.max(root.scrollHeight, pageHeight);
-  const pageCount = Math.max(1, Math.ceil((totalHeight + pageGap) / pagePitch));
+  const pageCount = Math.max(1, Math.ceil((totalHeight - bottomGuard) / pagePitch));
   root.style.minHeight = `${(pageCount * pageHeight) + ((pageCount - 1) * pageGap)}px`;
 }
 
@@ -1160,6 +1198,16 @@ function buildTemplateHtml(tmpl) {
     case 'infographic': return buildInfographic();
     case 'modern-executive': return buildModernExecutive();
     case 'elite': return buildElite();
+    case 'aurora': return buildAurora();
+    case 'swiss': return buildSwiss();
+    case 'brutalist': return buildBrutalist();
+    case 'vogue': return buildVogue();
+    case 'terminal': return buildTerminal();
+    case 'metro': return buildMetro();
+    case 'luxe': return buildLuxe();
+    case 'impact': return buildImpact();
+    case 'atelier': return buildAtelier();
+    case 'spectrum': return buildSpectrum();
     default: return buildClassic();
   }
 }
@@ -1174,6 +1222,7 @@ function renderTemplateThumbnails() {
     const tmpl = btn.dataset.tmpl;
     const html = buildTemplateThumbnailHtml(tmpl);
     thumb.innerHTML = `<div class="thumbnail-page resume-page tmpl-${tmpl}">${html}</div>`;
+    setThumbScale(thumb);
   });
 }
 
@@ -1351,7 +1400,7 @@ function avatarHtml(cls = 'r-avatar', phClass = 'r-avatar-placeholder') {
 
 function getIcon(type, tmpl) {
   const isSolid = (tmpl === 'modern-dark' || tmpl === 'bold');
-  const svgIcons = ['modern', 'tech', 'software-engineer', 'qa-engineer', 'student', 'freelancer', 'professional', 'corporate', 'modern-dark', 'elegant', 'executive', 'startup', 'classic-blue', 'minimal-formal', 'traditional-serif', 'europass', 'modern-right', 'nordic', 'timeline', 'mono', 'compact', 'portfolio', 'graduate', 'clean-sidebar', 'editorial', 'ats-friendly', 'latex-style', 'harvard-style', 'federal-style', 'functional', 'chronological', 'consulting-style', 'academic-cv', 'infographic', 'modern-executive', 'elite'];
+  const svgIcons = ['modern', 'tech', 'software-engineer', 'qa-engineer', 'student', 'freelancer', 'professional', 'corporate', 'modern-dark', 'elegant', 'executive', 'startup', 'classic-blue', 'minimal-formal', 'traditional-serif', 'europass', 'modern-right', 'nordic', 'timeline', 'mono', 'compact', 'portfolio', 'graduate', 'clean-sidebar', 'editorial', 'ats-friendly', 'latex-style', 'harvard-style', 'federal-style', 'functional', 'chronological', 'consulting-style', 'academic-cv', 'infographic', 'modern-executive', 'elite', 'aurora', 'swiss', 'brutalist', 'vogue', 'terminal', 'metro', 'luxe', 'impact', 'atelier', 'spectrum'];
   
   const outlinePaths = {
     email: '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>',
@@ -2379,7 +2428,9 @@ function profReferenceSection() {
 function profQualitySection() {
   const list = state.qualities.filter(q => q.name && q.name.trim());
   if (!list.length) return '';
-  const rows = `<div class="prof-skills-full"><div class="prof-skills-grid">${list.map(q => `<div class="prof-skill-item">${esc(q.name)}</div>`).join('')}</div></div>`;
+  // No .prof-skills-full rule exists, and the extra wrapper landed in the parent
+  // grid's column 3 with no width, collapsing every quality to one letter per line.
+  const rows = `<div class="prof-skills-grid">${list.map(q => `<div class="prof-skill-item">${esc(q.name)}</div>`).join('')}</div>`;
   return profSectionWrapper('Qualities', rows, 'prof-no-timeline');
 }
 
@@ -3702,17 +3753,24 @@ function buildStudent() {
 
 // ---- Freelancer ----
 function buildFreelancer() {
+  const sideSections = ['skills', 'languages', 'certifications', 'courses', 'qualities', 'hobbies', 'references'];
+  const mainSections = orderedVisibleSectionIds(state.sectionOrder).filter(id => !sideSections.includes(id));
   return `
     <div class="fl-shell">
+      <main class="fl-main">
+        <header>
+          <div class="fl-badge">Available for projects</div>
+          <div class="fl-name">${getName()}</div>
+          <div class="fl-title">${getTitle()}</div>
+        </header>
+        <div class="fl-rule"></div>
+        ${renderOrderedSections(mainSections)}
+      </main>
       <aside class="fl-side">
         ${avatarHtml('fl-avatar', 'fl-avatar-placeholder')}
-        <div class="fl-name">${getName()}</div>
-        <div class="fl-title">${getTitle()}</div>
         <div class="fl-contact">${resumeContactItems('freelancer')}</div>
+        ${renderOrderedSections(sideSections)}
       </aside>
-      <main class="fl-main">
-        ${renderOrderedSections(state.sectionOrder)}
-      </main>
     </div>
   `;
 }
@@ -4160,4 +4218,536 @@ function bindDownloadBtn() {
       resetDownloadButton();
     }
   });
+}
+
+// ============================================================
+// ---- 2026 TRENDING TEMPLATES ----
+// ============================================================
+
+// ---- Aurora (soft gradient mesh header, glass section cards) ----
+function buildAurora() {
+  const sideSections = ['skills', 'languages', 'qualities', 'hobbies'];
+  const mainSections = orderedVisibleSectionIds(state.sectionOrder).filter(id => !sideSections.includes(id));
+  return `
+    <div class="au-shell">
+      <header class="au-hero">
+        <div class="au-hero-glow"></div>
+        <div class="au-hero-inner">
+          ${state.photo ? `<div class="au-photo">${avatarHtml('au-avatar', 'au-avatar-placeholder')}</div>` : ''}
+          <div class="au-id">
+            <h1 class="au-name">${getName()}</h1>
+            <div class="au-role">${getTitle()}</div>
+          </div>
+        </div>
+        <div class="au-contact">${resumeContactItems('aurora')}</div>
+      </header>
+      <div class="au-body">
+        <main class="au-main">${renderOrderedSections(mainSections)}</main>
+        <aside class="au-rail">${renderOrderedSections(sideSections)}</aside>
+      </div>
+    </div>
+  `;
+}
+
+// ---- Swiss (International Typographic Style, hairline grid) ----
+function buildSwiss() {
+  return `
+    <div class="sw-shell">
+      <header class="sw-head">
+        <div class="sw-head-left">
+          <h1 class="sw-name">${getName()}</h1>
+          <div class="sw-role">${getTitle()}</div>
+        </div>
+        <div class="sw-head-right">${resumeContactItems('swiss')}</div>
+      </header>
+      <div class="sw-rule"></div>
+      <div class="sw-body">${renderOrderedSections(state.sectionOrder)}</div>
+    </div>
+  `;
+}
+
+// ---- Brutalist (hard borders, offset shadows, mono labels) ----
+function buildBrutalist() {
+  return `
+    <div class="br-shell">
+      <header class="br-head">
+        <div class="br-head-main">
+          <h1 class="br-name">${getName()}</h1>
+          <div class="br-role">${getTitle()}</div>
+        </div>
+        ${state.photo ? `<div class="br-photo">${avatarHtml('br-avatar', 'br-avatar-placeholder')}</div>` : ''}
+      </header>
+      <div class="br-contact">${resumeContactItems('brutalist')}</div>
+      <div class="br-body">${renderOrderedSections(state.sectionOrder)}</div>
+    </div>
+  `;
+}
+
+// ---- Vogue (editorial fashion serif, centred masthead) ----
+function buildVogue() {
+  return `
+    <div class="vg-shell">
+      <header class="vg-head">
+        <div class="vg-eyebrow">Curriculum Vitae</div>
+        <h1 class="vg-name">${getName()}</h1>
+        <div class="vg-hair"></div>
+        <div class="vg-role">${getTitle()}</div>
+        <div class="vg-contact">${resumeContactItems('vogue')}</div>
+      </header>
+      <div class="vg-body">${renderOrderedSections(state.sectionOrder)}</div>
+    </div>
+  `;
+}
+
+// ---- Terminal (developer dark IDE aesthetic) ----
+function buildTerminal() {
+  const sideSections = ['skills', 'languages', 'certifications', 'qualities'];
+  const mainSections = orderedVisibleSectionIds(state.sectionOrder).filter(id => !sideSections.includes(id));
+  const slug = String(state.personal.lastName || 'candidate').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'candidate';
+  return `
+    <div class="tm-shell">
+      <div class="tm-bar">
+        <span class="tm-dot tm-dot-r"></span><span class="tm-dot tm-dot-y"></span><span class="tm-dot tm-dot-g"></span>
+        <span class="tm-path">~/resume/${esc(slug)}.md</span>
+      </div>
+      <header class="tm-head">
+        <div class="tm-prompt">$ whoami</div>
+        <h1 class="tm-name">${getName()}</h1>
+        <div class="tm-role">${getTitle()}<span class="tm-caret"></span></div>
+        <div class="tm-contact">${resumeContactItems('terminal')}</div>
+      </header>
+      <div class="tm-body">
+        <main class="tm-main">${renderOrderedSections(mainSections)}</main>
+        <aside class="tm-rail">${renderOrderedSections(sideSections)}</aside>
+      </div>
+    </div>
+  `;
+}
+
+// ---- Metro (diagonal two-tone split header) ----
+function buildMetro() {
+  const sideSections = ['skills', 'languages', 'certifications', 'courses', 'hobbies', 'qualities'];
+  const mainSections = orderedVisibleSectionIds(state.sectionOrder).filter(id => !sideSections.includes(id));
+  return `
+    <div class="mt-shell">
+      <header class="mt-head">
+        <div class="mt-head-wedge"></div>
+        <div class="mt-head-inner">
+          ${state.photo ? avatarHtml('mt-avatar', 'mt-avatar-placeholder') : ''}
+          <div class="mt-id">
+            <h1 class="mt-name">${getName()}</h1>
+            <div class="mt-role">${getTitle()}</div>
+          </div>
+        </div>
+      </header>
+      <div class="mt-contact">${resumeContactItems('metro')}</div>
+      <div class="mt-body">
+        <main class="mt-main">${renderOrderedSections(mainSections)}</main>
+        <aside class="mt-rail">${renderOrderedSections(sideSections)}</aside>
+      </div>
+    </div>
+  `;
+}
+
+// ---- Luxe (ivory & gold, high-end minimal serif) ----
+function buildLuxe() {
+  return `
+    <div class="lx-shell">
+      <header class="lx-head">
+        ${state.photo ? `<div class="lx-photo">${avatarHtml('lx-avatar', 'lx-avatar-placeholder')}</div>` : ''}
+        <h1 class="lx-name">${getName()}</h1>
+        <div class="lx-ornament"><span></span><i>&#10022;</i><span></span></div>
+        <div class="lx-role">${getTitle()}</div>
+        <div class="lx-contact">${resumeContactItems('luxe')}</div>
+      </header>
+      <div class="lx-body">${renderOrderedSections(state.sectionOrder)}</div>
+    </div>
+  `;
+}
+
+// ---- Impact (metric-forward, bold left accent bars) ----
+function buildImpact() {
+  const sideSections = ['skills', 'languages', 'certifications', 'qualities', 'hobbies'];
+  const mainSections = orderedVisibleSectionIds(state.sectionOrder).filter(id => !sideSections.includes(id));
+  return `
+    <div class="ip-shell">
+      <header class="ip-head">
+        <div class="ip-head-id">
+          <h1 class="ip-name">${getName()}</h1>
+          <div class="ip-role">${getTitle()}</div>
+        </div>
+        <div class="ip-head-contact">${resumeContactItems('impact')}</div>
+      </header>
+      <div class="ip-body">
+        <main class="ip-main">${renderOrderedSections(mainSections)}</main>
+        <aside class="ip-rail">
+          ${state.photo ? `<div class="ip-photo">${avatarHtml('ip-avatar', 'ip-avatar-placeholder')}</div>` : ''}
+          ${renderOrderedSections(sideSections)}
+        </aside>
+      </div>
+    </div>
+  `;
+}
+
+// ---- Atelier (asymmetric grid, vertical rotated name spine) ----
+function buildAtelier() {
+  return `
+    <div class="at-shell">
+      <div class="at-spine">
+        <div class="at-spine-name">${getName()}</div>
+        <div class="at-spine-line"></div>
+      </div>
+      <div class="at-content">
+        <header class="at-head">
+          <div class="at-role">${getTitle()}</div>
+          ${state.photo ? avatarHtml('at-avatar', 'at-avatar-placeholder') : ''}
+        </header>
+        <div class="at-contact">${resumeContactItems('atelier')}</div>
+        <div class="at-body">${renderOrderedSections(state.sectionOrder)}</div>
+      </div>
+    </div>
+  `;
+}
+
+// ---- Spectrum (gradient spine, gradient section headings) ----
+function buildSpectrum() {
+  const sideSections = ['skills', 'languages', 'qualities', 'hobbies', 'courses'];
+  const mainSections = orderedVisibleSectionIds(state.sectionOrder).filter(id => !sideSections.includes(id));
+  return `
+    <div class="sp-shell">
+      <div class="sp-spine"></div>
+      <div class="sp-inner">
+        <header class="sp-head">
+          ${state.photo ? avatarHtml('sp-avatar', 'sp-avatar-placeholder') : ''}
+          <div class="sp-id">
+            <h1 class="sp-name">${getName()}</h1>
+            <div class="sp-role">${getTitle()}</div>
+            <div class="sp-contact">${resumeContactItems('spectrum')}</div>
+          </div>
+        </header>
+        <div class="sp-body">
+          <main class="sp-main">${renderOrderedSections(mainSections)}</main>
+          <aside class="sp-rail">${renderOrderedSections(sideSections)}</aside>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// ---- MODERN UI LAYER (2026): editor drawer, mobile views,
+//      accent presets, landing gallery, live thumbnails
+// ============================================================
+
+// ---- Template drawer: search, category filter, close, current label ----
+function initTemplateDrawer() {
+  const group = document.querySelector('.template-toolbar-group');
+  const drawer = document.getElementById('template-selector');
+  if (!group || !drawer) return;
+
+  const search = document.getElementById('template-search');
+  const cats = document.getElementById('template-cats');
+  const empty = document.getElementById('template-empty');
+  const closeBtn = document.getElementById('template-drawer-close');
+  const buttons = Array.from(drawer.querySelectorAll('.tmpl-btn'));
+  let activeCat = 'all';
+
+  function applyFilter() {
+    const q = (search?.value || '').trim().toLowerCase();
+    let shown = 0;
+    buttons.forEach(btn => {
+      const name = (btn.dataset.name || '').toLowerCase();
+      const id = (btn.dataset.tmpl || '').toLowerCase();
+      const cat = (btn.dataset.cat || '');
+      const matchesCat = activeCat === 'all' || cat.split(/\s+/).includes(activeCat);
+      const matchesText = !q || name.includes(q) || id.includes(q);
+      const show = matchesCat && matchesText;
+      btn.hidden = !show;
+      if (show) shown++;
+    });
+    if (empty) empty.hidden = shown > 0;
+  }
+
+  search?.addEventListener('input', applyFilter);
+
+  cats?.addEventListener('click', (e) => {
+    const chip = e.target.closest('.tcat');
+    if (!chip) return;
+    activeCat = chip.dataset.cat || 'all';
+    cats.querySelectorAll('.tcat').forEach(c => c.classList.toggle('is-active', c === chip));
+    applyFilter();
+  });
+
+  closeBtn?.addEventListener('click', () => closeTemplateDrawer());
+
+  document.addEventListener('click', (e) => {
+    if (group.classList.contains('is-collapsed')) return;
+    if (!group.contains(e.target)) closeTemplateDrawer();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !group.classList.contains('is-collapsed')) closeTemplateDrawer();
+  });
+
+  // Pick a template, then close on small screens so the preview is visible
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      updateTemplateToggleLabel();
+      if (window.matchMedia('(max-width: 900px)').matches) closeTemplateDrawer();
+    });
+  });
+
+  applyFilter();
+  updateTemplateToggleLabel();
+}
+
+function closeTemplateDrawer() {
+  const group = document.querySelector('.template-toolbar-group');
+  const toggle = document.getElementById('template-toggle');
+  if (!group) return;
+  group.classList.add('is-collapsed');
+  toggle?.setAttribute('aria-expanded', 'false');
+  document.body.classList.remove('drawer-open');
+}
+
+function updateTemplateToggleLabel() {
+  const label = document.getElementById('template-toggle-current');
+  if (!label) return;
+  const active = document.querySelector(`.tmpl-btn[data-tmpl="${state.template}"]`);
+  label.textContent = active?.dataset.name || state.template || 'Classic';
+}
+
+// ---- Accent colour presets ----
+function bindAccentSwatches() {
+  const wrap = document.getElementById('accent-swatches');
+  const input = document.getElementById('accent-color');
+  if (!wrap) return;
+
+  function syncActive() {
+    const current = (state.accentColor || '#2563eb').toLowerCase();
+    wrap.querySelectorAll('.accent-swatch').forEach(sw => {
+      sw.classList.toggle('is-active', (sw.dataset.color || '').toLowerCase() === current);
+      sw.setAttribute('aria-pressed', String(sw.classList.contains('is-active')));
+    });
+  }
+
+  wrap.addEventListener('click', (e) => {
+    const sw = e.target.closest('.accent-swatch');
+    if (!sw) return;
+    state.accentColor = sw.dataset.color;
+    if (input) input.value = state.accentColor;
+    syncActive();
+    renderTemplateThumbnails();
+    renderPreview();
+    saveToStorage();
+  });
+
+  input?.addEventListener('input', syncActive);
+  syncActive();
+}
+
+// ---- Mobile editor view switcher (Edit / Preview) ----
+function initEditorTabs() {
+  const tabs = document.getElementById('editor-tabs');
+  if (!tabs) return;
+  tabs.addEventListener('click', (e) => {
+    const tab = e.target.closest('.editor-tab');
+    if (!tab) return;
+    setEditorView(tab.dataset.view);
+  });
+  setEditorView('edit');
+}
+
+function setEditorView(view) {
+  const tabs = document.getElementById('editor-tabs');
+  if (!tabs) return;
+  const target = view === 'preview' ? 'preview' : 'edit';
+  document.body.dataset.editorView = target;
+  tabs.querySelectorAll('.editor-tab').forEach(t => {
+    const on = t.dataset.view === target;
+    t.classList.toggle('is-active', on);
+    t.setAttribute('aria-pressed', String(on));
+  });
+  requestAnimationFrame(() => {
+    const preview = document.getElementById('resume-preview');
+    if (preview) paginateResume(preview);
+    applyZoom();
+  });
+}
+
+// ---- Live template thumbnails ----
+// The templates only exist at a fixed 794px A4 width, so a thumbnail is the real
+// markup scaled down. The scale factor depends on the tile width, which changes
+// with the viewport, so it is measured here rather than hard-coded in CSS.
+const THUMB_PAGE_WIDTH = 794;
+
+function setThumbScale(el) {
+  const width = el.clientWidth;
+  if (!width) return;
+  el.style.setProperty('--thumb-scale', String(width / THUMB_PAGE_WIDTH));
+}
+
+function syncThumbScales() {
+  document.querySelectorAll('[data-live-thumb], .tmpl-thumb').forEach(setThumbScale);
+}
+
+function paintLiveThumb(el) {
+  if (el.dataset.thumbPainted === '1') return;
+  const tmpl = el.dataset.liveThumb;
+  if (!tmpl) return;
+  el.dataset.thumbPainted = '1';
+  try {
+    el.innerHTML = `<div class="thumbnail-page resume-page tmpl-${tmpl}">${buildTemplateThumbnailHtml(tmpl)}</div>`;
+    setThumbScale(el);
+  } catch (err) {
+    el.classList.add('thumb-failed');
+  }
+}
+
+// IntersectionObserver only reports a *change* in intersection state. A fast
+// scroll (End key, a flick on mobile) can carry an element from below the fold to
+// above it without a single intersecting frame in between, so the callback never
+// runs and the element is left untouched forever. Every lazy behaviour therefore
+// pairs the observer with a debounced scroll sweep that catches the stragglers.
+function watchLazy(targets, apply, rootMargin) {
+  if (!targets.length) return;
+
+  const pending = new Set(targets);
+  const run = (el) => {
+    if (!pending.has(el)) return;
+    pending.delete(el);
+    apply(el);
+  };
+
+  if (!('IntersectionObserver' in window)) {
+    targets.forEach(run);
+    return;
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      io.unobserve(entry.target);
+      run(entry.target);
+    });
+  }, { rootMargin });
+
+  targets.forEach(el => io.observe(el));
+
+  const sweep = () => {
+    if (!pending.size) {
+      window.removeEventListener('scroll', onScroll);
+      return;
+    }
+    const limit = window.innerHeight + 600;
+    Array.from(pending).forEach(el => {
+      if (el.getBoundingClientRect().top < limit) {
+        io.unobserve(el);
+        run(el);
+      }
+    });
+  };
+
+  const onScroll = debounce(sweep, 140);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+}
+
+function initLiveThumbnails() {
+  const targets = Array.from(document.querySelectorAll('[data-live-thumb]'));
+  if (!targets.length) return;
+  window.addEventListener('resize', debounce(syncThumbScales, 150));
+  watchLazy(targets, paintLiveThumb, '500px 0px');
+}
+
+// ---- Landing page: template gallery filter + search ----
+function initGalleryFilters() {
+  const bar = document.getElementById('template-filters');
+  const grid = document.getElementById('templates-grid');
+  if (!grid) return;
+
+  const search = document.getElementById('gallery-search');
+  const empty = document.getElementById('gallery-empty');
+  const count = document.getElementById('gallery-count');
+  const cards = Array.from(grid.querySelectorAll('.template-card'));
+  let activeCat = 'all';
+
+  function applyFilter() {
+    const q = (search?.value || '').trim().toLowerCase();
+    let shown = 0;
+    cards.forEach(card => {
+      const name = (card.dataset.name || '').toLowerCase();
+      const id = (card.dataset.template || '').toLowerCase();
+      const cat = (card.dataset.cat || '');
+      const matchesCat = activeCat === 'all' || cat.split(/\s+/).includes(activeCat);
+      const matchesText = !q || name.includes(q) || id.includes(q);
+      const show = matchesCat && matchesText;
+      card.hidden = !show;
+      if (show) shown++;
+    });
+    if (empty) empty.hidden = shown > 0;
+    if (count) count.textContent = String(shown);
+  }
+
+  bar?.addEventListener('click', (e) => {
+    const chip = e.target.closest('.tfilter');
+    if (!chip) return;
+    activeCat = chip.dataset.cat || 'all';
+    bar.querySelectorAll('.tfilter').forEach(c => c.classList.toggle('is-active', c === chip));
+    applyFilter();
+  });
+
+  search?.addEventListener('input', applyFilter);
+  applyFilter();
+}
+
+// ---- Landing page: mobile navigation ----
+function initMobileNav() {
+  const toggle = document.getElementById('nav-toggle');
+  const panel = document.getElementById('nav-links');
+  if (!toggle || !panel) return;
+
+  const close = () => {
+    document.body.classList.remove('nav-open');
+    toggle.setAttribute('aria-expanded', 'false');
+  };
+
+  toggle.addEventListener('click', () => {
+    const open = !document.body.classList.contains('nav-open');
+    document.body.classList.toggle('nav-open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+
+  panel.addEventListener('click', (e) => {
+    if (e.target.closest('a')) close();
+  });
+
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+  window.addEventListener('resize', () => { if (window.innerWidth > 900) close(); });
+}
+
+// ---- Landing page: FAQ accordion ----
+function initFaq() {
+  document.querySelectorAll('.faq-item').forEach(item => {
+    const btn = item.querySelector('.faq-q');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      const open = item.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', String(open));
+    });
+  });
+}
+
+// ---- Landing page: reveal-on-scroll (respects reduced motion) ----
+function initReveal() {
+  const items = Array.from(document.querySelectorAll('[data-reveal]'));
+  if (!items.length) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) {
+    items.forEach(el => el.classList.add('is-revealed'));
+    return;
+  }
+  // Opt in only now that we know the observer will run, so a script failure
+  // earlier in the file can never leave the page invisible.
+  document.documentElement.classList.add('js-reveal');
+  watchLazy(items, (el) => el.classList.add('is-revealed'), '0px 0px -40px 0px');
 }

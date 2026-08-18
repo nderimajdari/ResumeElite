@@ -3,14 +3,24 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Resume Editor - ResumeElite</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b1120" />
+    <title>Free Resume Builder Editor - Live Preview &amp; PDF Export | ResumeElite</title>
+    <meta name="description"
+        content="Build your resume in the ResumeElite editor: 50 professional templates, live preview, accent colours, photo upload, drag-and-drop sections and instant PDF download. No signup." />
+    <meta name="robots" content="noindex, follow" />
+    <link rel="canonical" href="https://resume-elite.com/editor.html" />
+    <meta property="og:title" content="ResumeElite Resume Editor" />
+    <meta property="og:description" content="50 templates, live preview and instant PDF export." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://resume-elite.com/editor.html" />
+    <meta property="og:image" content="https://resume-elite.com/og-image.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&family=Roboto:wght@300;400;500;700&family=Lato:wght@300;400;700&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&family=Roboto:wght@300;400;500;700&family=Lato:wght@300;400;700&family=Merriweather:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap"
         rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=modern-2026" />
 </head>
 
 <body class="editor-page">
@@ -23,71 +33,144 @@
         </a>
         <div class="editor-toolbar">
             <div class="toolbar-group template-toolbar-group is-collapsed">
-                <button class="template-toggle" id="template-toggle" type="button" title="Choose template" aria-expanded="false">
-                    <span class="template-toggle-icon">▥</span>
-                    <span>Templates</span>
-                    <span class="template-toggle-chevron">⌃</span>
+                <button class="template-toggle" id="template-toggle" type="button" aria-expanded="false" aria-controls="template-selector" aria-haspopup="dialog">
+                    <svg class="template-toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <rect x="3" y="3" width="7" height="18" rx="1.5" />
+                        <rect x="14" y="3" width="7" height="8" rx="1.5" />
+                        <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                    </svg>
+                    <span class="template-toggle-label">Template</span>
+                    <span class="template-toggle-current" id="template-toggle-current">Classic</span>
+                    <svg class="template-toggle-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
                 </button>
-                <div class="template-selector" id="template-selector">
-                    <button class="tmpl-btn active" data-tmpl="classic" title="Classic"><span class="tmpl-thumb thumb-classic"></span><span class="tmpl-name">Classic</span></button>
-                    <button class="tmpl-btn" data-tmpl="modern" title="Modern"><span class="tmpl-thumb thumb-modern"></span><span class="tmpl-name">Modern</span></button>
-                    <button class="tmpl-btn" data-tmpl="creative" title="Creative"><span class="tmpl-thumb thumb-creative"></span><span class="tmpl-name">Creative</span></button>
-                    <button class="tmpl-btn" data-tmpl="minimal" title="Minimal"><span class="tmpl-thumb thumb-minimal"></span><span class="tmpl-name">Minimal</span></button>
-                    <button class="tmpl-btn" data-tmpl="executive" title="Executive"><span class="tmpl-thumb thumb-executive"></span><span class="tmpl-name">Executive</span></button>
-                    <button class="tmpl-btn" data-tmpl="tech" title="Tech"><span class="tmpl-thumb thumb-tech"></span><span class="tmpl-name">Tech</span></button>
-                    <button class="tmpl-btn" data-tmpl="software-engineer" title="Software Engineer"><span class="tmpl-thumb thumb-software-engineer"></span><span class="tmpl-name">Software Engineer</span></button>
-                    <button class="tmpl-btn" data-tmpl="qa-engineer" title="Quality Assurance Engineer"><span class="tmpl-thumb thumb-qa-engineer"></span><span class="tmpl-name">QA Engineer</span></button>
-                    <button class="tmpl-btn" data-tmpl="elegant" title="Elegant"><span class="tmpl-thumb thumb-elegant"></span><span class="tmpl-name">Elegant</span></button>
-                    <button class="tmpl-btn" data-tmpl="bold" title="Bold"><span class="tmpl-thumb thumb-bold"></span><span class="tmpl-name">Bold</span></button>
-                    <button class="tmpl-btn" data-tmpl="startup" title="Startup"><span class="tmpl-thumb thumb-startup"></span><span class="tmpl-name">Startup</span></button>
-                    <button class="tmpl-btn" data-tmpl="corporate" title="Corporate"><span class="tmpl-thumb thumb-corporate"></span><span class="tmpl-name">Corporate</span></button>
-                    <button class="tmpl-btn" data-tmpl="professional" title="Professional"><span class="tmpl-thumb thumb-professional"></span><span class="tmpl-name">Professional</span></button>
-                    <button class="tmpl-btn" data-tmpl="modern-dark" title="Modern Dark"><span class="tmpl-thumb thumb-modern-dark"></span><span class="tmpl-name">Modern Dark</span></button>
-                    <button class="tmpl-btn" data-tmpl="classic-blue" title="Classic Blue"><span class="tmpl-thumb thumb-classic-blue"></span><span class="tmpl-name">Classic Blue</span></button>
-                    <button class="tmpl-btn" data-tmpl="minimal-formal" title="Minimal Formal"><span class="tmpl-thumb thumb-minimal-formal"></span><span class="tmpl-name">Minimal Formal</span></button>
-                    <button class="tmpl-btn" data-tmpl="traditional-serif" title="Traditional Serif"><span class="tmpl-thumb thumb-traditional-serif"></span><span class="tmpl-name">Traditional Serif</span></button>
-                    <button class="tmpl-btn" data-tmpl="europass" title="Europass"><span class="tmpl-thumb thumb-europass"></span><span class="tmpl-name">Europass</span></button>
-                    <button class="tmpl-btn" data-tmpl="modern-right" title="Modern Right"><span class="tmpl-thumb thumb-modern-right"></span><span class="tmpl-name">Modern Right</span></button>
-                    <button class="tmpl-btn" data-tmpl="nordic" title="Nordic"><span class="tmpl-thumb thumb-nordic"></span><span class="tmpl-name">Nordic</span></button>
-                    <button class="tmpl-btn" data-tmpl="timeline" title="Timeline"><span class="tmpl-thumb thumb-timeline"></span><span class="tmpl-name">Timeline</span></button>
-                    <button class="tmpl-btn" data-tmpl="mono" title="Mono"><span class="tmpl-thumb thumb-mono"></span><span class="tmpl-name">Mono</span></button>
-                    <button class="tmpl-btn" data-tmpl="compact" title="Compact"><span class="tmpl-thumb thumb-compact"></span><span class="tmpl-name">Compact</span></button>
-                    <button class="tmpl-btn" data-tmpl="portfolio" title="Portfolio"><span class="tmpl-thumb thumb-portfolio"></span><span class="tmpl-name">Portfolio</span></button>
-                    <button class="tmpl-btn" data-tmpl="graduate" title="Graduate"><span class="tmpl-thumb thumb-graduate"></span><span class="tmpl-name">Graduate</span></button>
-                    <button class="tmpl-btn" data-tmpl="student" title="Student"><span class="tmpl-thumb thumb-student"></span><span class="tmpl-name">Student</span></button>
-                    <button class="tmpl-btn" data-tmpl="freelancer" title="Freelancer"><span class="tmpl-thumb thumb-freelancer"></span><span class="tmpl-name">Freelancer</span></button>
-                    <button class="tmpl-btn" data-tmpl="clean-sidebar" title="Clean Sidebar"><span class="tmpl-thumb thumb-clean-sidebar"></span><span class="tmpl-name">Clean Sidebar</span></button>
-                    <button class="tmpl-btn" data-tmpl="editorial" title="Editorial"><span class="tmpl-thumb thumb-editorial"></span><span class="tmpl-name">Editorial</span></button>
-                    <button class="tmpl-btn" data-tmpl="ats-friendly" title="ATS Friendly"><span class="tmpl-thumb thumb-ats-friendly"></span><span class="tmpl-name">ATS Friendly</span></button>
-                    <button class="tmpl-btn" data-tmpl="latex-style" title="LaTeX Style"><span class="tmpl-thumb thumb-latex-style"></span><span class="tmpl-name">LaTeX Style</span></button>
-                    <button class="tmpl-btn" data-tmpl="harvard-style" title="Harvard Style"><span class="tmpl-thumb thumb-harvard-style"></span><span class="tmpl-name">Harvard Style</span></button>
-                    <button class="tmpl-btn" data-tmpl="federal-style" title="Federal Style"><span class="tmpl-thumb thumb-federal-style"></span><span class="tmpl-name">Federal Style</span></button>
-                    <button class="tmpl-btn" data-tmpl="functional" title="Functional"><span class="tmpl-thumb thumb-functional"></span><span class="tmpl-name">Functional</span></button>
-                    <button class="tmpl-btn" data-tmpl="chronological" title="Chronological"><span class="tmpl-thumb thumb-chronological"></span><span class="tmpl-name">Chronological</span></button>
-                    <button class="tmpl-btn" data-tmpl="consulting-style" title="Consulting Style"><span class="tmpl-thumb thumb-consulting-style"></span><span class="tmpl-name">Consulting Style</span></button>
-                    <button class="tmpl-btn" data-tmpl="academic-cv" title="Academic CV"><span class="tmpl-thumb thumb-academic-cv"></span><span class="tmpl-name">Academic CV</span></button>
-                    <button class="tmpl-btn" data-tmpl="infographic" title="Infographic"><span class="tmpl-thumb thumb-infographic"></span><span class="tmpl-name">Infographic</span></button>
-                    <button class="tmpl-btn" data-tmpl="modern-executive" title="Modern Executive"><span class="tmpl-thumb thumb-modern-executive"></span><span class="tmpl-name">Modern Executive</span></button>
-                    <button class="tmpl-btn" data-tmpl="elite" title="Elite Flagship"><span class="tmpl-thumb thumb-elite" style="background: linear-gradient(135deg, #0a0f1c, #1e293b); border: 1px solid #c8a153; box-shadow: 0 0 5px rgba(200, 161, 83, 0.4);"></span><span class="tmpl-name" style="color: #c8a153; font-weight: bold;">Elite</span></button>
+                <div class="template-drawer" id="template-selector" role="dialog" aria-modal="false" aria-label="Choose a resume template">
+                    <div class="template-drawer-head">
+                        <div class="template-drawer-row">
+                            <label class="template-search" for="template-search">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                    <circle cx="11" cy="11" r="7" /><path d="M20 20l-4.3-4.3" />
+                                </svg>
+                                <input type="search" id="template-search" placeholder="Search 50 templates&hellip;" autocomplete="off" aria-label="Search templates" />
+                            </label>
+                            <button class="template-drawer-close" id="template-drawer-close" type="button" aria-label="Close template picker">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                                    <path d="M6 6l12 12M18 6L6 18" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="template-cats" id="template-cats" role="group" aria-label="Filter templates by category">
+                            <button class="tcat is-active" type="button" data-cat="all">All</button>
+                            <button class="tcat" type="button" data-cat="trending">Trending 2026</button>
+                            <button class="tcat" type="button" data-cat="professional">Professional</button>
+                            <button class="tcat" type="button" data-cat="ats">ATS / Plain</button>
+                            <button class="tcat" type="button" data-cat="creative">Creative</button>
+                            <button class="tcat" type="button" data-cat="tech">Tech</button>
+                            <button class="tcat" type="button" data-cat="academic">Academic</button>
+                        </div>
+                    </div>
+                    <div class="template-grid" id="template-grid">
+                        <button class="tmpl-btn" type="button" data-tmpl="professional" data-cat="professional trending" data-name="Professional" title="Professional"><span class="tmpl-thumb thumb-professional"></span><span class="tmpl-name">Professional</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="aurora" data-cat="trending creative" data-name="Aurora" title="Aurora"><span class="tmpl-thumb thumb-aurora"></span><span class="tmpl-name">Aurora</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="spectrum" data-cat="trending creative" data-name="Spectrum" title="Spectrum"><span class="tmpl-thumb thumb-spectrum"></span><span class="tmpl-name">Spectrum</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="impact" data-cat="trending professional tech" data-name="Impact" title="Impact"><span class="tmpl-thumb thumb-impact"></span><span class="tmpl-name">Impact</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="metro" data-cat="trending professional" data-name="Metro" title="Metro"><span class="tmpl-thumb thumb-metro"></span><span class="tmpl-name">Metro</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="terminal" data-cat="trending tech" data-name="Terminal" title="Terminal"><span class="tmpl-thumb thumb-terminal"></span><span class="tmpl-name">Terminal</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="brutalist" data-cat="trending creative" data-name="Brutalist" title="Brutalist"><span class="tmpl-thumb thumb-brutalist"></span><span class="tmpl-name">Brutalist</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="swiss" data-cat="trending creative" data-name="Swiss" title="Swiss"><span class="tmpl-thumb thumb-swiss"></span><span class="tmpl-name">Swiss</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="vogue" data-cat="trending creative" data-name="Vogue" title="Vogue"><span class="tmpl-thumb thumb-vogue"></span><span class="tmpl-name">Vogue</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="luxe" data-cat="trending creative" data-name="Luxe" title="Luxe"><span class="tmpl-thumb thumb-luxe"></span><span class="tmpl-name">Luxe</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="atelier" data-cat="trending creative" data-name="Atelier" title="Atelier"><span class="tmpl-thumb thumb-atelier"></span><span class="tmpl-name">Atelier</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="elite" data-cat="trending professional" data-name="Elite Flagship" title="Elite Flagship"><span class="tmpl-thumb thumb-elite"></span><span class="tmpl-name">Elite Flagship</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="modern-executive" data-cat="trending professional" data-name="Modern Executive" title="Modern Executive"><span class="tmpl-thumb thumb-modern-executive"></span><span class="tmpl-name">Modern Executive</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="infographic" data-cat="creative" data-name="Infographic" title="Infographic"><span class="tmpl-thumb thumb-infographic"></span><span class="tmpl-name">Infographic</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="classic" data-cat="professional ats" data-name="Classic" title="Classic"><span class="tmpl-thumb thumb-classic"></span><span class="tmpl-name">Classic</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="modern" data-cat="professional" data-name="Modern" title="Modern"><span class="tmpl-thumb thumb-modern"></span><span class="tmpl-name">Modern</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="creative" data-cat="creative" data-name="Creative" title="Creative"><span class="tmpl-thumb thumb-creative"></span><span class="tmpl-name">Creative</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="minimal" data-cat="ats professional" data-name="Minimal" title="Minimal"><span class="tmpl-thumb thumb-minimal"></span><span class="tmpl-name">Minimal</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="executive" data-cat="professional" data-name="Executive" title="Executive"><span class="tmpl-thumb thumb-executive"></span><span class="tmpl-name">Executive</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="tech" data-cat="tech" data-name="Tech" title="Tech"><span class="tmpl-thumb thumb-tech"></span><span class="tmpl-name">Tech</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="software-engineer" data-cat="tech" data-name="Software Engineer" title="Software Engineer"><span class="tmpl-thumb thumb-software-engineer"></span><span class="tmpl-name">Software Engineer</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="qa-engineer" data-cat="tech" data-name="QA Engineer" title="QA Engineer"><span class="tmpl-thumb thumb-qa-engineer"></span><span class="tmpl-name">QA Engineer</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="elegant" data-cat="creative professional" data-name="Elegant" title="Elegant"><span class="tmpl-thumb thumb-elegant"></span><span class="tmpl-name">Elegant</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="bold" data-cat="creative" data-name="Bold" title="Bold"><span class="tmpl-thumb thumb-bold"></span><span class="tmpl-name">Bold</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="startup" data-cat="creative tech" data-name="Startup" title="Startup"><span class="tmpl-thumb thumb-startup"></span><span class="tmpl-name">Startup</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="corporate" data-cat="professional" data-name="Corporate" title="Corporate"><span class="tmpl-thumb thumb-corporate"></span><span class="tmpl-name">Corporate</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="modern-dark" data-cat="professional creative" data-name="Modern Dark" title="Modern Dark"><span class="tmpl-thumb thumb-modern-dark"></span><span class="tmpl-name">Modern Dark</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="classic-blue" data-cat="professional" data-name="Classic Blue" title="Classic Blue"><span class="tmpl-thumb thumb-classic-blue"></span><span class="tmpl-name">Classic Blue</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="minimal-formal" data-cat="professional ats" data-name="Minimal Formal" title="Minimal Formal"><span class="tmpl-thumb thumb-minimal-formal"></span><span class="tmpl-name">Minimal Formal</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="traditional-serif" data-cat="ats academic" data-name="Traditional Serif" title="Traditional Serif"><span class="tmpl-thumb thumb-traditional-serif"></span><span class="tmpl-name">Traditional Serif</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="europass" data-cat="ats academic" data-name="Europass" title="Europass"><span class="tmpl-thumb thumb-europass"></span><span class="tmpl-name">Europass</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="modern-right" data-cat="professional" data-name="Modern Right" title="Modern Right"><span class="tmpl-thumb thumb-modern-right"></span><span class="tmpl-name">Modern Right</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="nordic" data-cat="creative" data-name="Nordic" title="Nordic"><span class="tmpl-thumb thumb-nordic"></span><span class="tmpl-name">Nordic</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="timeline" data-cat="creative" data-name="Timeline" title="Timeline"><span class="tmpl-thumb thumb-timeline"></span><span class="tmpl-name">Timeline</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="mono" data-cat="creative ats" data-name="Mono" title="Mono"><span class="tmpl-thumb thumb-mono"></span><span class="tmpl-name">Mono</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="compact" data-cat="professional ats" data-name="Compact" title="Compact"><span class="tmpl-thumb thumb-compact"></span><span class="tmpl-name">Compact</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="portfolio" data-cat="creative" data-name="Portfolio" title="Portfolio"><span class="tmpl-thumb thumb-portfolio"></span><span class="tmpl-name">Portfolio</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="graduate" data-cat="academic" data-name="Graduate" title="Graduate"><span class="tmpl-thumb thumb-graduate"></span><span class="tmpl-name">Graduate</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="student" data-cat="academic" data-name="Student" title="Student"><span class="tmpl-thumb thumb-student"></span><span class="tmpl-name">Student</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="freelancer" data-cat="creative" data-name="Freelancer" title="Freelancer"><span class="tmpl-thumb thumb-freelancer"></span><span class="tmpl-name">Freelancer</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="clean-sidebar" data-cat="professional" data-name="Clean Sidebar" title="Clean Sidebar"><span class="tmpl-thumb thumb-clean-sidebar"></span><span class="tmpl-name">Clean Sidebar</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="editorial" data-cat="creative" data-name="Editorial" title="Editorial"><span class="tmpl-thumb thumb-editorial"></span><span class="tmpl-name">Editorial</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="ats-friendly" data-cat="ats" data-name="ATS Friendly" title="ATS Friendly"><span class="tmpl-thumb thumb-ats-friendly"></span><span class="tmpl-name">ATS Friendly</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="latex-style" data-cat="academic ats" data-name="LaTeX Style" title="LaTeX Style"><span class="tmpl-thumb thumb-latex-style"></span><span class="tmpl-name">LaTeX Style</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="harvard-style" data-cat="academic ats" data-name="Harvard Style" title="Harvard Style"><span class="tmpl-thumb thumb-harvard-style"></span><span class="tmpl-name">Harvard Style</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="federal-style" data-cat="ats" data-name="Federal Style" title="Federal Style"><span class="tmpl-thumb thumb-federal-style"></span><span class="tmpl-name">Federal Style</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="functional" data-cat="ats professional" data-name="Functional" title="Functional"><span class="tmpl-thumb thumb-functional"></span><span class="tmpl-name">Functional</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="chronological" data-cat="ats professional" data-name="Chronological" title="Chronological"><span class="tmpl-thumb thumb-chronological"></span><span class="tmpl-name">Chronological</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="consulting-style" data-cat="professional" data-name="Consulting" title="Consulting"><span class="tmpl-thumb thumb-consulting-style"></span><span class="tmpl-name">Consulting</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="academic-cv" data-cat="academic" data-name="Academic CV" title="Academic CV"><span class="tmpl-thumb thumb-academic-cv"></span><span class="tmpl-name">Academic CV</span></button>
+                    </div>
+                    <p class="template-empty" id="template-empty" hidden>No templates match that search.</p>
                 </div>
             </div>
-            <div class="toolbar-group">
-                <span class="toolbar-label">Color:</span>
-                <div class="color-picker-group">
-                    <input type="color" id="accent-color" value="#2563eb" title="Accent color" />
+            <div class="toolbar-group accent-group">
+                <span class="toolbar-label">Accent</span>
+                <div class="accent-swatches" id="accent-swatches" role="group" aria-label="Accent colour presets">
+                    <button class="accent-swatch" type="button" data-color="#2563eb" style="--sw:#2563eb" title="Blue" aria-label="Blue accent"></button>
+                    <button class="accent-swatch" type="button" data-color="#0f9f8f" style="--sw:#0f9f8f" title="Teal" aria-label="Teal accent"></button>
+                    <button class="accent-swatch" type="button" data-color="#7c3aed" style="--sw:#7c3aed" title="Violet" aria-label="Violet accent"></button>
+                    <button class="accent-swatch" type="button" data-color="#e2574c" style="--sw:#e2574c" title="Coral" aria-label="Coral accent"></button>
+                    <button class="accent-swatch" type="button" data-color="#b08d4f" style="--sw:#b08d4f" title="Gold" aria-label="Gold accent"></button>
+                    <button class="accent-swatch" type="button" data-color="#111827" style="--sw:#111827" title="Ink" aria-label="Ink accent"></button>
                 </div>
+                <label class="color-picker-group" title="Custom accent colour">
+                    <input type="color" id="accent-color" value="#2563eb" aria-label="Custom accent colour" />
+                </label>
             </div>
         </div>
         <div class="editor-actions">
-            <button class="btn-ghost-sm" id="clear-btn" title="Clear all data">🗑 Clear</button>
-            <button class="btn-primary" id="download-btn">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <button class="btn-icon-sm" id="clear-btn" type="button" title="Clear all data" aria-label="Clear all data">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" />
+                </svg>
+                <span class="btn-icon-text">Clear</span>
+            </button>
+            <button class="btn-primary" id="download-btn" type="button">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
                 </svg>
-                Download PDF
+                <span>Download PDF</span>
             </button>
         </div>
     </header>
+
+    <!-- Mobile view switcher -->
+    <nav class="editor-tabs" id="editor-tabs" aria-label="Editor view">
+        <button class="editor-tab is-active" type="button" data-view="edit" aria-pressed="true">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z" />
+            </svg>
+            Edit
+        </button>
+        <button class="editor-tab" type="button" data-view="preview" aria-pressed="false">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M1.5 12S5 5.5 12 5.5 22.5 12 22.5 12 19 18.5 12 18.5 1.5 12 1.5 12z" /><circle cx="12" cy="12" r="3" />
+            </svg>
+            Preview
+        </button>
+    </nav>
 
     <!-- Editor Layout -->
     <div class="editor-layout">
@@ -535,12 +618,15 @@
         <!-- Right Panel: Live Preview -->
         <main class="preview-panel" id="preview-panel">
             <div class="preview-toolbar">
-                <span class="preview-label">Live Preview</span>
+                <span class="preview-label">
+                    <span class="preview-live-dot" aria-hidden="true"></span>
+                    Live preview
+                </span>
                 <div class="zoom-controls">
-                    <button class="zoom-btn" onclick="zoomOut()" title="Zoom out">−</button>
+                    <button class="zoom-btn" type="button" onclick="zoomOut()" title="Zoom out" aria-label="Zoom out">&minus;</button>
                     <span id="zoom-level">100%</span>
-                    <button class="zoom-btn" onclick="zoomIn()" title="Zoom in">+</button>
-                    <button class="zoom-btn" onclick="resetZoom()" title="Reset zoom">↺</button>
+                    <button class="zoom-btn" type="button" onclick="zoomIn()" title="Zoom in" aria-label="Zoom in">+</button>
+                    <button class="zoom-btn zoom-btn-wide" type="button" onclick="resetZoom()" title="Fit to width" aria-label="Fit to width">Fit</button>
                 </div>
             </div>
             <div class="preview-scroll">
@@ -557,10 +643,10 @@
     <!-- Print Styles target -->
     <div class="print-only" id="print-resume"></div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="app.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script defer src="app.js?v=modern-2026"></script>
 </body>
 
 </html>
