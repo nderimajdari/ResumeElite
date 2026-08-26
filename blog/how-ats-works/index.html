@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+  <title>How ATS Software Actually Reads Your Resume | ResumeElite</title>
+  <meta name="description" content="What an applicant tracking system really does with your resume, which formatting choices break parsing, and the twenty-second test that catches almost every problem." />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="author" content="ResumeElite" />
+  <meta name="theme-color" content="#f7fbff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)" />
+
+  <link rel="canonical" href="https://resume-elite.com/blog/how-ats-works/" />
+
+  <meta property="og:site_name" content="ResumeElite" />
+  <meta property="og:title" content="How ATS Software Actually Reads Your Resume | ResumeElite" />
+  <meta property="og:description" content="What an applicant tracking system really does with your resume, which formatting choices break parsing, and the twenty-second test that catches almost every problem." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://resume-elite.com/blog/how-ats-works/" />
+  <meta property="og:image" content="https://resume-elite.com/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="How ATS Software Actually Reads Your Resume | ResumeElite" />
+  <meta name="twitter:description" content="What an applicant tracking system really does with your resume, which formatting choices break parsing, and the twenty-second test that catches almost every problem." />
+  <meta name="twitter:image" content="https://resume-elite.com/og-image.jpg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="/styles.css?v=growth-2026-08" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="alternate" type="application/rss+xml" title="ResumeElite resume blog" href="/blog/rss.xml" />
+  <script>
+    // Consent Mode v2 defaults. Must run before any Google tag.
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('consent', 'default', {
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: 'denied',
+      functionality_storage: 'granted',
+      security_storage: 'granted',
+      wait_for_update: 500
+    });
+    window.RE_CONFIG = { adsenseClient: '', ga4Id: '' };
+  </script>
+  <script defer src="/consent.js?v=growth-2026-08"></script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://resume-elite.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Blog",
+      "item": "https://resume-elite.com/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "How ATS software works",
+      "item": "https://resume-elite.com/blog/how-ats-works/"
+    }
+  ]
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How ATS software actually reads your resume",
+  "description": "What an applicant tracking system really does with your resume, which formatting choices break parsing, and the twenty-second test that catches almost every problem.",
+  "inLanguage": "en",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://resume-elite.com/blog/how-ats-works/"
+  },
+  "datePublished": "2026-08-20",
+  "dateModified": "2026-08-24",
+  "wordCount": 1053,
+  "articleSection": "ATS and screening",
+  "keywords": "how ats works, applicant tracking system, ats resume, resume parsing, ats friendly resume",
+  "author": {
+    "@type": "Organization",
+    "name": "ResumeElite",
+    "url": "https://resume-elite.com/about.html"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "ResumeElite",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://resume-elite.com/icon-512.png"
+    }
+  },
+  "image": "https://resume-elite.com/og-image.jpg"
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Do ATS systems automatically reject resumes?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Almost never automatically. Most systems parse and rank, and a human decides. Knockout questions on the application form -- work authorisation, a required licence -- do auto-reject, but those are form answers rather than anything in your resume."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What percentage of resumes get rejected by ATS?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The widely repeated 75% figure has no reliable source. What is well documented is that most applications are never read closely, because recruiters skim a ranked list and stop when they have enough candidates."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does an ATS read PDFs?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Every mainstream system parses PDF text reliably. The old advice to always send Word is out of date. What does fail is a PDF that contains an image of text rather than text."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I put keywords in white text to beat the ATS?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. It is trivially detectable by pasting the document as plain text, and when a recruiter finds it the application ends. It is one of the few things that gets a candidate blacklisted."
+      }
+    }
+  ]
+}
+  </script>
+</head>
+
+<body class="landing-page article-page">
+
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="nav-inner">
+      <a href="/" class="logo" aria-label="ResumeElite home">
+        <span class="logo-icon" aria-hidden="true">RE</span>
+        <span class="logo-text">ResumeElite</span>
+      </a>
+      <nav class="nav-links" id="nav-links" aria-label="Main navigation">
+        <a href="/#templates">Templates</a>
+        <a href="/#collections">Collections</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#guide">Guide</a>
+        <a href="/#faq">FAQ</a>
+        <a href="/editor.html" class="btn-nav-cta">Open Builder</a>
+      </nav>
+      <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"
+        aria-label="Toggle navigation menu">
+        <span class="nav-toggle-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="main">
+    <article class="article">
+      <div class="container article-shell">
+        <header class="article-head">
+          <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a><span class="crumb-sep" aria-hidden="true">/</span><a href="/blog/">Blog</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">How ATS software works</span></nav>
+          <p class="section-label">ATS and screening</p>
+          <h1>How ATS software actually reads your resume</h1>
+          <p class="article-standfirst">Less mysterious and less ruthless than the internet suggests -- but there are specific ways to break it, and they are worth knowing.</p>
+          <p class="article-meta">
+            <time datetime="2026-08-24">Updated 24 August 2026</time>
+            <span aria-hidden="true">&middot;</span>
+            <span>5 min read</span>
+          </p>
+        </header>
+
+        <nav class="toc" aria-labelledby="toc-title"><h2 id="toc-title">On this page</h2><ol><li><a href="#what-an-ats-is">What an ATS is</a></li><li><a href="#the-five-stages">The five stages</a></li><li><a href="#where-parsing-actually-breaks">Where parsing actually breaks</a></li><li><a href="#what-does-not-break-it">What does not break it</a></li><li><a href="#the-twenty-second-test">The twenty-second test</a></li><li><a href="#about-keyword-scoring">About keyword scoring</a></li><li><a href="#what-actually-gets-you-through">What actually gets you through</a></li><li><a href="#practical-setup">Practical setup</a></li></ol></nav>
+
+        <div class="container-narrow"><aside class="ad-slot ad-slot-leaderboard" data-ad-slot="leaderboard" aria-hidden="true"><span class="ad-label">Advertisement</span></aside></div>
+
+        <div class="prose"><p>Applicant tracking systems have a reputation as robot gatekeepers rejecting three quarters of applicants on a technicality. That is mostly wrong, and the wrongness matters &mdash; because it sends people optimising for the wrong thing.</p>
+<p>Here is what actually happens.</p>
+<h2 id="what-an-ats-is">What an ATS is</h2>
+<p>It is a database with a workflow attached. Its main job is not filtering you out; it is stopping a company from losing track of two thousand applications. It stores candidates, records who reviewed what, sends the templated emails, and keeps an audit trail so the company can prove it recruited lawfully.</p>
+<p>Parsing your resume into structured fields is one feature of that, and ranking is another. Neither is usually the thing that decides your application.</p>
+<p>The systems you will actually encounter: Workday, Taleo (Oracle), Greenhouse, Lever, iCIMS, SuccessFactors (SAP), Ashby, BambooHR. They differ enormously in parsing quality.</p>
+<h2 id="the-five-stages">The five stages</h2>
+<p><strong>1. Upload and text extraction.</strong> The system pulls a plain text layer out of your file. A normal PDF has one. A scanned or image-based PDF does not, and this is where resumes genuinely disappear.</p>
+<p><strong>2. Parsing into fields.</strong> It tries to work out which text is your name, which is an employer, which is a date range. It does this with a mix of pattern matching and section-heading detection. This is the fragile step.</p>
+<p><strong>3. Deduplication.</strong> It checks whether you have applied before, and often surfaces your previous application to the recruiter. Applying to the same company with two different job titles for the same role is visible.</p>
+<p><strong>4. Ranking or scoring.</strong> Some systems score against the requisition. Many do not, or the employer has not configured it. Where it exists it is usually keyword overlap plus years of experience, not an assessment of quality.</p>
+<p><strong>5. A human opens a list.</strong> This is the actual gate. A recruiter sees a sortable list and starts reading from the top. They stop when they have enough people to call.</p>
+<p>That last point is the one worth internalising. You are usually not fighting an algorithm. You are fighting for position in a list that a tired person reads the top of.</p>
+<h2 id="where-parsing-actually-breaks">Where parsing actually breaks</h2>
+<p>Not fonts. Not the word "Résumé" with an accent. These:</p>
+<h3 id="multi-column-layouts">Multi-column layouts</h3>
+<p>The big one. A parser reading a two-column page has to work out whether text flows down column one then down column two, or across each visual line. Good parsers get it right. Weak ones read across, so a skills sidebar interleaves into your job history:</p>
+<pre><code>Python  Senior Engineer
+SQL     Northwind Analytics
+Docker  2021 - Present</code></pre>
+<p>comes out as:</p>
+<pre><code>Python Senior Engineer SQL Northwind Analytics Docker 2021 - Present</code></pre>
+<p>Your employer and your skills are now the same sentence. Nothing here is recoverable &mdash; the ATS has no way to know it went wrong.</p>
+<h3 id="text-inside-images">Text inside images</h3>
+<p>Your name as a logo, a skills chart, a headshot with your title baked in. The parser sees an image and moves on. If your name is only in an image, you are a nameless record.</p>
+<h3 id="layout-tables">Layout tables</h3>
+<p>A table used to align dates and titles often parses row-first, which separates a role from its employer. Visually identical to a properly laid out block, and completely different underneath.</p>
+<h3 id="headers-and-footers">Headers and footers</h3>
+<p>Many parsers skip them. If your phone number lives only in the document header, it may be the one thing that never gets captured.</p>
+<h3 id="non-standard-section-headings">Non-standard section headings</h3>
+<p>"Where I've Been" instead of "Work Experience" means the parser cannot classify the block underneath. It might guess. It might not.</p>
+<h3 id="dates-in-inconsistent-formats">Dates in inconsistent formats</h3>
+<p><code>Jan 2018 - Mar 2021</code> in one entry and <code>2021-Present</code> in the next makes it harder to compute total experience, which is exactly the field a ranking filter uses.</p>
+<h2 id="what-does-not-break-it">What does not break it</h2>
+<p>Worth saying explicitly, because a lot of advice is superstition:</p>
+<ul><li><strong>PDF.</strong> Fine everywhere. Send PDF unless asked for .docx.</li><li><strong>Any standard font.</strong> Arial, Calibri, Georgia, Times, Helvetica &mdash; all fine.</li><li><strong>Colour.</strong> Ignored, harmless.</li><li><strong>A photo.</strong> Ignored by the parser. Whether to include one is a <a href="/blog/resume-photo-on-resume/">regional question</a>, not a technical one.</li><li><strong>Two pages.</strong> No parser cares.</li><li><strong>Bullets.</strong> Standard bullet or hyphen characters are fine. Only unusual decorative glyphs occasionally mangle.</li></ul>
+<h2 id="the-twenty-second-test">The twenty-second test</h2>
+<p>Better than any "ATS checker" tool:</p>
+<ol><li>Open your exported PDF.</li><li>Select all, copy.</li><li>Paste into a plain text editor &mdash; Notepad, TextEdit, anything with no formatting.</li><li>Read it from the top.</li></ol>
+<p>What you see is approximately what the parser sees. If the reading order is wrong, if your phone number is missing, if two sections have run together, that is a real problem and you have just found it for free.</p>
+<p>Also check: does your name appear as text? If not, it is in an image.</p>
+<h2 id="about-keyword-scoring">About keyword scoring</h2>
+<p>Where it is switched on, it is cruder than people imagine: overlap between the requisition text and your resume, plus years of experience, plus sometimes location and education level.</p>
+<p>Which means the sensible response is also crude. Use the posting's own vocabulary for things you genuinely did. If it says "stakeholder management", write that rather than "worked with people across the business". Spell an acronym out once, then use the posting's form.</p>
+<p>What not to do:</p>
+<ul><li><strong>Keyword lists at the bottom.</strong> Obvious to a human, and humans decide.</li><li><strong>White text.</strong> Detectable by the same paste test above. This gets people blacklisted, not just rejected.</li><li><strong>Claiming tools you have not used.</strong> It works until the interview, which is worse than not getting the interview.</li></ul>
+<p>There is a fuller method in <a href="/blog/resume-keywords/">resume keywords</a>.</p>
+<h2 id="what-actually-gets-you-through">What actually gets you through</h2>
+<p>In rough order of impact:</p>
+<ol><li><strong>Genuinely matching the role.</strong> No formatting rescues a real mismatch.</li><li><strong>Applying early.</strong> Recruiters read from the top of a list that is often sorted by date, and stop when they have enough. Week one beats week three substantially.</li><li><strong>A clean, well-ordered document,</strong> so nothing is lost in parsing.</li><li><strong>The posting's vocabulary,</strong> for things you actually did.</li><li><strong>A referral,</strong> which usually skips the queue entirely.</li></ol>
+<p>Formatting is number three, and it is the only one on the list that people spend all their time on.</p>
+<h2 id="practical-setup">Practical setup</h2>
+<p>Keep two versions. A single-column plain layout for portals &mdash; see <a href="/ats-resume-templates/">ATS resume templates</a> &mdash; and a designed one for when a person opens the file.</p>
+<p>Because content is stored separately from design in the builder, that is one click rather than two documents to keep in sync.</p></div>
+
+        <aside class="article-cta">
+          <h2>Use a layout that parses cleanly</h2>
+          <p>Single column, standard headings, real selectable PDF text.</p>
+          <a href="/editor.html?template=ats-friendly" class="btn-primary btn-xl">Open the ATS template</a>
+        </aside>
+
+        <div class="container-narrow"><aside class="ad-slot ad-slot-footer" data-ad-slot="footer" aria-hidden="true"><span class="ad-label">Advertisement</span></aside></div>
+
+        <section class="related" aria-labelledby="related-title"><h2 id="related-title">Keep reading</h2><ul><li><a href="/blog/resume-keywords/">Resume keywords: how to match a job description properly</a></li><li><a href="/blog/how-to-write-a-resume/">How to write a resume in 2026</a></li><li><a href="/blog/common-resume-mistakes/">17 resume mistakes, and the fix for each</a></li></ul></section>
+      </div>
+    </article>
+
+    <section class="faq-section" id="faq" aria-labelledby="faq-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="section-label">FAQ</p>
+          <h2 class="section-title" id="faq-title">Common questions</h2>
+        </div>
+        <div class="faq-list">
+          <div class="faq-item">
+            <h3><button class="faq-q" type="button" aria-expanded="false">Do ATS systems automatically reject resumes?<span class="faq-mark" aria-hidden="true"></span></button></h3>
+            <div class="faq-a"><p>Almost never automatically. Most systems parse and rank, and a human decides. Knockout questions on the application form -- work authorisation, a required licence -- do auto-reject, but those are form answers rather than anything in your resume.</p></div>
+          </div>
+          <div class="faq-item">
+            <h3><button class="faq-q" type="button" aria-expanded="false">What percentage of resumes get rejected by ATS?<span class="faq-mark" aria-hidden="true"></span></button></h3>
+            <div class="faq-a"><p>The widely repeated 75% figure has no reliable source. What is well documented is that most applications are never read closely, because recruiters skim a ranked list and stop when they have enough candidates.</p></div>
+          </div>
+          <div class="faq-item">
+            <h3><button class="faq-q" type="button" aria-expanded="false">Does an ATS read PDFs?<span class="faq-mark" aria-hidden="true"></span></button></h3>
+            <div class="faq-a"><p>Yes. Every mainstream system parses PDF text reliably. The old advice to always send Word is out of date. What does fail is a PDF that contains an image of text rather than text.</p></div>
+          </div>
+          <div class="faq-item">
+            <h3><button class="faq-q" type="button" aria-expanded="false">Should I put keywords in white text to beat the ATS?<span class="faq-mark" aria-hidden="true"></span></button></h3>
+            <div class="faq-a"><p>No. It is trivially detectable by pasting the document as plain text, and when a recruiter finds it the application ends. It is one of the few things that gets a candidate blacklisted.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col footer-brand">
+          <a href="/" class="logo" aria-label="ResumeElite home">
+            <span class="logo-icon" aria-hidden="true">RE</span>
+            <span class="logo-text">ResumeElite</span>
+          </a>
+          <p>Create professional, ATS-friendly resumes in minutes with 50 clean, modern templates. Free, private, and no
+            signup required.</p>
+        </div>
+        <nav class="footer-col" aria-labelledby="footer-cat-title">
+          <h2 class="footer-col-title" id="footer-cat-title">Browse templates</h2>
+          <ul class="footer-links">
+            <li><a href="/ats-resume-templates/">ATS resume templates</a></li>
+            <li><a href="/professional-resume-templates/">Professional templates</a></li>
+            <li><a href="/modern-resume-templates/">Modern CV templates</a></li>
+            <li><a href="/creative-resume-templates/">Creative templates</a></li>
+            <li><a href="/tech-resume-templates/">Developer resume templates</a></li>
+            <li><a href="/academic-cv-templates/">Academic CV templates</a></li>
+          </ul>
+        </nav>
+        <nav class="footer-col" aria-labelledby="footer-learn-title">
+          <h2 class="footer-col-title" id="footer-learn-title">Learn</h2>
+          <ul class="footer-links">
+            <li><a href="/blog/">Resume blog</a></li>
+            <li><a href="/blog/how-to-write-a-resume/">How to write a resume</a></li>
+            <li><a href="/blog/how-ats-works/">How ATS software works</a></li>
+            <li><a href="/blog/resume-with-no-experience/">Resume with no experience</a></li>
+            <li><a href="/blog/professional-summary-examples/">Professional summary examples</a></li>
+            <li><a href="/blog/resume-action-verbs/">Resume action verbs</a></li>
+          </ul>
+        </nav>
+        <nav class="footer-col" aria-labelledby="footer-legal-title">
+          <h2 class="footer-col-title" id="footer-legal-title">Site</h2>
+          <ul class="footer-links">
+            <li><a href="/about.html">About us</a></li>
+            <li><a href="/contact.html">Contact us</a></li>
+            <li><a href="/privacy.html">Privacy policy</a></li>
+            <li><a href="/cookies.html">Cookie policy</a></li>
+            <li><a href="/terms.html">Terms of service</a></li>
+            <li><a href="/disclaimer.html">Disclaimer</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-copy">&copy; 2026 ResumeElite. All rights reserved.</p>
+        <p class="footer-note">Your resume data never leaves your browser.
+          <button type="button" class="footer-link-btn" data-open-consent>Cookie settings</button>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script defer src="/app.js?v=growth-2026-08"></script>
+</body>
+
+</html>

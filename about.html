@@ -20,11 +20,11 @@
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="en_US" />
   <meta property="og:url" content="https://resume-elite.com/about.html" />
-  <meta property="og:image" content="https://resume-elite.com/og-image.png" />
+  <meta property="og:image" content="https://resume-elite.com/og-image.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="About ResumeElite" />
   <meta name="twitter:description" content="Learn more about ResumeElite, our mission to simplify resume building, and our commitment to providing free, premium, ATS-friendly CV templates." />
-  <meta name="twitter:image" content="https://resume-elite.com/og-image.png" />
+  <meta name="twitter:image" content="https://resume-elite.com/og-image.jpg" />
 
   <script type="application/ld+json">
 {
@@ -70,10 +70,34 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css?v=modern-2026" />
+  <!-- HEADSCRIPTS:START -->
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="alternate" type="application/rss+xml" title="ResumeElite resume blog" href="/blog/rss.xml" />
+  <script>
+    // Consent Mode v2 defaults. Must run before any Google tag.
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('consent', 'default', {
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: 'denied',
+      functionality_storage: 'granted',
+      security_storage: 'granted',
+      wait_for_update: 500
+    });
+    window.RE_CONFIG = { adsenseClient: '', ga4Id: '' };
+  </script>
+  <script defer src="/consent.js?v=growth-2026-08"></script>
+  <!-- HEADSCRIPTS:END -->
 </head>
 
 <body class="landing-page info-page">
 
+  <!-- NAV:START -->
   <a class="skip-link" href="#main">Skip to main content</a>
 
   <!-- Navbar -->
@@ -85,11 +109,11 @@
       </a>
       <nav class="nav-links" id="nav-links" aria-label="Main navigation">
         <a href="/#templates">Templates</a>
-        <a href="/#features">Features</a>
-        <a href="/#process">How it works</a>
-        <a href="/#guide">Resume guide</a>
+        <a href="/#collections">Collections</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#guide">Guide</a>
         <a href="/#faq">FAQ</a>
-        <a href="editor.html" class="btn-nav-cta">Open Builder</a>
+        <a href="/editor.html" class="btn-nav-cta">Open Builder</a>
       </nav>
       <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"
         aria-label="Toggle navigation menu">
@@ -97,75 +121,172 @@
       </button>
     </div>
   </header>
+  <!-- NAV:END -->
 
   <!-- Content Container -->
   <main class="info-page-container" id="main">
     <div class="info-header">
       <h1>About ResumeElite</h1>
-      <p class="info-updated">Last Updated: May 2026</p>
+      <p class="info-updated">Last updated: 24 August 2026</p>
     </div>
     
     <div class="info-card">
       <div class="info-content">
-        <h2>Who We Are</h2>
-        <p>ResumeElite is an independent, user-focused platform built to democratize the job application process. We believe that everyone, regardless of their background or budget, deserves access to professional, high-impact, and ATS-friendly resumes. That is why we developed a premium resume builder that requires no sign-ups, no subscriptions, and zero payments.</p>
+        <p>ResumeElite is a free resume builder. Fifty templates, a live editor, and a PDF you can download without
+          creating an account or entering a card number. This page explains who runs it, why it works the way it does,
+          and how it pays for itself &mdash; because those are fair things to want to know before you type your
+          employment history into a website.</p>
 
-        <h2>Our Mission</h2>
-        <p>Job searching is already stressful. Finding a professional resume builder shouldn't add to that stress. Most online builders lure users in with a "free" editor, only to lock downloads behind expensive subscription paywalls. Our mission is simple: <strong>provide a fully transparent, highly customizable, and 100% free resume builder that delivers industry-standard PDF exports instantly.</strong></p>
+        <h2>Why this exists</h2>
+        <p>Most online resume builders follow the same pattern. The editor is free and pleasant to use. You spend forty
+          minutes filling it in. Then you click download and hit a subscription page, usually somewhere between
+          $10 and $30 a month, sometimes with a &ldquo;$2.95 trial&rdquo; that renews at full price. By that point
+          you have sunk enough effort that paying feels easier than starting again, which is precisely the intended
+          effect.</p>
+        <p>That pattern is worst for the people it hits hardest: someone made redundant, a graduate applying to thirty
+          schemes, anyone applying from a country where a monthly subscription in dollars is a serious amount of
+          money.</p>
+        <p>So the rule here is simple and it is not going to change: <strong>the download is free, there is no
+            watermark, and there is no signup.</strong> Nothing is held back for a paid tier, because there is no
+          paid tier.</p>
 
-        <h2>What Makes Us Elite</h2>
+        <h2>How the site pays for itself</h2>
+        <p>Advertising, once you consent to it. That is the whole model.</p>
+        <p>What this means in practice, stated plainly:</p>
         <ul>
-          <li><strong>ATS-Optimized Templates:</strong> All of our layouts are structured based on hiring managers' expectations and applicant tracking system (ATS) criteria to maximize your chances of securing interviews.</li>
-          <li><strong>Uncompromised Privacy:</strong> We respect your personal data. Unlike other builders that save your information on external databases to sell or market to you, ResumeElite stores 100% of your resume data locally in your browser. Nothing is sent to our servers.</li>
-          <li><strong>Premium Design Control:</strong> Dynamically change typography, select accent colors, hide or show sections, add photos, and customize layouts in a unified, live-updating editing workspace.</li>
-          <li><strong>No Login Required:</strong> Start building your resume immediately. We don't ask for your email address, passwords, or social accounts to let you export your resume.</li>
+          <li><strong>There are no ads inside the editor.</strong> Ads sit on the guides and the template pages, never
+            beside the buttons you are trying to click while working on your resume.</li>
+          <li><strong>Nothing loads before you agree.</strong> Advertising and analytics are set to denied by default,
+            and you can decline entirely. If you decline, every feature still works &mdash; all fifty templates, every
+            editor control, unlimited PDF exports.</li>
+          <li><strong>Your resume is never used for advertising.</strong> It cannot be: it never reaches us. Ads are
+            contextual to the page you are reading.</li>
+          <li><strong>We do not sell data.</strong> There is no data to sell.</li>
+        </ul>
+        <p>The <a href="/privacy.html">privacy policy</a> and <a href="/cookies.html">cookie policy</a> spell out the
+          detail, including every cookie name and how to change your mind later.</p>
+
+        <h2>Privacy as an architecture, not a promise</h2>
+        <p>Plenty of sites promise to look after your data. We took a different approach: we built the site so that we
+          never receive it in the first place.</p>
+        <p>Your resume is stored in your own browser using the Local Storage API. Nothing is uploaded. PDF generation
+          also runs in your browser &mdash; the document is rendered and written to a file on your own machine, so
+          your employment history, your address and your photo never travel to a server we control.</p>
+        <p>There is a genuine trade-off in that design and we would rather name it than hide it. Because there is no
+          account, there is no cloud backup. Clear your browser data and your draft is gone; open the site on your
+          phone and your desktop draft is not there. We think that is the right trade for a document containing your
+          full contact details and career history, but it is a trade, and you should know about it before you rely
+          on it.</p>
+
+        <h2>How the templates are built</h2>
+        <p>Every template is hand-written HTML and CSS rendering at a fixed A4 width, which is why the live preview
+          matches the exported PDF closely. There is no template marketplace and no third-party theme packs.</p>
+        <p>Two consequences that matter for job applications:</p>
+        <ul>
+          <li><strong>The PDF contains real text.</strong> Nothing is rendered as an image, so applicant tracking
+            systems can parse it and your email, phone and portfolio links stay clickable.</li>
+          <li><strong>Your content is independent of the design.</strong> Switching between all fifty templates carries
+            every section, date and bullet across untouched. That means you can keep a plain layout for
+            <a href="/ats-resume-templates/">application portals</a> and a designed one for people who open the file
+            themselves, without maintaining two documents.</li>
+        </ul>
+        <p>We also write the <a href="/blog/">guides</a>, and we try to keep them specific. Advice like &ldquo;highlight
+          your transferable skills&rdquo; is unfalsifiable and unhelpful. Where a claim is contested &mdash; the
+          one-page rule, the widely repeated statistic that ATS software rejects 75% of resumes &mdash; we say so
+          rather than repeating it.</p>
+
+        <h2>What we do not do</h2>
+        <p>Being clear about the limits is part of being useful:</p>
+        <ul>
+          <li><strong>We do not review your resume.</strong> There is no human critique service, paid or free.</li>
+          <li><strong>We do not apply to jobs on your behalf,</strong> and we are not a job board or a recruiter.</li>
+          <li><strong>We do not guarantee interviews.</strong> A good document removes obstacles; it does not create
+            experience you do not have. See the <a href="/disclaimer.html">disclaimer</a>.</li>
+          <li><strong>We do not write your content with AI.</strong> Generated bullet points read as generated, and
+            interviewers ask about specifics you then cannot supply.</li>
         </ul>
 
-        <h2>Our Technical Standard</h2>
-        <p>ResumeElite uses advanced clientside rendering pipelines. This ensures that your browser does all the formatting work securely and efficiently. We utilize high-quality CSS layouts, standard PDF export engines, and local data persistence via the Web Storage API, making the application lightweight, fast, and fully private.</p>
+        <h2>Who runs it</h2>
+        <p>ResumeElite is an independent project, not a venture-funded company, and it is built and maintained by a
+          small team rather than a content farm. There are no investors to satisfy and therefore no pressure to add a
+          paywall later.</p>
+        <p>If you have found a bug, want a template for a field we have not covered, or think something in a guide is
+          wrong, we would genuinely like to hear it &mdash; specific corrections from people who hire for a living
+          are the most useful messages we get. The <a href="/contact.html">contact page</a> reaches us directly.</p>
 
-        <h2>Get in Touch</h2>
-        <p>We are constantly seeking to refine and expand our selection of templates and developer capabilities. If you have questions, feedback, or suggestions for custom template designs, please reach out to us directly via our <a href="contact.html">Contact Page</a>.</p>
+        <h2>Start here</h2>
+        <ul>
+          <li><a href="/editor.html">Open the builder</a> and start typing.</li>
+          <li>Not sure which layout? <a href="/#templates">Browse all 50 templates</a>, or narrow it down by
+            <a href="/ats-resume-templates/">ATS</a>,
+            <a href="/professional-resume-templates/">professional</a>,
+            <a href="/creative-resume-templates/">creative</a>,
+            <a href="/tech-resume-templates/">developer</a> or
+            <a href="/academic-cv-templates/">academic</a>.</li>
+          <li>Starting from nothing? <a href="/blog/how-to-write-a-resume/">How to write a resume</a> is the place to
+            begin.</li>
+        </ul>
+
       </div>
     </div>
   </main>
 
+  <!-- FOOTER:START -->
   <!-- Footer -->
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
         <div class="footer-col footer-brand">
-          <a href="/" class="logo">
-            <span class="logo-icon">RE</span>
+          <a href="/" class="logo" aria-label="ResumeElite home">
+            <span class="logo-icon" aria-hidden="true">RE</span>
             <span class="logo-text">ResumeElite</span>
           </a>
-          <p>Create professional, ATS-friendly resumes in minutes with our clean, elegant templates. Free, and no signup required.</p>
+          <p>Create professional, ATS-friendly resumes in minutes with 50 clean, modern templates. Free, private, and no
+            signup required.</p>
         </div>
-        <div class="footer-col">
-          <h4>Navigation</h4>
+        <nav class="footer-col" aria-labelledby="footer-cat-title">
+          <h2 class="footer-col-title" id="footer-cat-title">Browse templates</h2>
           <ul class="footer-links">
-            <li><a href="/#templates">Resume Templates</a></li>
-            <li><a href="/#features">Features</a></li>
-            <li><a href="/#process">How It Works</a></li>
-            <li><a href="editor.html">Open Resume Builder</a></li>
+            <li><a href="/ats-resume-templates/">ATS resume templates</a></li>
+            <li><a href="/professional-resume-templates/">Professional templates</a></li>
+            <li><a href="/modern-resume-templates/">Modern CV templates</a></li>
+            <li><a href="/creative-resume-templates/">Creative templates</a></li>
+            <li><a href="/tech-resume-templates/">Developer resume templates</a></li>
+            <li><a href="/academic-cv-templates/">Academic CV templates</a></li>
           </ul>
-        </div>
-        <div class="footer-col">
-          <h4>Legal & Support</h4>
+        </nav>
+        <nav class="footer-col" aria-labelledby="footer-learn-title">
+          <h2 class="footer-col-title" id="footer-learn-title">Learn</h2>
           <ul class="footer-links">
-            <li><a href="about.html">About Us</a></li>
-            <li><a href="contact.html">Contact Us</a></li>
-            <li><a href="privacy.html">Privacy Policy</a></li>
-            <li><a href="terms.html">Terms of Service</a></li>
-            <li><a href="disclaimer.html">Disclaimer</a></li>
+            <li><a href="/blog/">Resume blog</a></li>
+            <li><a href="/blog/how-to-write-a-resume/">How to write a resume</a></li>
+            <li><a href="/blog/how-ats-works/">How ATS software works</a></li>
+            <li><a href="/blog/resume-with-no-experience/">Resume with no experience</a></li>
+            <li><a href="/blog/professional-summary-examples/">Professional summary examples</a></li>
+            <li><a href="/blog/resume-action-verbs/">Resume action verbs</a></li>
           </ul>
-        </div>
+        </nav>
+        <nav class="footer-col" aria-labelledby="footer-legal-title">
+          <h2 class="footer-col-title" id="footer-legal-title">Site</h2>
+          <ul class="footer-links">
+            <li><a href="/about.html">About us</a></li>
+            <li><a href="/contact.html">Contact us</a></li>
+            <li><a href="/privacy.html">Privacy policy</a></li>
+            <li><a href="/cookies.html">Cookie policy</a></li>
+            <li><a href="/terms.html">Terms of service</a></li>
+            <li><a href="/disclaimer.html">Disclaimer</a></li>
+          </ul>
+        </nav>
       </div>
       <div class="footer-bottom">
-        <p class="footer-copy">© 2026 ResumeElite. All rights reserved.</p>
+        <p class="footer-copy">&copy; 2026 ResumeElite. All rights reserved.</p>
+        <p class="footer-note">Your resume data never leaves your browser.
+          <button type="button" class="footer-link-btn" data-open-consent>Cookie settings</button>
+        </p>
       </div>
     </div>
   </footer>
+  <!-- FOOTER:END -->
 
   <script defer src="app.js?v=modern-2026"></script>
 </body>

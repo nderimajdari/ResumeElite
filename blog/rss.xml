@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ResumeElite resume blog</title>
+    <link>https://resume-elite.com/blog/</link>
+    <atom:link href="https://resume-elite.com/blog/rss.xml" rel="self" type="application/rss+xml" />
+    <description>Practical guides to writing a resume: ATS parsing, summaries that are not filler, action verbs, keywords, resume length and the mistakes that cost interviews.</description>
+    <language>en</language>
+    <lastBuildDate>Mon, 24 Aug 2026 09:00:00 +0000</lastBuildDate>
+    <item>
+      <title>How to write a resume with no experience</title>
+      <link>https://resume-elite.com/blog/resume-with-no-experience/</link>
+      <guid isPermaLink="true">https://resume-elite.com/blog/resume-with-no-experience/</guid>
+      <pubDate>Fri, 21 Aug 2026 09:00:00 +0000</pubDate>
+      <description>You have more material than you think. The problem is usually that it is described too vaguely to count.</description>
+    </item>
+    <item>
+      <title>Resume vs CV: what the difference actually is</title>
+      <link>https://resume-elite.com/blog/resume-vs-cv/</link>
+      <guid isPermaLink="true">https://resume-elite.com/blog/resume-vs-cv/</guid>
+      <pubDate>Mon, 24 Aug 2026 09:00:00 +0000</pubDate>
+      <description>Two documents and one naming collision. The naming causes more trouble than the documents do.</description>
+    </item>
+    <item>
+      <title>Should you put a photo on your resume?</title>
+      <link>https://resume-elite.com/blog/resume-photo-on-resume/</link>
+      <guid isPermaLink="true">https://resume-elite.com/blog/resume-photo-on-resume/</guid>
+      <pubDate>Sun, 23 Aug 2026 09:00:00 +0000</pubDate>
+      <description>It is a regional convention, not a matter of taste -- and getting it wrong reads as not knowing the market.</description>
+    </item>
+    <item>
+      <title>How long should a resume be?</title>
+      <link>https://resume-elite.com/blog/resume-length/</link>
+      <guid isPermaLink="true">https://resume-elite.com/blog/resume-length/</guid>
+      <pubDate>Fri, 21 Aug 2026 09:00:00 +0000</pubDate>
+      <description>The page count is not the problem. What fills the pages is.</description>
+    </item>
+    <item>
+      <title>Resume keywords: how to match a job description properly</title>
+      <link>https://resume-elite.com/blog/resume-keywords/</link>
+      <guid isPermaLink="true">https://resume-elite.com/blog/resume-keywords/</guid>
+      <pubDate>Sun, 23 Aug 2026 09:00:00 +0000</pubDate>
+      <description>Mirroring the posting's vocabulary is legitimate and effective. Padding a keyword list is neither.</description>
+    </item>
+    <item>
+      <title>Resume action verbs that actually change the sentence</title>
+      <link>https://resume-elite.com/blog/resume-action-verbs/</link>
+      <guid isPermaLink="true">https://resume-elite.com/blog/resume-action-verbs/</guid>
+      <pubDate>Sat, 22 Aug 2026 09:00:00 +0000</pubDate>
+      <description>A stronger verb only helps if the rest of the sentence carries a result. Here is the list, and the structure it goes into.</description>
+    </item>
+    <item>
+      <title>Professional summary examples that are not filler</title>
+      <link>https://resume-elite.com/blog/professional-summary-examples/</link>
+      <guid isPermaLink="true">https://resume-elite.com/blog/professional-summary-examples/</guid>
+      <pubDate>Sat, 22 Aug 2026 09:00:00 +0000</pubDate>
+      <description>Most summaries are three lines of adjectives that describe nobody. Here is what to write instead.</description>
+    </item>
+    <item>
+      <title>How to write a resume in 2026</title>
+      <link>https://resume-elite.com/blog/how-to-write-a-resume/</link>
+      <guid isPermaLink="true">https://resume-elite.com/blog/how-to-write-a-resume/</guid>
+      <pubDate>Thu, 20 Aug 2026 09:00:00 +0000</pubDate>
+      <description>The whole process, in order, with the decisions that actually change the outcome and the ones that do not.</description>
+    </item>
+    <item>
+      <title>How ATS software actually reads your resume</title>
+      <link>https://resume-elite.com/blog/how-ats-works/</link>
+      <guid isPermaLink="true">https://resume-elite.com/blog/how-ats-works/</guid>
+      <pubDate>Thu, 20 Aug 2026 09:00:00 +0000</pubDate>
+      <description>Less mysterious and less ruthless than the internet suggests -- but there are specific ways to break it, and they are worth knowing.</description>
+    </item>
+    <item>
+      <title>17 resume mistakes, and the fix for each</title>
+      <link>https://resume-elite.com/blog/common-resume-mistakes/</link>
+      <guid isPermaLink="true">https://resume-elite.com/blog/common-resume-mistakes/</guid>
+      <pubDate>Mon, 24 Aug 2026 09:00:00 +0000</pubDate>
+      <description>Ordered by damage done, not by how often the internet mentions them.</description>
+    </item>
+  </channel>
+</rss>

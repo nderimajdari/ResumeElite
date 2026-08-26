@@ -1,0 +1,10 @@
+# Authorized Digital Sellers for resume-elite.com
+#
+# This file is intentionally inert until AdSense approves the site.
+# After approval, replace everything below with the single line Google shows you
+# under AdSense > Sites > Ads.txt, which looks exactly like this:
+#
+# google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
+#
+# Then set ADSENSE_CLIENT in build/sitecfg.py to "ca-pub-0000000000000000" and run
+# python build/build.py so every page starts loading ads.

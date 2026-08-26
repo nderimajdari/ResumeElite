@@ -5,10 +5,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
-  <title>Free Resume Builder — 50 ATS-Friendly CV Templates | ResumeElite</title>
+  <title>Free Resume Builder: 50 ATS CV Templates | ResumeElite</title>
 
   <meta name="description"
-    content="Build a professional, ATS-friendly resume free in minutes. 50 modern CV templates, live preview, custom colours, photo support and instant PDF download. No signup, no watermark." />
+    content="Build an ATS-friendly resume free in minutes. 50 modern CV templates, live preview and instant PDF download. No signup, no watermark." />
 
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
   <meta name="author" content="ResumeElite" />
@@ -26,7 +26,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="en_US" />
   <meta property="og:url" content="https://resume-elite.com/" />
-  <meta property="og:image" content="https://resume-elite.com/og-image.png" />
+  <meta property="og:image" content="https://resume-elite.com/og-image.jpg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="The ResumeElite resume builder editor with a live resume preview" />
@@ -36,7 +36,7 @@
   <meta name="twitter:title" content="Free Resume Builder — 50 ATS-Friendly CV Templates" />
   <meta name="twitter:description"
     content="50 modern resume templates, live preview and instant PDF export. Free, no signup." />
-  <meta name="twitter:image" content="https://resume-elite.com/og-image.png" />
+  <meta name="twitter:image" content="https://resume-elite.com/og-image.jpg" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -58,7 +58,7 @@
         "url": "https://resume-elite.com/",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://resume-elite.com/og-image.png"
+          "url": "https://resume-elite.com/og-image.jpg"
         },
         "description": "Free online resume builder with ATS-friendly CV templates and instant PDF export."
       },
@@ -197,35 +197,58 @@
     ]
   }
   </script>
+  <!-- HEADSCRIPTS:START -->
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="alternate" type="application/rss+xml" title="ResumeElite resume blog" href="/blog/rss.xml" />
+  <script>
+    // Consent Mode v2 defaults. Must run before any Google tag.
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('consent', 'default', {
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: 'denied',
+      functionality_storage: 'granted',
+      security_storage: 'granted',
+      wait_for_update: 500
+    });
+    window.RE_CONFIG = { adsenseClient: '', ga4Id: '' };
+  </script>
+  <script defer src="/consent.js?v=growth-2026-08"></script>
+  <!-- HEADSCRIPTS:END -->
 </head>
 
 <body class="landing-page">
 
+  <!-- NAV:START -->
   <a class="skip-link" href="#main">Skip to main content</a>
 
   <!-- Navbar -->
-  <header class="navbar" id="navbar">
+  <header class="navbar">
     <div class="nav-inner">
       <a href="/" class="logo" aria-label="ResumeElite home">
         <span class="logo-icon" aria-hidden="true">RE</span>
         <span class="logo-text">ResumeElite</span>
       </a>
-
       <nav class="nav-links" id="nav-links" aria-label="Main navigation">
-        <a href="#templates">Templates</a>
-        <a href="#features">Features</a>
-        <a href="#process">How it works</a>
-        <a href="#guide">Resume guide</a>
-        <a href="#faq">FAQ</a>
-        <a href="editor.html" class="btn-nav-cta">Open Builder</a>
+        <a href="/#templates">Templates</a>
+        <a href="/#collections">Collections</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#guide">Guide</a>
+        <a href="/#faq">FAQ</a>
+        <a href="/editor.html" class="btn-nav-cta">Open Builder</a>
       </nav>
-
       <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"
         aria-label="Toggle navigation menu">
         <span class="nav-toggle-bars" aria-hidden="true"><i></i><i></i><i></i></span>
       </button>
     </div>
   </header>
+  <!-- NAV:END -->
 
   <main id="main">
 
@@ -252,7 +275,7 @@
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
           </a>
-          <a href="#templates" class="btn-ghost btn-xl">Browse 50 templates</a>
+          <a href="#collections" class="btn-ghost btn-xl">Browse 50 templates</a>
         </div>
 
         <dl class="hero-stats">
@@ -331,6 +354,53 @@
     </section>
 
     <!-- Templates Gallery -->
+
+    <!-- Browse by category -->
+    <section class="cat-strip-section" id="collections" aria-labelledby="collections-title">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <p class="section-label">Collections</p>
+          <h2 class="section-title" id="collections-title">Start from the kind of application you are making</h2>
+          <p class="section-subtitle">Each collection explains what that format is for, what breaks it, and which
+            of the 50 layouts fit.</p>
+        </div>
+        <div class="cat-strip" data-reveal>
+        <!-- COLLECTIONS:START -->
+        <a class="cat-strip-card" href="/ats-resume-templates/">
+          <strong>ATS resume templates</strong>
+          <span>Single column, standard headings, nothing a parser can misread.</span>
+          <em>13 templates &rarr;</em>
+        </a>
+        <a class="cat-strip-card" href="/professional-resume-templates/">
+          <strong>Professional templates</strong>
+          <span>Corporate, finance, legal and management. Restrained and considered.</span>
+          <em>20 templates &rarr;</em>
+        </a>
+        <a class="cat-strip-card" href="/modern-resume-templates/">
+          <strong>Modern CV templates</strong>
+          <span>The 2026 set: soft gradients, editorial grids, big tight type.</span>
+          <em>13 templates &rarr;</em>
+        </a>
+        <a class="cat-strip-card" href="/creative-resume-templates/">
+          <strong>Creative templates</strong>
+          <span>For designers, writers and freelancers, where taste is assessed.</span>
+          <em>19 templates &rarr;</em>
+        </a>
+        <a class="cat-strip-card" href="/tech-resume-templates/">
+          <strong>Developer templates</strong>
+          <span>Stack and projects up front, including a dark terminal layout.</span>
+          <em>6 templates &rarr;</em>
+        </a>
+        <a class="cat-strip-card" href="/academic-cv-templates/">
+          <strong>Academic CV templates</strong>
+          <span>Publication lists, Europass structure, education-first layouts.</span>
+          <em>7 templates &rarr;</em>
+        </a>
+  <!-- COLLECTIONS:END -->
+        </div>
+      </div>
+    </section>
+
     <section class="templates-section" id="templates" aria-labelledby="templates-title">
       <div class="container">
         <div class="section-head" data-reveal>
@@ -957,6 +1027,65 @@
     </section>
 
     <!-- FAQ -->
+
+    <!-- Latest guides -->
+    <section class="posts-section" id="guides" aria-labelledby="guides-title">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <p class="section-label">Guides</p>
+          <h2 class="section-title" id="guides-title">Read the guide, then build it</h2>
+          <p class="section-subtitle">Ten guides written to be specific enough to act on, with no filler about
+            being a team player.</p>
+        </div>
+        <div class="posts-grid" data-reveal>
+          <article class="post-card">
+            <p class="post-card-kicker">Resume writing</p>
+            <h3 class="post-card-title"><a href="/blog/how-to-write-a-resume/">How to write a resume in 2026</a></h3>
+            <p class="post-card-desc">The whole process in order, with the decisions that change the outcome and the
+              ones that do not.</p>
+          </article>
+          <article class="post-card">
+            <p class="post-card-kicker">ATS and screening</p>
+            <h3 class="post-card-title"><a href="/blog/how-ats-works/">How ATS software actually reads your resume</a>
+            </h3>
+            <p class="post-card-desc">What really breaks a parse, what is superstition, and the twenty-second test
+              that catches nearly everything.</p>
+          </article>
+          <article class="post-card">
+            <p class="post-card-kicker">Early career</p>
+            <h3 class="post-card-title"><a href="/blog/resume-with-no-experience/">Writing a resume with no
+                experience</a></h3>
+            <p class="post-card-desc">You have more material than you think. It is usually described too vaguely to
+              count.</p>
+          </article>
+          <article class="post-card">
+            <p class="post-card-kicker">Resume writing</p>
+            <h3 class="post-card-title"><a href="/blog/professional-summary-examples/">Professional summary examples
+                that are not filler</a></h3>
+            <p class="post-card-desc">Before-and-after summaries for graduates, career changers, engineers and
+              returners.</p>
+          </article>
+          <article class="post-card">
+            <p class="post-card-kicker">Resume writing</p>
+            <h3 class="post-card-title"><a href="/blog/resume-action-verbs/">180 resume action verbs, grouped</a></h3>
+            <p class="post-card-desc">Grouped by what they signal, plus the sentence structure that makes them work.
+            </p>
+          </article>
+          <article class="post-card">
+            <p class="post-card-kicker">Resume writing</p>
+            <h3 class="post-card-title"><a href="/blog/common-resume-mistakes/">17 resume mistakes, and the fix for
+                each</a></h3>
+            <p class="post-card-desc">Ordered by damage done, not by how often the internet mentions them.</p>
+          </article>
+        </div>
+        <p class="posts-more"><a href="/blog/" class="btn-ghost btn-xl">All ten guides</a></p>
+      </div>
+    </section>
+
+    <div class="container">
+      <aside class="ad-slot ad-slot-footer" data-ad-slot="footer" aria-hidden="true"><span class="ad-label">Advertisement</span></aside>
+    </div>
+
     <section class="faq-section" id="faq" aria-labelledby="faq-title">
       <div class="container">
         <div class="section-head" data-reveal>
@@ -1071,6 +1200,7 @@
 
   </main>
 
+  <!-- FOOTER:START -->
   <!-- Footer -->
   <footer class="footer">
     <div class="container">
@@ -1083,47 +1213,49 @@
           <p>Create professional, ATS-friendly resumes in minutes with 50 clean, modern templates. Free, private, and no
             signup required.</p>
         </div>
-        <nav class="footer-col" aria-labelledby="footer-nav-title">
-          <h2 class="footer-col-title" id="footer-nav-title">Navigation</h2>
+        <nav class="footer-col" aria-labelledby="footer-cat-title">
+          <h2 class="footer-col-title" id="footer-cat-title">Browse templates</h2>
           <ul class="footer-links">
-            <li><a href="#templates">Resume templates</a></li>
-            <li><a href="#features">Features</a></li>
-            <li><a href="#process">How it works</a></li>
-            <li><a href="#guide">Resume writing guide</a></li>
-            <li><a href="#faq">FAQ</a></li>
-            <li><a href="editor.html">Open resume builder</a></li>
+            <li><a href="/ats-resume-templates/">ATS resume templates</a></li>
+            <li><a href="/professional-resume-templates/">Professional templates</a></li>
+            <li><a href="/modern-resume-templates/">Modern CV templates</a></li>
+            <li><a href="/creative-resume-templates/">Creative templates</a></li>
+            <li><a href="/tech-resume-templates/">Developer resume templates</a></li>
+            <li><a href="/academic-cv-templates/">Academic CV templates</a></li>
           </ul>
         </nav>
-        <nav class="footer-col" aria-labelledby="footer-pop-title">
-          <h2 class="footer-col-title" id="footer-pop-title">Popular templates</h2>
+        <nav class="footer-col" aria-labelledby="footer-learn-title">
+          <h2 class="footer-col-title" id="footer-learn-title">Learn</h2>
           <ul class="footer-links">
-            <li><a href="editor.html?template=professional">Professional resume template</a></li>
-            <li><a href="editor.html?template=ats-friendly">ATS-friendly resume template</a></li>
-            <li><a href="editor.html?template=modern">Modern CV template</a></li>
-            <li><a href="editor.html?template=software-engineer">Software engineer resume</a></li>
-            <li><a href="editor.html?template=europass">Europass CV template</a></li>
-            <li><a href="editor.html?template=harvard-style">Harvard style resume</a></li>
-            <li><a href="editor.html?template=graduate">Graduate resume template</a></li>
-            <li><a href="editor.html?template=aurora">Aurora creative template</a></li>
+            <li><a href="/blog/">Resume blog</a></li>
+            <li><a href="/blog/how-to-write-a-resume/">How to write a resume</a></li>
+            <li><a href="/blog/how-ats-works/">How ATS software works</a></li>
+            <li><a href="/blog/resume-with-no-experience/">Resume with no experience</a></li>
+            <li><a href="/blog/professional-summary-examples/">Professional summary examples</a></li>
+            <li><a href="/blog/resume-action-verbs/">Resume action verbs</a></li>
           </ul>
         </nav>
         <nav class="footer-col" aria-labelledby="footer-legal-title">
-          <h2 class="footer-col-title" id="footer-legal-title">Legal &amp; support</h2>
+          <h2 class="footer-col-title" id="footer-legal-title">Site</h2>
           <ul class="footer-links">
-            <li><a href="about.html">About us</a></li>
-            <li><a href="contact.html">Contact us</a></li>
-            <li><a href="privacy.html">Privacy policy</a></li>
-            <li><a href="terms.html">Terms of service</a></li>
-            <li><a href="disclaimer.html">Disclaimer</a></li>
+            <li><a href="/about.html">About us</a></li>
+            <li><a href="/contact.html">Contact us</a></li>
+            <li><a href="/privacy.html">Privacy policy</a></li>
+            <li><a href="/cookies.html">Cookie policy</a></li>
+            <li><a href="/terms.html">Terms of service</a></li>
+            <li><a href="/disclaimer.html">Disclaimer</a></li>
           </ul>
         </nav>
       </div>
       <div class="footer-bottom">
         <p class="footer-copy">&copy; 2026 ResumeElite. All rights reserved.</p>
-        <p class="footer-note">Made for job seekers. Your data never leaves your browser.</p>
+        <p class="footer-note">Your resume data never leaves your browser.
+          <button type="button" class="footer-link-btn" data-open-consent>Cookie settings</button>
+        </p>
       </div>
     </div>
   </footer>
+  <!-- FOOTER:END -->
 
   <!-- Sticky mobile CTA -->
   <div class="mobile-cta" aria-hidden="false">

@@ -1237,7 +1237,17 @@ function buildTemplateThumbnailHtml(tmpl) {
   } finally {
     restoreThumbnailState(original, originalTemplate);
   }
-  return html;
+  return demoteThumbnailHeadings(html);
+}
+
+// A thumbnail is decorative: it is a picture of a template, not page content.
+// Several templates mark the person's name as <h1>, which is right in the live
+// editor preview but would give a gallery page twenty competing <h1> elements.
+// Styling is entirely class-based, so swapping the tag changes nothing visually.
+function demoteThumbnailHeadings(html) {
+  return html
+    .replace(/<h1(\s|>)/g, '<div$1')
+    .replace(/<\/h1>/g, '</div>');
 }
 
 function snapshotThumbnailState() {

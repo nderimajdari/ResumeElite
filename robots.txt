@@ -8,6 +8,8 @@ Allow: /
 # Assets crawlers need in order to render pages correctly
 Allow: /styles.css
 Allow: /app.js
+Allow: /consent.js
+Allow: /og-image.jpg
 Allow: /og-image.png
 
 Sitemap: https://resume-elite.com/sitemap.xml
