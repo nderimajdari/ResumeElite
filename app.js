@@ -4,6 +4,7 @@
 const state = {
   template: 'classic',
   accentColor: '#2563eb',
+  accentCustom: false,
   photo: null,
   personal: { 
     firstName: '', lastName: '', jobTitle: '', email: '', phone: '', 
@@ -110,6 +111,7 @@ function updateSectionOrder() {
 
 // ---- Init ----
 document.addEventListener('DOMContentLoaded', () => {
+  ensureCvFonts();
   if (!document.getElementById('resume-preview')) {
     // Landing page
     initLanding();
@@ -191,6 +193,11 @@ function loadFromStorage() {
 function normalizeState() {
   state.personal = { ...defaultState.personal, ...(state.personal || {}) };
   state.signature = { ...defaultState.signature, ...(state.signature || {}) };
+  // Saves from before per-template colours: anything but the old default blue
+  // was a deliberate choice and should keep applying.
+  if (typeof state.accentCustom !== 'boolean') {
+    state.accentCustom = !!state.accentColor && state.accentColor.toLowerCase() !== '#2563eb';
+  }
   state.custom = { ...defaultState.custom, ...(state.custom || {}) };
 
   [
@@ -276,6 +283,7 @@ function bindAccentColor() {
   if (!input) return;
   input.addEventListener('input', () => {
     state.accentColor = input.value;
+    state.accentCustom = true;
     renderTemplateThumbnails();
     renderPreview();
     saveToStorage();
@@ -350,7 +358,6 @@ function bindSimpleFields() {
     }
   });
 }
-
 
 // ---- Photo Upload ----
 function bindPhotoUpload() {
@@ -991,8 +998,6 @@ function toggleVisibleSection(id) {
   saveToStorage();
 }
 
-
-
 // Override renderAllDynamic to use clean builders
 function renderAllDynamic() {
   renderListClean('experience', buildExperienceCard, state.experience);
@@ -1039,8 +1044,6 @@ function updateSectionVisibilityUI() {
   });
 }
 
-
-
 // shorthand
 function rp() { renderPreview(); }
 
@@ -1051,15 +1054,16 @@ function rp() { renderPreview(); }
 function renderPreview() {
   const preview = document.getElementById('resume-preview');
   if (!preview) return;
-  const accent = state.accentColor || '#2563eb';
+  const tmpl = state.template;
+  const accent = effectiveAccent(tmpl);
   const accentLight = hexToRgba(accent, 0.12);
   preview.style.setProperty('--resume-accent', accent);
   preview.style.setProperty('--resume-accent-light', accentLight);
+  syncAccentInputs();
 
-  const tmpl = state.template;
   const html = buildTemplateHtml(tmpl);
 
-  preview.className = `resume-page tmpl-${tmpl}`;
+  preview.className = `resume-page ${templateRootClass(tmpl)}`;
   preview.innerHTML = html;
   preview.style.setProperty('--resume-accent', accent);
   preview.style.setProperty('--resume-accent-light', accentLight);
@@ -1085,14 +1089,8 @@ function paginateResume(root, options = {}) {
   const pagePitch = pageHeight + pageGap;
   const selector = [
     '.r-section',
-    '.m-section',
     '.prof-section',
-    '.md-section',
-    '.mf-section',
-    '.ep-section',
-    '.tl-item',
-    '.cp-item',
-    '.ed-section'
+    '.cv-keep'
   ].join(',');
 
   root.querySelectorAll('.resume-page-spacer').forEach(el => el.remove());
@@ -1113,15 +1111,21 @@ function paginateResume(root, options = {}) {
   const visualGapsAdded = new Set();
 
   candidates.forEach(el => {
-    const top = getTop(el);
-    const height = el.getBoundingClientRect().height;
+    // The first entry of a cv section moves together with the section heading,
+    // so a heading is never left alone at the foot of a page.
+    let target = el;
+    if (el.classList.contains('cv-item') && !el.previousElementSibling) {
+      target = el.closest('.cv-sec') || el;
+    }
+    const top = getTop(target);
+    const bottom = getTop(el) + el.getBoundingClientRect().height;
+    const height = bottom - top;
     if (height >= pageHeight - 120) return;
 
     const pageStart = Math.floor(top / pagePitch) * pagePitch;
     const pageEnd = pageStart + pageHeight;
-    const bottom = top + height;
     if (top > pageStart + bottomGuard && bottom > pageEnd - bottomGuard) {
-      const parentTopPadding = parseFloat(getComputedStyle(el.parentElement).paddingTop) || 0;
+      const parentTopPadding = parseFloat(getComputedStyle(target.parentElement).paddingTop) || 0;
       const nextPageTopPadding = Math.max(rootTopPadding, parentTopPadding, 34);
       const remainingPageSpace = Math.max(0, pageEnd - top);
       const spacerHeight = remainingPageSpace + pageGap + nextPageTopPadding;
@@ -1130,8 +1134,8 @@ function paginateResume(root, options = {}) {
       const spacer = document.createElement('div');
       spacer.className = 'resume-page-spacer';
       spacer.style.height = `${Math.ceil(spacerHeight)}px`;
-      el.classList.add('resume-page-break-before');
-      el.parentNode.insertBefore(spacer, el);
+      target.classList.add('resume-page-break-before');
+      target.parentNode.insertBefore(spacer, target);
       
       // 2. Visual gap overlay (attached to root to span the entire paper width)
       // We only want ONE visual gap per physical page boundary to avoid dark overlapping shadows.
@@ -1157,59 +1161,414 @@ function paginateResume(root, options = {}) {
 }
 
 function buildTemplateHtml(tmpl) {
-  switch (tmpl) {
-    case 'classic': return buildClassic();
-    case 'modern': return buildModern();
-    case 'creative': return buildCreative();
-    case 'minimal': return buildMinimal();
-    case 'executive': return buildExecutive();
-    case 'tech': return buildTech();
-    case 'software-engineer': return buildSoftwareEngineer();
-    case 'qa-engineer': return buildQaEngineer();
-    case 'elegant': return buildElegant();
-    case 'bold': return buildBold();
-    case 'startup': return buildStartup();
-    case 'corporate': return buildCorporate();
-    case 'professional': return buildProfessional();
-    case 'modern-dark': return buildModernDark();
-    case 'classic-blue': return buildClassicBlue();
-    case 'minimal-formal': return buildMinimalFormal();
-    case 'traditional-serif': return buildTraditionalSerif();
-    case 'europass': return buildEuropass();
-    case 'modern-right': return buildModernRight();
-    case 'nordic': return buildNordic();
-    case 'timeline': return buildTimeline();
-    case 'mono': return buildMono();
-    case 'compact': return buildCompact();
-    case 'portfolio': return buildPortfolio();
-    case 'graduate': return buildGraduate();
-    case 'student': return buildStudent();
-    case 'freelancer': return buildFreelancer();
-    case 'clean-sidebar': return buildCleanSidebar();
-    case 'editorial': return buildEditorial();
-    case 'ats-friendly': return buildAtsFriendly();
-    case 'latex-style': return buildLatexStyle();
-    case 'harvard-style': return buildHarvardStyle();
-    case 'federal-style': return buildFederalStyle();
-    case 'functional': return buildFunctional();
-    case 'chronological': return buildChronological();
-    case 'consulting-style': return buildConsultingStyle();
-    case 'academic-cv': return buildAcademicCv();
-    case 'infographic': return buildInfographic();
-    case 'modern-executive': return buildModernExecutive();
-    case 'elite': return buildElite();
-    case 'aurora': return buildAurora();
-    case 'swiss': return buildSwiss();
-    case 'brutalist': return buildBrutalist();
-    case 'vogue': return buildVogue();
-    case 'terminal': return buildTerminal();
-    case 'metro': return buildMetro();
-    case 'luxe': return buildLuxe();
-    case 'impact': return buildImpact();
-    case 'atelier': return buildAtelier();
-    case 'spectrum': return buildSpectrum();
-    default: return buildClassic();
+  if (tmpl === 'professional') return buildProfessional();
+  return buildCvTemplate(CV_TEMPLATES[tmpl] ? tmpl : 'classic');
+}
+
+// The page element's class. Professional keeps its original markup and CSS; every
+// other template is drawn by the cv engine below and styled under .cv2, so none of
+// the older .tmpl-* rules can reach it.
+function templateRootClass(tmpl) {
+  if (tmpl === 'professional') return 'tmpl-professional';
+  return `cv2 cv-${CV_TEMPLATES[tmpl] ? tmpl : 'classic'}`;
+}
+
+// Each template has its own signature colour. It is used until the person picks
+// a colour themselves, after which their choice applies to every template.
+function effectiveAccent(tmpl) {
+  if (tmpl === 'professional' || state.accentCustom) return state.accentColor || '#2563eb';
+  return CV_TEMPLATES[tmpl]?.accent || state.accentColor || '#2563eb';
+}
+
+function accentStyle(tmpl) {
+  const accent = effectiveAccent(tmpl);
+  return `--resume-accent:${accent};--resume-accent-light:${hexToRgba(accent, 0.12)};`;
+}
+
+// ============================================================
+// ---- Template engine (every template except Professional) ----
+// ============================================================
+// A template is a config: where the sidebar sits and what goes in it, how the
+// header is arranged, and how dates, skills and languages are drawn. The markup is
+// shared and uses only cv-* classes; each template's look is its .cv-<id> block at
+// the end of styles.css.
+//
+//   layout   single | left | right | split (full-width header, side column right)
+//   head     top (full width) | main (top of main column) | side (top of sidebar)
+//   contact  header | side            contactStyle  icons | plain | labels
+//   dates    right | left | above | inline
+//   skills / langs / quals            chips | bars | dots | list | grid | inline
+//   side     section ids that go in the sidebar
+//   first    section ids pulled to the front of the main column
+//   orgFirst company line above the role (Harvard / consulting convention)
+//   decor    static markup placed first inside the page (terminal window bar)
+
+const CV_SIDE = ['skills', 'languages', 'qualities', 'hobbies', 'certifications', 'courses', 'references'];
+
+const CV_TEMPLATES = {
+  'classic':           { accent: '#1f4e79', layout: 'single', skills: 'grid', langs: 'list', quals: 'inline' },
+  'modern':            { accent: '#0f766e', layout: 'left', head: 'main', contact: 'side', photoIn: 'side', skills: 'bars', langs: 'dots', quals: 'list' },
+  'creative':          { accent: '#f2545b', layout: 'split', skills: 'chips', langs: 'bars', side: ['skills', 'languages', 'qualities', 'hobbies', 'certifications', 'courses'] },
+  'minimal':           { accent: '#111111', layout: 'single', photo: false, contactStyle: 'plain', skills: 'inline', langs: 'inline', quals: 'inline' },
+  'executive':         { accent: '#8a6d3b', layout: 'split', contactStyle: 'plain', skills: 'list', langs: 'list', quals: 'list' },
+  'tech':              { accent: '#0891b2', layout: 'split', first: ['projects'], skills: 'chips', langs: 'list' },
+  'software-engineer': { accent: '#4f46e5', layout: 'left', head: 'side', contact: 'side', photoIn: 'side', skills: 'bars', langs: 'list', side: ['skills', 'certifications', 'languages', 'courses', 'qualities', 'hobbies'] },
+  'qa-engineer':       { accent: '#15803d', layout: 'split', dates: 'above', skills: 'grid', langs: 'dots', quals: 'grid' },
+  'elegant':           { accent: '#8c6d62', layout: 'single', contactStyle: 'plain', dates: 'left', skills: 'inline', langs: 'inline', quals: 'inline' },
+  'bold':              { accent: '#f59e0b', layout: 'split', solidIcons: true, skills: 'chips', langs: 'bars' },
+  'startup':           { accent: '#7c3aed', layout: 'split', first: ['projects'], dates: 'above', skills: 'chips', langs: 'list' },
+  'corporate':         { accent: '#1e3a5f', layout: 'single', contactStyle: 'plain', skills: 'inline', langs: 'inline', quals: 'inline' },
+  'modern-dark':       { accent: '#10b981', layout: 'left', head: 'top', solidIcons: true, skills: 'dots', langs: 'dots', quals: 'list' },
+  'classic-blue':      { accent: '#1d4ed8', layout: 'single', skills: 'grid', langs: 'list', quals: 'inline' },
+  'minimal-formal':    { accent: '#334155', layout: 'single', contactStyle: 'plain', dates: 'left', skills: 'grid', langs: 'list', quals: 'inline' },
+  'traditional-serif': { accent: '#6b1d2a', layout: 'single', contactStyle: 'plain', skills: 'inline', langs: 'inline', quals: 'inline' },
+  'europass':          { accent: '#0e4194', layout: 'single', contactStyle: 'labels', dates: 'left', kicker: 'Curriculum Vitae', skills: 'grid', langs: 'list', quals: 'inline',
+                         titles: { summary: 'About Myself', experience: 'Work Experience', education: 'Education and Training', languages: 'Language Skills', skills: 'Digital and Job-related Skills' } },
+  'modern-right':      { accent: '#0284c7', layout: 'right', head: 'main', contact: 'side', photoIn: 'side', skills: 'bars', langs: 'dots', quals: 'list' },
+  'nordic':            { accent: '#5b7553', layout: 'split', skills: 'list', langs: 'list', quals: 'list' },
+  'timeline':          { accent: '#c026d3', layout: 'single', dates: 'left', skills: 'chips', langs: 'inline', quals: 'inline' },
+  'mono':              { accent: '#9a3412', layout: 'single', contactStyle: 'plain', skills: 'inline', langs: 'inline', quals: 'inline' },
+  'compact':           { accent: '#155e75', layout: 'single', contactStyle: 'plain', skills: 'inline', langs: 'inline', quals: 'inline' },
+  'portfolio':         { accent: '#fca311', layout: 'left', head: 'side', contact: 'side', photoIn: 'side', first: ['projects'], skills: 'chips', langs: 'bars', quals: 'list' },
+  'graduate':          { accent: '#14532d', layout: 'single', photo: false, contactStyle: 'plain', first: ['education', 'courses'], skills: 'grid', langs: 'inline', quals: 'inline' },
+  'student':           { accent: '#6366f1', layout: 'single', first: ['education', 'courses', 'projects'], skills: 'chips', langs: 'chips', quals: 'chips' },
+  'freelancer':        { accent: '#c2410c', layout: 'right', head: 'main', contact: 'side', photoIn: 'side', kicker: 'Available for projects', first: ['projects'], skills: 'list', langs: 'list', quals: 'list',
+                         titles: { skills: 'Services', projects: 'Selected Work', summary: 'About' } },
+  'clean-sidebar':     { accent: '#2563eb', layout: 'right', head: 'main', contact: 'side', photoIn: 'side', contactStyle: 'plain', skills: 'list', langs: 'list', quals: 'list' },
+  'editorial':         { accent: '#b91c1c', layout: 'single', contactStyle: 'plain', kicker: 'Résumé', skills: 'inline', langs: 'inline', quals: 'inline' },
+  'ats-friendly':      { accent: '#111111', layout: 'single', photo: false, contactStyle: 'plain', skills: 'inline', langs: 'inline', quals: 'inline' },
+  'latex-style':       { accent: '#2e5c8a', layout: 'single', photo: false, contactStyle: 'plain', dates: 'left', skills: 'inline', langs: 'inline', quals: 'inline' },
+  'harvard-style':     { accent: '#111111', layout: 'single', photo: false, contactStyle: 'plain', orgFirst: true, skills: 'inline', langs: 'inline', quals: 'inline' },
+  'federal-style':     { accent: '#1e3a8a', layout: 'single', photo: false, contactStyle: 'labels', skills: 'grid', langs: 'list', quals: 'inline' },
+  'functional':        { accent: '#0d9488', layout: 'single', first: ['skills', 'qualities', 'achievements'], skills: 'grid', langs: 'inline', quals: 'chips',
+                         titles: { skills: 'Core Competencies', experience: 'Employment History' } },
+  'chronological':     { accent: '#be123c', layout: 'single', dates: 'left', skills: 'chips', langs: 'inline', quals: 'inline' },
+  'consulting-style':  { accent: '#7f1d1d', layout: 'single', photo: false, contactStyle: 'plain', orgFirst: true, skills: 'inline', langs: 'inline', quals: 'inline' },
+  'academic-cv':       { accent: '#1e3a8a', layout: 'single', photo: false, contactStyle: 'plain', dates: 'left', skills: 'inline', langs: 'inline', quals: 'inline' },
+  'infographic':       { accent: '#f97316', layout: 'left', head: 'main', contact: 'side', photoIn: 'side', numbered: true, skills: 'dots', langs: 'bars', quals: 'chips' },
+  'modern-executive':  { accent: '#0f3d3e', layout: 'split', contactStyle: 'plain', skills: 'list', langs: 'list', quals: 'list' },
+  'elite':             { accent: '#c9a227', layout: 'left', head: 'top', contact: 'side', photoIn: 'side', skills: 'dots', langs: 'list', quals: 'list' },
+  'aurora':            { accent: '#8b5cf6', layout: 'split', skills: 'chips', langs: 'bars', quals: 'chips', side: ['skills', 'languages', 'qualities', 'hobbies', 'courses', 'references'] },
+  'swiss':             { accent: '#e30613', layout: 'single', photo: false, contactStyle: 'plain', numbered: true, skills: 'grid', langs: 'list', quals: 'inline' },
+  'brutalist':         { accent: '#ff5c00', layout: 'single', skills: 'chips', langs: 'chips', quals: 'chips' },
+  'vogue':             { accent: '#be185d', layout: 'split', contactStyle: 'plain', kicker: 'Curriculum Vitae', dropcap: true, skills: 'inline', langs: 'list', quals: 'inline' },
+  'luxe':              { accent: '#b08d4f', layout: 'single', contactStyle: 'plain', dates: 'above', skills: 'inline', langs: 'inline', quals: 'inline' },
+  'impact':            { accent: '#dc2626', layout: 'split', skills: 'bars', langs: 'list', quals: 'chips' },
+  'atelier':           { accent: '#4d7c0f', layout: 'single', contactStyle: 'plain', skills: 'inline', langs: 'inline', quals: 'inline' },
+  'spectrum':          { accent: '#db2777', layout: 'split', skills: 'chips', langs: 'dots', quals: 'chips' },
+  'metro':             { accent: '#0ea5e9', layout: 'split', skills: 'bars', langs: 'list', quals: 'chips' },
+  'terminal':          { accent: '#22c55e', layout: 'split', contactStyle: 'plain', decor: '<div class="cv-window"><i></i><i></i><i></i></div>', skills: 'chips', langs: 'list', quals: 'chips' }
+};
+
+const CV_DEFAULTS = {
+  layout: 'single', head: 'top', contact: 'header', contactStyle: 'icons', photo: true, photoIn: 'header',
+  dates: 'right', skills: 'chips', langs: 'list', quals: 'chips', side: CV_SIDE, first: [], titles: {}
+};
+
+const CV_TITLES = {
+  summary: 'Professional Summary', experience: 'Work Experience', education: 'Education', skills: 'Skills',
+  languages: 'Languages', projects: 'Projects', certifications: 'Certifications', internships: 'Internships',
+  activities: 'Activities', hobbies: 'Interests', courses: 'Courses', references: 'References',
+  qualities: 'Strengths', achievements: 'Achievements', contact: 'Contact'
+};
+
+const CV_LEVELS = {
+  beginner: 1, elementary: 2, intermediate: 3, advanced: 4, proficient: 4, expert: 5,
+  native: 5, fluent: 4, a1: 1, a2: 2, b1: 3, b2: 3, c1: 4, c2: 5
+};
+
+// Skills are stored as words ("Advanced") from the editor, or as 0–100 numbers
+// in older saves and the thumbnail sample. Both map onto a 1–5 scale.
+function cvLevel(value) {
+  if (value === undefined || value === null || value === '') return 0;
+  const n = Number(value);
+  if (!Number.isNaN(n)) return Math.max(1, Math.min(5, Math.round(n / 20)));
+  return CV_LEVELS[String(value).trim().toLowerCase()] || 0;
+}
+
+function cvLevelLabel(value) {
+  if (value === undefined || value === null || value === '') return '';
+  return Number.isNaN(Number(value)) ? esc(value) : '';
+}
+
+function cvRange(start, end) {
+  if (!start && !end) return '';
+  if (!start) return esc(end);
+  return `${esc(start)} – ${esc(end) || 'Present'}`;
+}
+
+function cvDesc(str) {
+  const html = formatBullets(str);
+  if (!html) return '';
+  if (html.startsWith('<ul>')) return `<div class="cv-desc">${html.replace('<ul>', '<ul class="cv-bullets">')}</div>`;
+  return `<div class="cv-desc"><p>${html}</p></div>`;
+}
+
+function cvItem({ role = '', org = '', loc = '', date = '', desc = '', orgFirst = false }) {
+  if (!role && !org) return '';
+  const top = role || org;
+  const second = role ? org : '';
+  const orgLine = (second || loc)
+    ? `<div class="cv-org">${second ? `<span class="cv-org-name">${second}</span>` : ''}${loc ? `<span class="cv-loc">${loc}</span>` : ''}</div>`
+    : '';
+  // Harvard and consulting CVs lead with the employer for jobs and schools
+  // (orgFirst is only passed by those sections); the role sits under it.
+  const roleHtml = `<div class="cv-role">${top}</div>`;
+  const lead = orgFirst && second;
+  return `<div class="cv-item cv-keep${lead ? ' cv-org-first' : ''}">
+      ${date ? `<div class="cv-date">${date}</div>` : ''}
+      ${lead ? orgLine + roleHtml : roleHtml + orgLine}
+      ${desc}
+    </div>`;
+}
+
+function cvTitle(id, cfg) {
+  if (id === 'custom') return esc(state.custom.title || 'Custom Section');
+  return cfg.titles[id] || CV_TITLES[id] || id;
+}
+
+function cvSec(id, cfg, body, num, keep = false) {
+  if (!body) return '';
+  const n = num ? `<span class="cv-num">${String(num).padStart(2, '0')}</span>` : '';
+  return `<section class="cv-sec cv-sec-${id}${keep ? ' cv-keep' : ''}">
+      <h2 class="cv-h">${n}<span class="cv-h-t">${cvTitle(id, cfg)}</span></h2>
+      <div class="cv-sec-body">${body}</div>
+    </section>`;
+}
+
+function cvLevelList(list, mode, levelKey) {
+  if (!list.length) return '';
+  const lvl = item => cvLevel(item[levelKey]);
+  const label = item => cvLevelLabel(item[levelKey]);
+  switch (mode) {
+    case 'bars':
+      return `<div class="cv-bars">${list.map(it => `
+        <div class="cv-bar-row"><span class="cv-bar-name">${esc(it.name)}</span>${lvl(it)
+          ? `<span class="cv-bar"><i style="width:${lvl(it) * 20}%"></i></span>` : ''}</div>`).join('')}</div>`;
+    case 'dots':
+      return `<div class="cv-dotlist">${list.map(it => `
+        <div class="cv-dot-row"><span class="cv-dot-name">${esc(it.name)}</span>${lvl(it)
+          ? `<span class="cv-dots">${[1, 2, 3, 4, 5].map(i => `<i class="${i <= lvl(it) ? 'on' : ''}"></i>`).join('')}</span>` : ''}</div>`).join('')}</div>`;
+    case 'list':
+    case 'grid':
+      return `<ul class="cv-list${mode === 'grid' ? ' cv-list-grid' : ''}">${list.map(it => `
+        <li><span class="cv-li-name">${esc(it.name)}</span>${label(it) ? `<span class="cv-li-lvl">${label(it)}</span>` : ''}</li>`).join('')}</ul>`;
+    case 'inline':
+      return `<p class="cv-inline">${list.map(it => `<span class="cv-in">${esc(it.name)}${label(it) && levelKey === 'proficiency' ? ` <em>(${label(it)})</em>` : ''}</span>`).join('<span class="cv-in-sep"> · </span>')}</p>`;
+    default:
+      return `<div class="cv-chips">${list.map(it => `<span class="cv-chip">${esc(it.name)}</span>`).join('')}</div>`;
   }
+}
+
+function cvSectionHtml(id, cfg, num) {
+  const s = state;
+  switch (id) {
+    case 'summary':
+      if (!s.summary) return '';
+      if (cfg.dropcap) {
+        const text = esc(s.summary.trim());
+        return cvSec(id, cfg, `<p class="cv-summary"><span class="cv-dropcap">${text.charAt(0)}</span>${text.slice(1)}</p>`, num, true);
+      }
+      return cvSec(id, cfg, `<p class="cv-summary">${esc(s.summary)}</p>`, num, true);
+    case 'experience':
+    case 'internships': {
+      const list = s[id].filter(e => e.position || e.company);
+      return cvSec(id, cfg, list.map(e => cvItem({
+        role: esc(e.position), org: esc(e.company), loc: esc(e.location),
+        date: cvRange(e.startDate, e.endDate), desc: cvDesc(e.description), orgFirst: cfg.orgFirst
+      })).join(''), num);
+    }
+    case 'education': {
+      const list = s.education.filter(e => e.degree || e.institution);
+      return cvSec(id, cfg, list.map(e => cvItem({
+        role: esc(e.degree) + (e.field ? ` in ${esc(e.field)}` : ''), org: esc(e.institution), loc: esc(e.location),
+        date: cvRange(e.startDate, e.endDate), desc: cvDesc(e.description), orgFirst: cfg.orgFirst
+      })).join(''), num);
+    }
+    case 'projects': {
+      const list = s.projects.filter(pr => pr.name && pr.name.trim());
+      return cvSec(id, cfg, list.map(pr => cvItem({
+        role: esc(pr.name) + (pr.url ? ` <span class="cv-url">${linkify('website', pr.url)}</span>` : ''),
+        org: esc(pr.tech), desc: cvDesc(pr.description)
+      })).join(''), num);
+    }
+    case 'certifications': {
+      const list = s.certifications.filter(c => c.name && c.name.trim());
+      return cvSec(id, cfg, list.map(c => cvItem({
+        role: esc(c.name), org: esc(c.issuer), date: esc(c.date), desc: cvDesc(c.description)
+      })).join(''), num);
+    }
+    case 'activities': {
+      const list = s.activities.filter(a => a.name || a.organization);
+      return cvSec(id, cfg, list.map(a => cvItem({
+        role: esc(a.name), org: esc(a.organization), date: esc(a.date), desc: cvDesc(a.description)
+      })).join(''), num);
+    }
+    case 'courses': {
+      const list = s.courses.filter(c => c.name || c.institution);
+      return cvSec(id, cfg, list.map(c => cvItem({ role: esc(c.name), org: esc(c.institution), date: esc(c.date) })).join(''), num);
+    }
+    case 'references': {
+      const list = s.references.filter(r => r.name || r.company);
+      return cvSec(id, cfg, list.map(r => cvItem({
+        role: esc(r.name), org: esc(r.company),
+        desc: (r.email || r.phone) ? `<div class="cv-desc"><p>${[r.email ? linkify('email', r.email) : '', r.phone ? linkify('phone', r.phone) : ''].filter(Boolean).join(' · ')}</p></div>` : ''
+      })).join(''), num);
+    }
+    case 'achievements': {
+      const list = s.achievements.filter(a => a.name && a.name.trim());
+      return cvSec(id, cfg, list.map(a => cvItem({ role: esc(a.name), desc: cvDesc(a.description) })).join(''), num);
+    }
+    case 'skills':
+      return cvSec(id, cfg, cvLevelList(s.skills.filter(x => x.name && x.name.trim()), cfg.skills, 'level'), num, true);
+    case 'languages':
+      return cvSec(id, cfg, cvLevelList(s.languages.filter(x => x.name && x.name.trim()), cfg.langs, 'proficiency'), num, true);
+    case 'qualities':
+      return cvSec(id, cfg, cvLevelList(s.qualities.filter(x => x.name && x.name.trim()), cfg.quals, ''), num, true);
+    case 'hobbies':
+      if (!s.hobbies) return '';
+      return cvSec(id, cfg, `<p class="cv-summary">${esc(s.hobbies)}</p>`, num, true);
+    case 'custom':
+      if (!s.custom.content) return '';
+      return cvSec(id, cfg, cvDesc(s.custom.content), num, true);
+    case 'signature': {
+      const sig = s.signature || {};
+      if (!sig.text && !sig.image) return '';
+      return `<div class="cv-signature cv-keep">
+          ${sig.image ? `<img class="cv-sig-img" src="${sig.image}" alt="Signature" />` : `<div class="cv-sig-text">${esc(sig.text)}</div>`}
+          <div class="cv-sig-label">Signature</div>
+        </div>`;
+    }
+    case 'footer':
+      if (!s.footer) return '';
+      return `<div class="cv-footer cv-keep">${esc(s.footer)}</div>`;
+    default:
+      return '';
+  }
+}
+
+const CV_CONTACT_LABELS = {
+  email: 'Email', phone: 'Phone', location: 'Address', linkedin: 'LinkedIn', website: 'Website',
+  dob: 'Date of birth', pob: 'Place of birth', license: 'Driving licence', gender: 'Gender',
+  nationality: 'Nationality', civil: 'Marital status', custom: 'Other'
+};
+
+function cvContactEntries() {
+  const p = state.personal;
+  return [
+    ['email', p.email ? linkify('email', p.email) : ''],
+    ['phone', p.phone ? linkify('phone', p.phone) : ''],
+    ['location', (p.city || p.country) ? esc([p.city, p.country].filter(Boolean).join(', ')) : ''],
+    ['linkedin', p.linkedin ? linkify('linkedin', p.linkedin) : ''],
+    ['website', p.website ? linkify('website', p.website) : ''],
+    ['dob', esc(p.dob)], ['pob', esc(p.pob)], ['license', esc(p.driverLicense)], ['gender', esc(p.gender)],
+    ['nationality', esc(p.nationality)], ['civil', esc(p.civilStatus)], ['custom', esc(p.customField)]
+  ].filter(([, v]) => v);
+}
+
+function cvContacts(cfg) {
+  const entries = cvContactEntries();
+  if (!entries.length) return '';
+  if (cfg.contactStyle === 'plain') {
+    return `<div class="cv-contacts cv-contacts-plain">${entries.map(([k, v]) => `<span class="cv-c cv-c-${k}">${v}</span>`).join('<span class="cv-c-sep"> | </span>')}</div>`;
+  }
+  if (cfg.contactStyle === 'labels') {
+    return `<div class="cv-contacts cv-contacts-labels">${entries.map(([k, v]) => `<div class="cv-c cv-c-${k}"><span class="cv-cl">${CV_CONTACT_LABELS[k]}</span><span class="cv-cv">${v}</span></div>`).join('')}</div>`;
+  }
+  const iconTmpl = cfg.solidIcons ? 'bold' : 'modern';
+  const iconKey = { license: 'license', civil: 'civil' };
+  return `<div class="cv-contacts cv-contacts-icons">${entries.map(([k, v]) => `<span class="cv-c cv-c-${k}"><span class="cv-ic">${getIcon(iconKey[k] || k, iconTmpl)}</span><span class="cv-cv">${v}</span></span>`).join('')}</div>`;
+}
+
+function cvPhoto(cfg, where) {
+  if (cfg.photo === false || !state.photo || cfg.photoIn !== where) return '';
+  return `<div class="cv-photo"><img class="cv-img" src="${state.photo}" alt="Profile photo" /></div>`;
+}
+
+function cvHeader(cfg) {
+  const p = state.personal;
+  const first = esc(p.firstName), last = esc(p.lastName);
+  const name = (first || last)
+    ? `<span class="cv-first">${first}</span>${first && last ? ' ' : ''}<span class="cv-last">${last}</span>`
+    : '<span class="cv-first">Your</span> <span class="cv-last">Name</span>';
+  const title = esc(p.jobTitle);
+  return `<header class="cv-head">
+      ${cvPhoto(cfg, 'header')}
+      <div class="cv-id">
+        ${cfg.kicker ? `<div class="cv-kicker">${cfg.kicker}</div>` : ''}
+        <h1 class="cv-name">${name}</h1>
+        ${title ? `<div class="cv-title">${title}</div>` : ''}
+      </div>
+      ${cfg.contact === 'header' ? cvContacts(cfg) : ''}
+    </header>`;
+}
+
+function buildCvTemplate(tmpl) {
+  const cfg = { ...CV_DEFAULTS, ...CV_TEMPLATES[tmpl] };
+  const ordered = orderedVisibleSectionIds(state.sectionOrder);
+  const ids = [...cfg.first.filter(id => ordered.includes(id)), ...ordered.filter(id => !cfg.first.includes(id))];
+  const hasSide = cfg.layout !== 'single';
+  const tail = ['signature', 'footer'];
+  const sideIds = hasSide ? ids.filter(id => cfg.side.includes(id)) : [];
+  const mainIds = ids.filter(id => !sideIds.includes(id) && !tail.includes(id));
+
+  let n = 0;
+  const main = mainIds.map(id => {
+    const html = cvSectionHtml(id, cfg, cfg.numbered ? n + 1 : 0);
+    if (html) n += 1;
+    return html;
+  }).join('') + tail.filter(id => ids.includes(id)).map(id => cvSectionHtml(id, cfg, 0)).join('');
+
+  const header = cvHeader(cfg);
+  const side = hasSide ? `<aside class="cv-side">
+      ${cvPhoto(cfg, 'side')}
+      ${cfg.head === 'side' ? header : ''}
+      ${cfg.contact === 'side' ? cvSec('contact', cfg, cvContacts(cfg), 0, true) : ''}
+      ${sideIds.map(id => cvSectionHtml(id, cfg, 0)).join('')}
+    </aside>` : '';
+
+  const classes = ['cv', `cv-L-${cfg.layout}`, `cv-D-${cfg.dates}`, `cv-H-${cfg.head}`, state.photo && cfg.photo !== false ? 'cv-has-photo' : 'cv-no-photo'];
+  return `<div class="${classes.join(' ')}">
+      ${cfg.decor || ''}
+      ${cfg.head === 'top' || !hasSide ? header : ''}
+      <div class="cv-body">
+        ${side}
+        <main class="cv-main">
+          ${hasSide && cfg.head === 'main' ? header : ''}
+          ${main}
+        </main>
+      </div>
+    </div>`;
+}
+
+const CV_FONT_FAMILIES = [
+  'Lato:ital,wght@0,300;0,400;0,700;0,900;1,400', 'Merriweather:ital,wght@0,400;0,700;1,400',
+  'Roboto:ital,wght@0,400;0,500;0,700;1,400', 'Playfair:ital,wght@0,400..900;1,400..900',
+  'Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500', 'DM+Sans:ital,wght@0,400;0,500;0,700;1,400',
+  'Outfit:wght@300..900', 'Work+Sans:ital,wght@0,300..700;1,400', 'Source+Sans+3:ital,wght@0,400..800;1,400',
+  'Space+Grotesk:wght@400..700', 'IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400', 'IBM+Plex+Mono:wght@400;500;600',
+  'Manrope:wght@400..800', 'Lora:ital,wght@0,400..700;1,400..700', 'Archivo:ital,wght@0,400..900;1,400',
+  'Archivo+Black', 'Plus+Jakarta+Sans:ital,wght@0,400..800;1,400', 'Libre+Baskerville:ital,wght@0,400;0,700;1,400',
+  'Montserrat:wght@400..900', 'Open+Sans:ital,wght@0,400..800;1,400', 'PT+Serif:ital,wght@0,400;0,700;1,400',
+  'Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400', 'EB+Garamond:ital,wght@0,400..800;1,400..800',
+  'Raleway:wght@400..900', 'DM+Serif+Display:ital@0;1', 'Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400',
+  'Courier+Prime:ital,wght@0,400;0,700;1,400', 'Barlow:ital,wght@0,400;0,500;0,600;0,700;1,400',
+  'Barlow+Condensed:wght@500;600;700;800', 'Fraunces:ital,wght@0,400..900;1,400..900', 'Crimson+Pro:ital,wght@0,400..800;1,400',
+  'Nunito:ital,wght@0,400..900;1,400', 'STIX+Two+Text:ital,wght@0,400..700;1,400..700', 'JetBrains+Mono:wght@400..700',
+  'Sora:wght@400..800', 'Bodoni+Moda:ital,wght@0,400..900;1,400..900', 'Syne:wght@400..800', 'Rubik:ital,wght@0,400..800;1,400'
+];
+
+// Templates use a wider range of typefaces than the site chrome, so the families
+// are requested once, from script, on any page that renders a resume. Inter and
+// Playfair Display are left out on purpose: every page already loads them, and a
+// second declaration with other weights changes how Professional renders.
+function ensureCvFonts() {
+  if (document.getElementById('cv-fonts')) return;
+  const link = document.createElement('link');
+  link.id = 'cv-fonts';
+  link.rel = 'stylesheet';
+  link.href = `https://fonts.googleapis.com/css2?${CV_FONT_FAMILIES.map(f => `family=${f}`).join('&')}&display=swap`;
+  document.head.appendChild(link);
 }
 
 function renderTemplateThumbnails() {
@@ -1221,9 +1580,14 @@ function renderTemplateThumbnails() {
     if (!btn) return;
     const tmpl = btn.dataset.tmpl;
     const html = buildTemplateThumbnailHtml(tmpl);
-    thumb.innerHTML = `<div class="thumbnail-page resume-page tmpl-${tmpl}">${html}</div>`;
+    thumb.innerHTML = thumbnailPageHtml(tmpl, html);
     setThumbScale(thumb);
   });
+}
+
+function thumbnailPageHtml(tmpl, html) {
+  const style = tmpl === 'professional' ? '' : ` style="${accentStyle(tmpl)}"`;
+  return `<div class="thumbnail-page resume-page ${templateRootClass(tmpl)}"${style}>${html}</div>`;
 }
 
 function buildTemplateThumbnailHtml(tmpl) {
@@ -1304,8 +1668,8 @@ function applyThumbnailState(tmpl) {
     { name: 'Research', level: 76 }
   ];
   state.languages = [
-    { name: 'French', level: 'Native' },
-    { name: 'English', level: 'Fluent' }
+    { name: 'French', proficiency: 'Native' },
+    { name: 'English', proficiency: 'Fluent' }
   ];
   state.projects = [
     { name: 'Portfolio Platform', tech: 'Figma, Web', url: '', description: 'Designed a modular profile builder.' }
@@ -1466,80 +1830,7 @@ function getIcon(type, tmpl) {
   return emojis[type] || '';
 }
 
-function contactItems(dark = false) {
-  const p = state.personal;
-  const tmpl = state.template;
-  const color = dark ? 'color:#e2e8f0' : '';
-  const items = [];
-  if (p.email) items.push(`<span class="r-contact-item" style="${color}">${getIcon('email', tmpl)} ${linkify('email', p.email)}</span>`);
-  if (p.phone) items.push(`<span class="r-contact-item" style="${color}">${getIcon('phone', tmpl)} ${linkify('phone', p.phone)}</span>`);
-  if (p.city || p.country) items.push(`<span class="r-contact-item" style="${color}">${getIcon('location', tmpl)} ${esc([p.city, p.country].filter(Boolean).join(', '))}</span>`);
-  if (p.linkedin) items.push(`<span class="r-contact-item" style="${color}">${getIcon('linkedin', tmpl)} ${linkify('linkedin', p.linkedin)}</span>`);
-  if (p.website) items.push(`<span class="r-contact-item" style="${color}">${getIcon('website', tmpl)} ${linkify('website', p.website)}</span>`);
-  
-  if (p.dob) items.push(`<span class="r-contact-item" style="${color}">${getIcon('dob', tmpl)} ${esc(p.dob)}</span>`);
-  if (p.pob) items.push(`<span class="r-contact-item" style="${color}">${getIcon('pob', tmpl)} ${esc(p.pob)}</span>`);
-  if (p.driverLicense) items.push(`<span class="r-contact-item" style="${color}">${getIcon('license', tmpl)} ${esc(p.driverLicense)}</span>`);
-  if (p.gender) items.push(`<span class="r-contact-item" style="${color}">${getIcon('gender', tmpl)} ${esc(p.gender)}</span>`);
-  if (p.nationality) items.push(`<span class="r-contact-item" style="${color}">${getIcon('nationality', tmpl)} ${esc(p.nationality)}</span>`);
-  if (p.civilStatus) items.push(`<span class="r-contact-item" style="${color}">${getIcon('civil', tmpl)} ${esc(p.civilStatus)}</span>`);
-  if (p.customField) items.push(`<span class="r-contact-item" style="${color}">${getIcon('custom', tmpl)} ${esc(p.customField)}</span>`);
-  
-  return items.length ? `<div class="r-contact">${items.join('')}</div>` : '';
-}
-
-function optionalPersonalContactItems(tmpl, className = '') {
-  const p = state.personal;
-  const cls = className ? ` class="${className}"` : '';
-  return [
-    p.dob ? `<span${cls}>${getIcon('dob', tmpl)} ${esc(p.dob)}</span>` : '',
-    p.pob ? `<span${cls}>${getIcon('pob', tmpl)} ${esc(p.pob)}</span>` : '',
-    p.driverLicense ? `<span${cls}>${getIcon('license', tmpl)} ${esc(p.driverLicense)}</span>` : '',
-    p.gender ? `<span${cls}>${getIcon('gender', tmpl)} ${esc(p.gender)}</span>` : '',
-    p.nationality ? `<span${cls}>${getIcon('nationality', tmpl)} ${esc(p.nationality)}</span>` : '',
-    p.civilStatus ? `<span${cls}>${getIcon('civil', tmpl)} ${esc(p.civilStatus)}</span>` : '',
-    p.customField ? `<span${cls}>${getIcon('custom', tmpl)} ${esc(p.customField)}</span>` : ''
-  ].filter(Boolean);
-}
-
-function inlinePersonalContactValues(includeOptional = true) {
-  const p = state.personal;
-  return [
-    (p.city || p.country) ? esc([p.city, p.country].filter(Boolean).join(', ')) : '',
-    p.phone ? linkify('phone', p.phone) : '',
-    p.email ? linkify('email', p.email) : '',
-    p.linkedin ? linkify('linkedin', p.linkedin) : '',
-    p.website ? linkify('website', p.website) : '',
-    ...(includeOptional ? [p.dob, p.pob, p.driverLicense, p.gender, p.nationality, p.civilStatus, p.customField].filter(Boolean).map(esc) : [])
-  ].filter(Boolean);
-}
 function sectionTitle(label) { return `<div class="r-section-title">${label}</div>`; }
-
-const sectionMap = {
-  summary: summarySection,
-  experience: expSection,
-  education: eduSection,
-  skills: skillsSection,
-  languages: langSection,
-  projects: projSection,
-  certifications: certSection,
-  internships: internshipSection,
-  activities: activitySection,
-  hobbies: hobbySection,
-  courses: courseSection,
-  references: referenceSection,
-  qualities: qualitySection,
-  achievements: achievementSection,
-  signature: signatureSection,
-  footer: footerSection,
-  custom: customSection
-};
-
-function renderOrderedSections(ids) {
-  return orderedVisibleSectionIds(ids)
-    .map(id => sectionMap[id] ? sectionMap[id]() : '')
-    .join('');
-}
 
 function orderedVisibleSectionIds(ids) {
   const requested = Array.isArray(ids) ? ids : [];
@@ -1553,663 +1844,6 @@ function orderedVisibleSectionIds(ids) {
 function summarySection() {
   if (!state.summary) return '';
   return `<div class="r-section">${sectionTitle('Professional Summary')}<p class="r-summary">${esc(state.summary)}</p></div>`;
-}
-function expSection() {
-  const list = state.experience.filter(e => e.position || e.company);
-  if (!list.length) return '';
-  const items = list.map(e => `
-    <div class="r-item">
-      <div class="r-item-title">${esc(e.position)}</div>
-      <div class="r-item-sub">${esc(e.company)}${e.location ? ' • ' + esc(e.location) : ''}${e.startDate ? ' • ' + esc(e.startDate) + ' – ' + (esc(e.endDate) || 'Present') : ''}</div>
-      ${e.description ? `<div class="r-item-desc">${esc(e.description)}</div>` : ''}
-    </div>`).join('');
-  return `<div class="r-section">${sectionTitle('Work Experience')}${items}</div>`;
-}
-function eduSection() {
-  const list = state.education.filter(e => e.degree || e.institution);
-  if (!list.length) return '';
-  const items = list.map(e => `
-    <div class="r-item">
-      <div class="r-item-title">${esc(e.degree)}${e.field ? ' in ' + esc(e.field) : ''}</div>
-      <div class="r-item-sub">${esc(e.institution)}${e.location ? ' • ' + esc(e.location) : ''}${e.startDate ? ' • ' + esc(e.startDate) + ' – ' + (esc(e.endDate) || 'Present') : ''}</div>
-      ${e.description ? `<div class="r-item-desc">${esc(e.description)}</div>` : ''}
-    </div>`).join('');
-  return `<div class="r-section">${sectionTitle('Education')}${items}</div>`;
-}
-function skillsSection() {
-  const list = state.skills.filter(s => s.name && s.name.trim());
-  if (!list.length) return '';
-  const tags = list.map(s => `<span class="r-skill">${esc(s.name)}</span>`).join('');
-  return `<div class="r-section">${sectionTitle('Skills')}<div class="r-skills">${tags}</div></div>`;
-}
-function langSection() {
-  const list = state.languages.filter(l => l.name && l.name.trim());
-  if (!list.length) return '';
-  const items = list.map(l => `<div class="r-item"><div class="r-item-title">${esc(l.name)}</div><div class="r-item-sub">${esc(l.proficiency)}</div></div>`).join('');
-  return `<div class="r-section">${sectionTitle('Languages')}${items}</div>`;
-}
-function projSection() {
-  const list = state.projects.filter(p => p.name && p.name.trim());
-  if (!list.length) return '';
-  const items = list.map(pr => `
-    <div class="r-item">
-      <div class="r-item-title">${esc(pr.name)}${pr.url ? ` <span style="font-weight:400;font-size:0.78rem;color:var(--resume-accent)">↗ ${esc(pr.url)}</span>` : ''}</div>
-      ${pr.tech ? `<div class="r-item-sub">${esc(pr.tech)}</div>` : ''}
-      ${pr.description ? `<div class="r-item-desc">${esc(pr.description)}</div>` : ''}
-    </div>`).join('');
-  return `<div class="r-section">${sectionTitle('Projects')}${items}</div>`;
-}
-function certSection() {
-  const list = state.certifications.filter(c => c.name && c.name.trim());
-  if (!list.length) return '';
-  const items = list.map(c => `
-    <div class="r-item"><div class="r-item-title">${esc(c.name)}</div>
-    <div class="r-item-sub">${esc(c.issuer)}${c.date ? ' • ' + esc(c.date) : ''}</div></div>`).join('');
-  return `<div class="r-section">${sectionTitle('Certifications')}${items}</div>`;
-}
-
-function internshipSection() {
-  const list = state.internships.filter(e => e.position || e.company);
-  if (!list.length) return '';
-  const items = list.map(e => `
-    <div class="r-item">
-      <div class="r-item-title">${esc(e.position)}</div>
-      <div class="r-item-sub">${esc(e.company)}${e.location ? ' • ' + esc(e.location) : ''}${e.startDate ? ' • ' + esc(e.startDate) + ' – ' + (esc(e.endDate) || 'Present') : ''}</div>
-      ${e.description ? `<div class="r-item-desc">${esc(e.description)}</div>` : ''}
-    </div>`).join('');
-  return `<div class="r-section">${sectionTitle('Internships')}${items}</div>`;
-}
-function activitySection() {
-  const list = state.activities.filter(a => a.name || a.organization);
-  if (!list.length) return '';
-  const items = list.map(a => `
-    <div class="r-item">
-      <div class="r-item-title">${esc(a.name)}</div>
-      <div class="r-item-sub">${esc(a.organization)}${a.date ? ' • ' + esc(a.date) : ''}</div>
-      ${a.description ? `<div class="r-item-desc">${esc(a.description)}</div>` : ''}
-    </div>`).join('');
-  return `<div class="r-section">${sectionTitle('Extracurricular Activities')}${items}</div>`;
-}
-function hobbySection() {
-  if (!state.hobbies) return '';
-  return `<div class="r-section">${sectionTitle('Hobbies')}<p class="r-summary">${esc(state.hobbies)}</p></div>`;
-}
-function courseSection() {
-  const list = state.courses.filter(c => c.name || c.institution);
-  if (!list.length) return '';
-  const items = list.map(c => `
-    <div class="r-item">
-      <div class="r-item-title">${esc(c.name)}</div>
-      <div class="r-item-sub">${esc(c.institution)}${c.date ? ' • ' + esc(c.date) : ''}</div>
-    </div>`).join('');
-  return `<div class="r-section">${sectionTitle('Courses')}${items}</div>`;
-}
-function referenceSection() {
-  const list = state.references.filter(r => r.name || r.company);
-  if (!list.length) return '';
-  const items = list.map(r => `
-    <div class="r-item">
-      <div class="r-item-title">${esc(r.name)}</div>
-      <div class="r-item-sub">${esc(r.company)}</div>
-      <div class="r-item-desc">${[r.email, r.phone].filter(Boolean).join(' • ')}</div>
-    </div>`).join('');
-  return `<div class="r-section">${sectionTitle('References')}${items}</div>`;
-}
-function qualitySection() {
-  const list = state.qualities.filter(q => q.name && q.name.trim());
-  if (!list.length) return '';
-  const tags = list.map(q => `<span class="r-skill">${esc(q.name)}</span>`).join('');
-  return `<div class="r-section">${sectionTitle('Qualities')}<div class="r-skills">${tags}</div></div>`;
-}
-function achievementSection() {
-  const list = state.achievements.filter(a => a.name && a.name.trim());
-  if (!list.length) return '';
-  const items = list.map(a => `
-    <div class="r-item">
-      <div class="r-item-title">${esc(a.name)}</div>
-      ${a.description ? `<div class="r-item-desc">${esc(a.description)}</div>` : ''}
-    </div>`).join('');
-  return `<div class="r-section">${sectionTitle('Achievements')}${items}</div>`;
-}
-function signatureSection() {
-  if (!state.signature.text) return '';
-  return `<div class="r-section" style="margin-top:40px;text-align:right;">
-    <div style="font-family:'Playfair Display', serif;font-size:1.5rem;font-style:italic;">${esc(state.signature.text)}</div>
-    <div style="border-top:1px solid #ddd;display:inline-block;padding-top:5px;margin-top:5px;min-width:150px;text-align:center;">Signature</div>
-  </div>`;
-}
-function footerSection() {
-  if (!state.footer) return '';
-  return `<div class="r-footer" style="margin-top:30px;padding-top:15px;font-size:0.75rem;color:#888;text-align:center;border-top:1px solid #eee;">${esc(state.footer)}</div>`;
-}
-function customSection() {
-  if (!state.custom.content) return '';
-  return `<div class="r-section">${sectionTitle(state.custom.title || 'Custom Section')}<div class="r-item-desc">${esc(state.custom.content)}</div></div>`;
-}
-
-// ---- Classic ----
-function buildClassic() {
-  return `
-    <div class="r-header">
-      ${avatarHtml()}
-      <div>
-        <div class="r-name">${getName()}</div>
-        <div class="r-title">${getTitle()}</div>
-        ${contactItems()}
-      </div>
-    </div>
-    ${renderOrderedSections(['summary', 'experience', 'education', 'skills', 'languages', 'certifications', 'projects', 'internships', 'activities', 'hobbies', 'courses', 'references', 'qualities', 'achievements', 'custom', 'signature', 'footer'])}
-  `;
-}
-
-
-function buildModern() {
-  const contacts = inlinePersonalContactValues(true).join(', ');
-
-  const mSectionMap = {
-    summary: mSummarySection,
-    experience: mExpSection,
-    education: mEduSection,
-    skills: mSkillsSection,
-    languages: mLangSection,
-    references: mRefSection,
-    certifications: mCertSection,
-    projects: mProjSection,
-    internships: mInternshipSection,
-    activities: mActivitySection,
-    hobbies: mHobbySection,
-    courses: mCourseSection,
-    qualities: qualitySection,
-    achievements: mAchievementSection,
-    signature: signatureSection,
-    footer: footerSection,
-    custom: customSection
-  };
-
-  const sections = orderedVisibleSectionIds(state.sectionOrder)
-    .map(id => mSectionMap[id] ? mSectionMap[id]() : '')
-    .join('');
-
-  return `
-    <div class="m-container">
-      <div class="m-header">
-        ${state.photo ? `<div class="m-avatar-wrap">${avatarHtml('m-avatar', 'm-avatar-placeholder')}</div>` : ''}
-        <div class="m-header-info">
-          <div class="m-name">${getName()}${state.personal.jobTitle ? ', ' + getTitle() : ''}</div>
-          <div class="m-contact">${contacts}</div>
-        </div>
-      </div>
-      <div class="m-body">
-        ${sections}
-      </div>
-    </div>
-  `;
-}
-
-function mSectionWrapper(title, content) {
-  if (!content) return '';
-  return `
-    <div class="m-section">
-      <div class="m-section-left">
-        <div class="m-section-title">${title}</div>
-      </div>
-      <div class="m-section-right">
-        ${content}
-      </div>
-    </div>
-  `;
-}
-
-function mSummarySection() {
-  if (!state.summary) return '';
-  return mSectionWrapper('Summary', `<p class="m-summary">${esc(state.summary)}</p>`);
-}
-
-function mExpSection() {
-  const list = state.experience.filter(e => e.position || e.company);
-  if (!list.length) return '';
-  const items = list.map(e => `
-    <div class="m-item-row">
-      <div class="m-item-date">${e.startDate ? esc(e.startDate) + ' &mdash; ' + (esc(e.endDate) || 'Present') : ''}</div>
-      <div class="m-item-details">
-        <div class="m-item-title-row">
-          <span class="m-item-title">${esc(e.position)}${e.company ? ', ' + esc(e.company) : ''}</span>
-        </div>
-        ${e.description ? `<div class="m-item-desc">${e.description.split('\n').map(line => line.trim() ? `<li>${esc(line)}</li>` : '').join('')}</div>` : ''}
-      </div>
-    </div>
-  `).join('');
-  return mSectionWrapper('Work Experience', items);
-}
-
-function mEduSection() {
-  const list = state.education.filter(e => e.degree || e.institution);
-  if (!list.length) return '';
-  const items = list.map(e => `
-    <div class="m-item-row">
-      <div class="m-item-date">${e.startDate ? esc(e.startDate) + ' &mdash; ' + (esc(e.endDate) || 'Present') : ''}</div>
-      <div class="m-item-details">
-        <div class="m-item-title-row">
-          <span class="m-item-title">${esc(e.degree)}${e.field ? ', ' + esc(e.field) : ''}</span>
-        </div>
-        ${e.institution ? `<div class="m-item-sub">${esc(e.institution)}</div>` : ''}
-        ${e.description ? `<div class="m-item-desc">${e.description.split('\n').map(line => line.trim() ? `<li>${esc(line)}</li>` : '').join('')}</div>` : ''}
-      </div>
-    </div>
-  `).join('');
-  return mSectionWrapper('Education', items);
-}
-
-function mSkillsSection() {
-  const list = state.skills.filter(s => s.name && s.name.trim());
-  if (!list.length) return '';
-  const items = list.map(s => `
-    <div class="m-skill-item">
-      <span class="m-skill-name">${esc(s.name)}</span>
-      <span class="m-skill-level">${esc(s.level)}</span>
-    </div>
-  `).join('');
-  return mSectionWrapper('Skills', `<div class="m-skills-grid">${items}</div>`);
-}
-
-function mLangSection() {
-  const list = state.languages.filter(l => l.name && l.name.trim());
-  if (!list.length) return '';
-  const items = list.map(l => `
-    <div class="m-skill-item">
-      <span class="m-skill-name">${esc(l.name)}</span>
-      <span class="m-skill-level">${esc(l.proficiency)}</span>
-    </div>
-  `).join('');
-  return mSectionWrapper('Languages', `<div class="m-skills-grid">${items}</div>`);
-}
-
-function mRefSection() {
-  const list = state.references.filter(r => r.name);
-  if (!list.length) return '';
-  const items = list.map(r => `
-    <div class="m-ref-item">
-      <div class="m-item-title">${esc(r.name)}${r.company ? ' &mdash; ' + esc(r.company) : ''}</div>
-      <div class="m-ref-contact">${r.email ? esc(r.email) : ''}${r.email && r.phone ? ' &mdash; ' : ''}${r.phone ? esc(r.phone) : ''}</div>
-    </div>
-  `).join('');
-  return mSectionWrapper('References', items);
-}
-
-function mCertSection() {
-  const list = state.certifications.filter(c => c.name);
-  if (!list.length) return '';
-  const items = list.map(c => `
-    <div class="m-item-row">
-      <div class="m-item-date">${esc(c.date || '')}</div>
-      <div class="m-item-details">
-        <div class="m-item-title">${esc(c.name)}</div>
-        <div class="m-item-sub">${esc(c.issuer || '')}</div>
-        ${c.url ? `<div class="m-item-desc">${linkify('website', c.url)}</div>` : ''}
-      </div>
-    </div>
-  `).join('');
-  return mSectionWrapper('Certifications', items);
-}
-
-function mProjSection() {
-  const list = state.projects.filter(p => p.name);
-  if (!list.length) return '';
-  const items = list.map(p => `
-    <div class="m-item-row">
-      <div class="m-item-date"></div>
-      <div class="m-item-details">
-        <div class="m-item-title">${esc(p.name)}${p.url ? ' &mdash; ' + linkify('website', p.url) : ''}</div>
-        ${p.tech ? `<div class="m-item-sub">${esc(p.tech)}</div>` : ''}
-        ${p.description ? `<div class="m-item-desc">${esc(p.description)}</div>` : ''}
-      </div>
-    </div>
-  `).join('');
-  return mSectionWrapper('Projects', items);
-}
-
-function mInternshipSection() {
-  const list = state.internships.filter(e => e.position || e.company);
-  if (!list.length) return '';
-  const items = list.map(e => `
-    <div class="m-item-row">
-      <div class="m-item-date">${e.startDate ? esc(e.startDate) + ' &mdash; ' + (esc(e.endDate) || 'Present') : ''}</div>
-      <div class="m-item-details">
-        <div class="m-item-title">${esc(e.position)}${e.company ? ', ' + esc(e.company) : ''}</div>
-        ${e.description ? `<div class="m-item-desc">${e.description.split('\n').map(line => line.trim() ? `<li>${esc(line)}</li>` : '').join('')}</div>` : ''}
-      </div>
-    </div>
-  `).join('');
-  return mSectionWrapper('Internships', items);
-}
-
-function mActivitySection() {
-  const list = state.activities.filter(a => a.name || a.organization);
-  if (!list.length) return '';
-  const items = list.map(a => `
-    <div class="m-item-row">
-      <div class="m-item-date">${esc(a.date || '')}</div>
-      <div class="m-item-details">
-        <div class="m-item-title">${esc(a.name)}${a.organization ? ', ' + esc(a.organization) : ''}</div>
-        ${a.description ? `<div class="m-item-desc">${a.description.split('\n').map(line => line.trim() ? `<li>${esc(line)}</li>` : '').join('')}</div>` : ''}
-      </div>
-    </div>
-  `).join('');
-  return mSectionWrapper('Activities', items);
-}
-
-function mHobbySection() {
-  if (!state.hobbies || !state.hobbies.trim()) return '';
-  return mSectionWrapper('Hobbies', `<p class="m-summary">${esc(state.hobbies)}</p>`);
-}
-
-function mCourseSection() {
-  const list = state.courses.filter(c => c.name);
-  if (!list.length) return '';
-  const items = list.map(c => `
-    <div class="m-item-row">
-      <div class="m-item-date">${esc(c.date || '')}</div>
-      <div class="m-item-details">
-        <div class="m-item-title">${esc(c.name)}</div>
-        <div class="m-item-sub">${esc(c.institution || '')}</div>
-      </div>
-    </div>
-  `).join('');
-  return mSectionWrapper('Courses', items);
-}
-
-function mAchievementSection() {
-  const list = state.achievements.filter(a => a.name && a.name.trim());
-  if (!list.length) return '';
-  const items = list.map(a => `<li>${esc(a.name)}${a.description ? `: ${esc(a.description)}` : ''}</li>`).join('');
-  return mSectionWrapper('Achievements', `<ul class="m-item-desc">${items}</ul>`);
-}
-
-function levelToWidth(level) {
-  const map = { 'Beginner': 20, 'Elementary': 40, 'Intermediate': 60, 'Proficient': 75, 'Advanced': 85, 'Expert': 100, 'Fluent': 90, 'Native': 100 };
-  return map[level] || 70;
-}
-function levelToDots(level) {
-  const map = { 'Beginner': 1, 'Elementary': 2, 'Intermediate': 3, 'Proficient': 4, 'Advanced': 4, 'Expert': 5, 'Fluent': 5, 'Native': 5 };
-  return map[level] || 3;
-}
-
-// ---- Creative ----
-function buildCreative() {
-  return `
-    <div class="r-header">
-      ${avatarHtml('r-avatar', 'r-avatar-placeholder')}
-      <div>
-        <div class="r-name">${getName()}</div>
-        <div class="r-title">${getTitle()}</div>
-        ${contactItems(true)}
-      </div>
-    </div>
-    <div class="r-body">
-      ${renderOrderedSections(['summary', 'experience', 'education', 'skills', 'languages', 'projects', 'certifications', 'internships', 'activities', 'hobbies', 'courses', 'references', 'qualities', 'achievements', 'custom', 'signature', 'footer'])}
-    </div>
-  `;
-}
-
-// ---- Minimal ----
-function buildMinimal() {
-  const p = state.personal;
-  const contacts = [
-    linkify('email', p.email), linkify('phone', p.phone), [p.city, p.country].filter(Boolean).join(', '), linkify('linkedin', p.linkedin), linkify('website', p.website),
-    p.dob, p.pob, p.driverLicense, p.gender, p.nationality, p.civilStatus, p.customField
-  ].filter(Boolean);
-  return `
-    <div class="r-name">${getName()}</div>
-    <div class="r-title">${getTitle()}</div>
-    <div class="r-divider"></div>
-    ${contacts.length ? `<div class="r-contact">${contacts.map(c => `<span class="r-contact-item">${c}</span>`).join('')}</div>` : ''}
-    ${renderOrderedSections(['summary', 'experience', 'education', 'skills', 'languages', 'projects', 'certifications', 'internships', 'activities', 'hobbies', 'courses', 'references', 'qualities', 'achievements', 'custom', 'signature', 'footer'])}
-  `;
-}
-function buildMinimalExp() {
-  if (!state.experience.length) return '';
-  const items = state.experience.map(e => `
-    <div class="r-item">
-      <div class="r-item-header">
-        <div class="r-item-title">${esc(e.position)} — ${esc(e.company)}</div>
-        <div class="r-item-date">${e.startDate ? esc(e.startDate) + ' – ' + (esc(e.endDate) || 'Present') : ''}</div>
-      </div>
-      ${e.description ? `<div class="r-item-desc">${esc(e.description)}</div>` : ''}
-    </div>`).join('');
-  return `<div class="r-section"><div class="r-section-title">Experience</div>${items}</div>`;
-}
-function buildMinimalEdu() {
-  if (!state.education.length) return '';
-  const items = state.education.map(e => `
-    <div class="r-item">
-      <div class="r-item-header">
-        <div class="r-item-title">${esc(e.degree)}${e.field ? ' in ' + esc(e.field) : ''}</div>
-        <div class="r-item-date">${e.startDate ? esc(e.startDate) + ' – ' + (esc(e.endDate) || 'Present') : ''}</div>
-      </div>
-      <div class="r-item-sub">${esc(e.institution)}</div>
-    </div>`).join('');
-  return `<div class="r-section"><div class="r-section-title">Education</div>${items}</div>`;
-}
-
-// ---- Executive ----
-function buildExecutive() {
-  const p = state.personal;
-  const tmpl = state.template;
-  const contacts = [];
-  if (p.email) contacts.push(`<span class="r-contact-item">${getIcon('email', tmpl)} ${linkify('email', p.email)}</span>`);
-  if (p.phone) contacts.push(`<span class="r-contact-item">${getIcon('phone', tmpl)} ${linkify('phone', p.phone)}</span>`);
-  if (p.city || p.country) contacts.push(`<span class="r-contact-item">${getIcon('location', tmpl)} ${esc([p.city, p.country].filter(Boolean).join(', '))}</span>`);
-  if (p.linkedin) contacts.push(`<span class="r-contact-item">${getIcon('linkedin', tmpl)} ${linkify('linkedin', p.linkedin)}</span>`);
-  if (p.website) contacts.push(`<span class="r-contact-item">${getIcon('website', tmpl)} ${linkify('website', p.website)}</span>`);
-  if (p.dob) contacts.push(`<span class="r-contact-item">${getIcon('dob', tmpl)} ${esc(p.dob)}</span>`);
-  if (p.pob) contacts.push(`<span class="r-contact-item">${getIcon('pob', tmpl)} ${esc(p.pob)}</span>`);
-  if (p.driverLicense) contacts.push(`<span class="r-contact-item">${getIcon('license', tmpl)} ${esc(p.driverLicense)}</span>`);
-  if (p.gender) contacts.push(`<span class="r-contact-item">${getIcon('gender', tmpl)} ${esc(p.gender)}</span>`);
-  if (p.nationality) contacts.push(`<span class="r-contact-item">${getIcon('nationality', tmpl)} ${esc(p.nationality)}</span>`);
-  if (p.civilStatus) contacts.push(`<span class="r-contact-item">${getIcon('civil', tmpl)} ${esc(p.civilStatus)}</span>`);
-  if (p.customField) contacts.push(`<span class="r-contact-item">${getIcon('custom', tmpl)} ${esc(p.customField)}</span>`);
-
-  return `
-    <div class="r-header">
-      <div class="r-name">${getName()}</div>
-      <div class="r-title">${getTitle()}</div>
-      ${contacts.length ? `<div class="r-contact">${contacts.join('')}</div>` : ''}
-    </div>
-    ${state.summary ? `<div class="r-section r-summary" style="margin-bottom:20px">${esc(state.summary)}</div>` : ''}
-    <div class="r-body">
-      <div>${renderOrderedSections(['experience', 'projects', 'internships', 'activities', 'achievements', 'custom'])}</div>
-      <div>${renderOrderedSections(['education', 'skills', 'languages', 'certifications', 'hobbies', 'courses', 'references', 'qualities', 'signature', 'footer'])}</div>
-    </div>
-  `;
-}
-
-// ---- Tech ----
-function buildTech() {
-  const p = state.personal;
-  const tmpl = state.template;
-  const contacts = [];
-  if (p.email) contacts.push(`<span class="r-contact-item">${getIcon('email', tmpl)} ${linkify('email', p.email)}</span>`);
-  if (p.phone) contacts.push(`<span class="r-contact-item">${getIcon('phone', tmpl)} ${linkify('phone', p.phone)}</span>`);
-  if (p.city || p.country) contacts.push(`<span class="r-contact-item">${getIcon('location', tmpl)} ${esc([p.city, p.country].filter(Boolean).join(', '))}</span>`);
-  if (p.linkedin) contacts.push(`<span class="r-contact-item">${getIcon('linkedin', tmpl)} ${linkify('linkedin', p.linkedin)}</span>`);
-  if (p.website) contacts.push(`<span class="r-contact-item">${getIcon('website', tmpl)} ${linkify('website', p.website)}</span>`);
-  if (p.dob) contacts.push(`<span class="r-contact-item">${getIcon('dob', tmpl)} ${esc(p.dob)}</span>`);
-  if (p.pob) contacts.push(`<span class="r-contact-item">${getIcon('pob', tmpl)} ${esc(p.pob)}</span>`);
-  if (p.driverLicense) contacts.push(`<span class="r-contact-item">${getIcon('license', tmpl)} ${esc(p.driverLicense)}</span>`);
-  if (p.gender) contacts.push(`<span class="r-contact-item">${getIcon('gender', tmpl)} ${esc(p.gender)}</span>`);
-  if (p.nationality) contacts.push(`<span class="r-contact-item">${getIcon('nationality', tmpl)} ${esc(p.nationality)}</span>`);
-  if (p.civilStatus) contacts.push(`<span class="r-contact-item">${getIcon('civil', tmpl)} ${esc(p.civilStatus)}</span>`);
-  if (p.customField) contacts.push(`<span class="r-contact-item">${getIcon('custom', tmpl)} ${esc(p.customField)}</span>`);
-
-
-
-  return `
-    <div class="r-header">
-      <div class="r-header-top">
-        <div>
-          <div class="r-name">${getName()}</div>
-          <div class="r-title">${getTitle()}</div>
-        </div>
-        ${avatarHtml('r-avatar', 'r-avatar-placeholder')}
-      </div>
-      ${contacts.length ? `<div class="r-contact">${contacts.join('')}</div>` : ''}
-    </div>
-    <div class="r-body">
-      ${renderOrderedSections(['summary'])}
-      <div class="r-two-col">
-        <div>
-          ${renderOrderedSections(['experience', 'projects', 'internships', 'activities', 'achievements', 'custom'])}
-        </div>
-        <div>
-          ${renderOrderedSections(['education', 'skills', 'languages', 'certifications', 'qualities', 'hobbies', 'courses', 'references', 'signature', 'footer'])}
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-// ---- Elegant ----
-function buildElegant() {
-  const p = state.personal;
-  const contacts = [
-    p.email ? `✉ ${linkify('email', p.email)}` : '',
-    p.phone ? `📞 ${linkify('phone', p.phone)}` : '',
-    (p.city || p.country) ? `📍 ${esc([p.city, p.country].filter(Boolean).join(', '))}` : '',
-    p.linkedin ? `in ${linkify('linkedin', p.linkedin)}` : '',
-    p.website ? `🌐 ${linkify('website', p.website)}` : '',
-    p.dob ? `📅 ${esc(p.dob)}` : '',
-    p.pob ? `🏠 ${esc(p.pob)}` : '',
-    p.driverLicense ? `🚗 ${esc(p.driverLicense)}` : '',
-    p.gender ? `👤 ${esc(p.gender)}` : '',
-    p.nationality ? `🏳️ ${esc(p.nationality)}` : '',
-    p.civilStatus ? `💍 ${esc(p.civilStatus)}` : '',
-    p.customField ? `📝 ${esc(p.customField)}` : ''
-  ].filter(Boolean);
-
-  return `
-    <div class="r-header">
-      ${avatarHtml('r-avatar', 'r-avatar-placeholder')}
-      <div>
-        <div class="r-name">${getName()}</div>
-        <div class="r-title">${getTitle()}</div>
-      </div>
-    </div>
-    ${contacts.length ? `<div class="r-contact">${contacts.map(c => `<span class="r-contact-item">${c}</span>`).join('')}</div>` : ''}
-    <div class="r-body">
-      ${renderOrderedSections(['summary', 'experience', 'education', 'internships', 'activities', 'achievements', 'custom'])}
-      <div class="r-two-col">
-        <div>
-          ${renderOrderedSections(['skills', 'certifications', 'qualities', 'hobbies'])}
-        </div>
-        <div>
-          ${renderOrderedSections(['projects', 'languages', 'courses', 'references'])}
-        </div>
-      </div>
-      ${renderOrderedSections(['signature', 'footer'])}
-    </div>
-  `;
-}
-
-// ---- Bold ----
-function buildBold() {
-  const p = state.personal;
-  const validSkills = state.skills.filter(s => s.name && s.name.trim());
-  const validLangs = state.languages.filter(l => l.name && l.name.trim());
-  const contacts = [];
-  if (p.email) contacts.push(`<div class="r-sb-item">${getIcon('email', 'bold')} ${linkify('email', p.email)}</div>`);
-  if (p.phone) contacts.push(`<div class="r-sb-item">${getIcon('phone', 'bold')} ${linkify('phone', p.phone)}</div>`);
-  if (p.city || p.country) contacts.push(`<div class="r-sb-item">${getIcon('location', 'bold')} ${esc([p.city, p.country].filter(Boolean).join(', '))}</div>`);
-  if (p.linkedin) contacts.push(`<div class="r-sb-item">${getIcon('linkedin', 'bold')} ${linkify('linkedin', p.linkedin)}</div>`);
-  if (p.website) contacts.push(`<div class="r-sb-item">${getIcon('website', 'bold')} ${linkify('website', p.website)}</div>`);
-  if (p.dob) contacts.push(`<div class="r-sb-item">${getIcon('dob', 'bold')} ${esc(p.dob)}</div>`);
-  if (p.pob) contacts.push(`<div class="r-sb-item">${getIcon('pob', 'bold')} ${esc(p.pob)}</div>`);
-  if (p.driverLicense) contacts.push(`<div class="r-sb-item">${getIcon('license', 'bold')} ${esc(p.driverLicense)}</div>`);
-  if (p.gender) contacts.push(`<div class="r-sb-item">${getIcon('gender', 'bold')} ${esc(p.gender)}</div>`);
-  if (p.nationality) contacts.push(`<div class="r-sb-item">${getIcon('nationality', 'bold')} ${esc(p.nationality)}</div>`);
-  if (p.civilStatus) contacts.push(`<div class="r-sb-item">${getIcon('civil', 'bold')} ${esc(p.civilStatus)}</div>`);
-  if (p.customField) contacts.push(`<div class="r-sb-item">${getIcon('custom', 'bold')} ${esc(p.customField)}</div>`);
-
-  return `
-    <div class="r-sidebar">
-      <div class="r-sidebar-name">${getName()}</div>
-      <div class="r-sidebar-title">${getTitle()}</div>
-      ${avatarHtml('r-avatar', 'r-avatar-placeholder')}
-      ${contacts.length ? `<div class="r-sb-section"><div class="r-sb-title">Contact</div>${contacts.join('')}</div>` : ''}
-      ${renderOrderedSections(['skills', 'languages', 'qualities', 'hobbies', 'courses', 'references'])}
-    </div>
-    <div class="r-main">
-      ${renderOrderedSections(['summary', 'experience', 'education', 'projects', 'certifications', 'internships', 'activities', 'achievements', 'custom', 'signature', 'footer'])}
-    </div>
-  `;
-}
-
-// ---- Startup ----
-function buildStartup() {
-  const p = state.personal;
-  const contacts = [
-    linkify('email', p.email), linkify('phone', p.phone), [p.city, p.country].filter(Boolean).join(', '), linkify('linkedin', p.linkedin), linkify('website', p.website),
-    p.dob, p.pob, p.driverLicense, p.gender, p.nationality, p.civilStatus, p.customField
-  ].filter(Boolean);
-
-  return `
-    <div class="r-header">
-      <div class="r-header-content">
-        <div class="r-name">${getName()}</div>
-        <div class="r-title">${getTitle()}</div>
-        ${contacts.length ? `<div class="r-contact">${contacts.map(c => `<span class="r-contact-item">${c}</span>`).join('')}</div>` : ''}
-      </div>
-      ${avatarHtml('r-avatar', 'r-avatar-placeholder')}
-    </div>
-    <div class="r-body">
-      ${renderOrderedSections(['summary'])}
-      <div class="r-two-col">
-        <div class="r-col-main">
-          ${renderOrderedSections(['experience', 'projects', 'internships', 'activities', 'achievements', 'custom'])}
-        </div>
-        <div class="r-col-side">
-          ${renderOrderedSections(['education', 'skills', 'certifications', 'languages', 'hobbies', 'courses', 'references', 'qualities', 'signature', 'footer'])}
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-// ---- Corporate ----
-function buildCorporate() {
-  const p = state.personal;
-  const contacts = [
-    p.email ? `✉ ${linkify('email', p.email)}` : '',
-    p.phone ? `📞 ${linkify('phone', p.phone)}` : '',
-    (p.city || p.country) ? `📍 ${esc([p.city, p.country].filter(Boolean).join(', '))}` : '',
-    p.linkedin ? `in ${linkify('linkedin', p.linkedin)}` : '',
-    p.website ? `🌐 ${linkify('website', p.website)}` : '',
-    p.dob ? `📅 ${esc(p.dob)}` : '',
-    p.pob ? `🏠 ${esc(p.pob)}` : '',
-    p.driverLicense ? `🚗 ${esc(p.driverLicense)}` : '',
-    p.gender ? `👤 ${esc(p.gender)}` : '',
-    p.nationality ? `🏳️ ${esc(p.nationality)}` : '',
-    p.civilStatus ? `💍 ${esc(p.civilStatus)}` : '',
-    p.customField ? `📝 ${esc(p.customField)}` : ''
-  ].filter(Boolean);
-
-  return `
-    <div class="r-header">
-      <div class="r-name">${getName()}</div>
-      <div class="r-title">${getTitle()}</div>
-      ${contacts.length ? `<div class="r-contact">${contacts.map(c => `<span class="r-contact-item">${c}</span>`).join('<span class="r-contact-sep">|</span>')}</div>` : ''}
-    </div>
-    <div class="r-body">
-      ${renderOrderedSections(['summary'])}
-      <div class="r-two-col">
-        <div class="r-col-left">
-          ${renderOrderedSections(['experience', 'projects', 'internships', 'activities', 'achievements', 'custom'])}
-        </div>
-        <div class="r-col-right">
-          ${renderOrderedSections(['education', 'skills', 'certifications', 'languages', 'hobbies', 'courses', 'references', 'qualities', 'signature', 'footer'])}
-        </div>
-      </div>
-    </div>
-  `;
 }
 
 // ---- Professional (Refined High-Fidelity) ----
@@ -2329,7 +1963,6 @@ function profLangSection() {
   const rows = `<div class="prof-skills-grid">${list.map(l => `<div class="prof-skill-item">${esc(l.name)}</div>`).join('')}</div>`;
   return profSectionWrapper('Languages', rows, 'prof-no-timeline');
 }
-
 
 function profCertSection() {
   const list = state.certifications.filter(c => c.name && c.name.trim());
@@ -2479,1600 +2112,6 @@ function profCustomSection() {
   return profSectionWrapper(state.custom.title || 'Custom', content, 'prof-no-timeline');
 }
 
-
-
-// ---- Modern Dark (Premium Andi Ajdini Style) ----
-function buildModernDark() {
-  const p = state.personal;
-  const mdSectionMap = {
-    summary: modernDarkSummary,
-    experience: modernDarkExp,
-    education: modernDarkEdu,
-    skills: modernDarkSkills,
-    certifications: modernDarkCert,
-    languages: modernDarkLanguages,
-    projects: modernDarkProjects,
-    internships: modernDarkInternships,
-    activities: modernDarkActivities,
-    hobbies: modernDarkHobbies,
-    courses: modernDarkCourses,
-    references: modernDarkReferences,
-    qualities: modernDarkQualities,
-    achievements: modernDarkAchievements,
-    signature: modernDarkSignature,
-    footer: modernDarkFooter,
-    custom: modernDarkCustom
-  };
-
-  const leftSections = orderedVisibleSectionIds(state.sectionOrder)
-    .filter(id => ['experience', 'education', 'projects', 'courses', 'internships', 'activities', 'achievements', 'custom', 'signature'].includes(id))
-    .map(id => mdSectionMap[id] ? mdSectionMap[id]() : '')
-    .join('');
-
-  const rightSections = orderedVisibleSectionIds(state.sectionOrder)
-    .filter(id => ['summary', 'skills', 'certifications', 'languages', 'hobbies', 'references', 'qualities', 'footer'].includes(id))
-    .map(id => mdSectionMap[id] ? mdSectionMap[id]() : '')
-    .join('');
-
-  return `
-    <div class="tmpl-modern-dark">
-      <div class="md-header">
-        <div class="md-header-main">
-          <h1 class="md-name">${getName()}</h1>
-          <div class="md-role">${getTitle()}</div>
-          <div class="md-contacts">
-            ${p.phone ? `<span><span class="md-icon">${getIcon('phone', 'modern-dark')}</span> ${linkify('phone', p.phone)}</span>` : ''}
-            ${p.email ? `<span><span class="md-icon">${getIcon('email', 'modern-dark')}</span> ${linkify('email', p.email)}</span>` : ''}
-            ${(p.city || p.country) ? `<span><span class="md-icon">${getIcon('location', 'modern-dark')}</span> ${esc([p.city, p.country].filter(Boolean).join(', '))}</span>` : ''}
-            ${p.linkedin ? `<span><span class="md-icon">${getIcon('linkedin', 'modern-dark')}</span> ${linkify('linkedin', p.linkedin)}</span>` : ''}
-            ${p.website ? `<span><span class="md-icon">${getIcon('website', 'modern-dark')}</span> ${linkify('website', p.website)}</span>` : ''}
-            ${p.dob ? `<span><span class="md-icon">${getIcon('dob', 'modern-dark')}</span> ${esc(p.dob)}</span>` : ''}
-            ${p.pob ? `<span><span class="md-icon">${getIcon('pob', 'modern-dark')}</span> ${esc(p.pob)}</span>` : ''}
-            ${p.driverLicense ? `<span><span class="md-icon">${getIcon('license', 'modern-dark')}</span> ${esc(p.driverLicense)}</span>` : ''}
-            ${p.gender ? `<span><span class="md-icon">${getIcon('gender', 'modern-dark')}</span> ${esc(p.gender)}</span>` : ''}
-            ${p.nationality ? `<span><span class="md-icon">${getIcon('nationality', 'modern-dark')}</span> ${esc(p.nationality)}</span>` : ''}
-            ${p.civilStatus ? `<span><span class="md-icon">${getIcon('civil', 'modern-dark')}</span> ${esc(p.civilStatus)}</span>` : ''}
-            ${p.customField ? `<span><span class="md-icon">${getIcon('custom', 'modern-dark')}</span> ${esc(p.customField)}</span>` : ''}
-          </div>
-        </div>
-      </div>
-      <div class="md-body">
-        <div class="md-left-col">
-          ${leftSections}
-        </div>
-        <div class="md-right-col">
-          ${rightSections}
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function modernDarkSection(title, content) {
-  if (!content) return '';
-  return `
-    <div class="md-section">
-      <h2 class="md-sec-title">${title}</h2>
-      <div class="md-sec-content">${content}</div>
-    </div>
-  `;
-}
-
-function modernDarkExp() {
-  const list = state.experience.filter(e => e.position || e.company);
-  if (!list.length) return '';
-  const items = list.map(e => `
-    <div class="md-item">
-      <div class="md-item-header">
-        <div class="md-item-title">${esc(e.position)}</div>
-        <div class="md-item-date">${e.startDate ? esc(e.startDate) + ' - ' + (esc(e.endDate) || 'Present') : ''}</div>
-      </div>
-      <div class="md-item-sub">${esc(e.company)}</div>
-      <div class="md-item-loc">${esc(e.location || '')}</div>
-      ${e.description ? `<div class="md-item-desc">
-        ${e.description.split('\n').map(line => line.trim() ? `<li>${esc(line)}</li>` : '').join('')}
-      </div>` : ''}
-    </div>
-  `).join('');
-  return modernDarkSection('Experience', items);
-}
-
-function modernDarkEdu() {
-  const list = state.education.filter(e => e.degree || e.institution);
-  if (!list.length) return '';
-  const items = list.map(e => `
-    <div class="md-item">
-      <div class="md-item-header">
-        <div class="md-item-title">${esc(e.degree)}${e.field ? ' - ' + esc(e.field) : ''}</div>
-      </div>
-      <div class="md-item-sub">${esc(e.institution)}</div>
-      <div class="md-item-date">${e.startDate ? esc(e.startDate) + ' - ' + (esc(e.endDate) || 'Present') : ''}</div>
-      <div class="md-item-loc">${esc(e.location || '')}</div>
-    </div>
-  `).join('');
-  return modernDarkSection('Education', items);
-}
-
-function modernDarkSummary() {
-  if (!state.summary) return '';
-  return modernDarkSection('Summary', `<p class="md-summary-text">${esc(state.summary)}</p>`);
-}
-
-function modernDarkSkills() {
-  const list = state.skills.filter(s => s.name && s.name.trim());
-  if (!list.length) return '';
-  const items = list.map(s => `
-    <div class="md-skill-row">
-      <div class="md-skill-name">${esc(s.name)}</div>
-      <div class="md-skill-dots">
-        ${[1, 2, 3, 4, 5].map(i => `<span class="md-dot ${i <= levelToDots(s.level) ? 'active' : ''}"></span>`).join('')}
-      </div>
-      <div class="md-skill-level">${esc(s.level)}</div>
-    </div>
-  `).join('');
-  return modernDarkSection('Skills', items);
-}
-
-function modernDarkCert() {
-  const list = state.certifications.filter(c => c.name && c.name.trim());
-  if (!list.length) return '';
-  const items = list.map(c => `
-    <div class="md-cert-item">
-      <div class="md-cert-name">${esc(c.name)}${c.date ? ' (' + esc(c.date) + ')' : ''}</div>
-      ${c.issuer ? `<div class="md-item-sub" style="font-size:0.85rem;text-transform:none;letter-spacing:0">${esc(c.issuer)}</div>` : ''}
-      ${c.url ? `<div class="md-item-sub" style="font-size:0.85rem;text-transform:none;letter-spacing:0">${linkify('website', c.url)}</div>` : ''}
-    </div>
-  `).join('');
-  return modernDarkSection('Certifications', items);
-}
-
-function modernDarkLanguages() {
-  const list = state.languages.filter(l => l.name && l.name.trim());
-  if (!list.length) return '';
-  const items = list.map(l => `
-    <div class="md-lang-row">
-      <span>${esc(l.name)}</span>
-      <span class="md-lang-level">${esc(l.proficiency || '')}</span>
-    </div>
-  `).join('');
-  return modernDarkSection('Languages', items);
-}
-
-function modernDarkProjects() {
-  const list = state.projects.filter(p => p.name && p.name.trim());
-  if (!list.length) return '';
-  const items = list.map(pr => `
-    <div class="md-item">
-      <div class="md-item-header">
-        <div class="md-item-title">${esc(pr.name)}</div>
-        <div class="md-item-date">${esc(pr.tech || '')}</div>
-      </div>
-      ${pr.url ? `<div class="md-item-sub" style="font-size:0.8rem;text-transform:none;letter-spacing:0">${esc(pr.url)}</div>` : ''}
-      ${pr.description ? `<div class="md-item-desc">${esc(pr.description)}</div>` : ''}
-    </div>
-  `).join('');
-  return modernDarkSection('Projects', items);
-}
-
-function modernDarkInternships() {
-  const list = state.internships.filter(e => e.position || e.company);
-  if (!list.length) return '';
-  const items = list.map(e => `
-    <div class="md-item">
-      <div class="md-item-header">
-        <div class="md-item-title">${esc(e.position)}</div>
-        <div class="md-item-date">${e.startDate ? esc(e.startDate) + ' - ' + (esc(e.endDate) || 'Present') : ''}</div>
-      </div>
-      <div class="md-item-sub">${esc(e.company)}</div>
-      ${e.description ? `<div class="md-item-desc">${esc(e.description)}</div>` : ''}
-    </div>
-  `).join('');
-  return modernDarkSection('Internships', items);
-}
-
-function modernDarkActivities() {
-  const list = state.activities.filter(a => a.name || a.organization);
-  if (!list.length) return '';
-  const items = list.map(a => `
-    <div class="md-item">
-      <div class="md-item-header">
-        <div class="md-item-title">${esc(a.name)}</div>
-        <div class="md-item-date">${esc(a.date || '')}</div>
-      </div>
-      <div class="md-item-sub">${esc(a.organization)}</div>
-      ${a.description ? `<div class="md-item-desc">${esc(a.description)}</div>` : ''}
-    </div>
-  `).join('');
-  return modernDarkSection('Activities', items);
-}
-
-function modernDarkHobbies() {
-  if (!state.hobbies) return '';
-  return modernDarkSection('Hobbies', `<p class="md-summary-text">${esc(state.hobbies)}</p>`);
-}
-
-function modernDarkCourses() {
-  const list = state.courses.filter(c => c.name || c.institution);
-  if (!list.length) return '';
-  const items = list.map(c => `
-    <div class="md-item" style="margin-bottom:15px">
-      <div class="md-item-title" style="font-size:1rem">${esc(c.name)}</div>
-      <div class="md-item-sub">${esc(c.institution)}</div>
-      <div class="md-item-date">${esc(c.date || '')}</div>
-    </div>
-  `).join('');
-  return modernDarkSection('Courses', items);
-}
-
-function modernDarkReferences() {
-  const list = state.references.filter(r => r.name || r.company);
-  if (!list.length) return '';
-  const items = list.map(r => `
-    <div class="md-item" style="margin-bottom:20px">
-      <div class="md-item-title">${esc(r.name)}</div>
-      <div class="md-item-sub">${esc(r.company)}</div>
-      <div class="md-item-date" style="color:#bbb;text-transform:none;letter-spacing:0">${[r.email, r.phone].filter(Boolean).join(' • ')}</div>
-    </div>
-  `).join('');
-  return modernDarkSection('References', items);
-}
-
-function modernDarkQualities() {
-  const list = state.qualities.filter(q => q.name && q.name.trim());
-  if (!list.length) return '';
-  const tags = list.map(q => `<span class="md-tech-tag" style="background:#222;color:#ffdb70;border:1px solid #333;padding:4px 10px;border-radius:4px;margin-right:8px;margin-bottom:8px;display:inline-block;font-size:0.8rem;font-weight:600">${esc(q.name)}</span>`).join('');
-  return modernDarkSection('Qualities', `<div>${tags}</div>`);
-}
-
-function modernDarkAchievements() {
-  const list = state.achievements.filter(a => a.name && a.name.trim());
-  if (!list.length) return '';
-  const items = list.map(a => `
-    <div class="md-item">
-      <div class="md-item-title">${esc(a.name)}</div>
-      ${a.description ? `<p class="md-summary-text" style="font-size:0.85rem;margin-top:4px">${esc(a.description)}</p>` : ''}
-    </div>
-  `).join('');
-  return modernDarkSection('Achievements', items);
-}
-
-function modernDarkSignature() {
-  if (!state.signature.text) return '';
-  return `
-    <div class="md-section" style="margin-top:40px">
-      <div style="font-family:'Playfair Display', serif;font-size:2rem;font-style:italic;color:#ffdb70;">${esc(state.signature.text)}</div>
-      <div style="border-top:1px solid #333;display:inline-block;padding-top:8px;margin-top:8px;min-width:200px;color:#888;font-size:0.8rem;text-transform:uppercase;letter-spacing:2px;">Signature</div>
-    </div>
-  `;
-}
-
-function modernDarkFooter() {
-  if (!state.footer) return '';
-  return `<div style="margin-top:50px;padding-top:20px;border-top:1px solid #222;text-align:center;color:#666;font-size:0.75rem;letter-spacing:1px;text-transform:uppercase;">${esc(state.footer)}</div>`;
-}
-
-function modernDarkCustom() {
-  if (!state.custom.content) return '';
-  return modernDarkSection(state.custom.title || 'Custom Section', `<p class="md-summary-text">${esc(state.custom.content)}</p>`);
-}
-
-
-// ============================================================
-// ---- NEW TEMPLATES ----
-// ============================================================
-
-// ---- Classic Blue ----
-function buildClassicBlue() {
-  const p = state.personal;
-  const contacts = [
-    p.email ? `<span class="cb-contact-item">${getIcon('email', 'classic-blue')} ${linkify('email', p.email)}</span>` : '',
-    p.phone ? `<span class="cb-contact-item">${getIcon('phone', 'classic-blue')} ${linkify('phone', p.phone)}</span>` : '',
-    (p.city || p.country) ? `<span class="cb-contact-item">${getIcon('location', 'classic-blue')} ${esc([p.city, p.country].filter(Boolean).join(', '))}</span>` : '',
-    p.linkedin ? `<span class="cb-contact-item">${getIcon('linkedin', 'classic-blue')} ${linkify('linkedin', p.linkedin)}</span>` : '',
-    p.website ? `<span class="cb-contact-item">${getIcon('website', 'classic-blue')} ${linkify('website', p.website)}</span>` : '',
-    ...optionalPersonalContactItems('classic-blue', 'cb-contact-item')
-  ].filter(Boolean);
-
-  const cbSectionMap = {
-    summary: summarySection,
-    education: eduSection,
-    experience: expSection,
-    skills: cbSkillsSection,
-    certifications: certSection,
-    languages: langSection,
-    projects: projSection,
-    internships: internshipSection,
-    activities: activitySection,
-    hobbies: hobbySection,
-    courses: courseSection,
-    references: referenceSection,
-    qualities: qualitySection,
-    achievements: achievementSection,
-    signature: signatureSection,
-    footer: footerSection,
-    custom: customSection
-  };
-
-  const sections = orderedVisibleSectionIds(state.sectionOrder)
-    .map(id => cbSectionMap[id] ? cbSectionMap[id]() : '')
-    .join('');
-
-  return `
-    <div class="cb-header">
-      <div class="cb-header-left">${avatarHtml('cb-avatar', 'cb-avatar-placeholder')}</div>
-      <div class="cb-header-right">
-        <div class="cb-name">${getName()}</div>
-        <div class="cb-title">${getTitle()}</div>
-        ${contacts.length ? `<div class="cb-contact">${contacts.join(' &nbsp;|&nbsp; ')}</div>` : ''}
-      </div>
-    </div>
-    <div class="cb-body">
-      ${sections}
-    </div>
-  `;
-}
-
-function cbSkillsSection() {
-  const list = state.skills.filter(s => s.name && s.name.trim());
-  if (!list.length) return '';
-  const tags = list.map(s => `
-    <div class="cb-skill-item">
-      <span class="cb-skill-name">${esc(s.name)}</span>
-      ${s.level ? `<span class="cb-skill-level">${esc(s.level)}</span>` : ''}
-    </div>
-  `).join('');
-  return `<div class="r-section cb-section"><div class="r-section-title cb-section-title">Skills</div><div class="cb-skills">${tags}</div></div>`;
-}
-
-// ---- Minimal Formal ----
-function buildMinimalFormal() {
-  const contacts = inlinePersonalContactValues(true);
-
-  const mfSectionMap = {
-    summary: mfSummarySection,
-    education: mfEduSection,
-    experience: mfExpSection,
-    skills: mfSkillsSection,
-    certifications: mfCertSection,
-    languages: mfLangSection,
-    projects: mfProjSection,
-    internships: mfInternshipSection,
-    activities: mfActivitySection,
-    hobbies: hobbySection,
-    courses: mfCourseSection,
-    references: mfRefSection,
-    qualities: qualitySection,
-    achievements: achievementSection,
-    signature: signatureSection,
-    footer: footerSection,
-    custom: customSection
-  };
-
-  const sections = orderedVisibleSectionIds(state.sectionOrder)
-    .map(id => mfSectionMap[id] ? mfSectionMap[id]() : '')
-    .join('');
-
-  return `
-    <div class="mf-header">
-      ${state.photo ? `<div class="mf-avatar-col">${avatarHtml('mf-avatar', 'mf-avatar-placeholder')}</div>` : ''}
-      <div class="mf-info-col">
-        <div class="mf-name">${getName()}${getTitle() ? ', ' + getTitle() : ''}</div>
-        <div class="mf-contact">${contacts.join(', ')}</div>
-      </div>
-    </div>
-    <div class="mf-body">
-      ${sections}
-    </div>
-  `;
-}
-
-function mfExpSection() {
-  const list = state.experience.filter(e => e.position || e.company);
-  if (!list.length) return '';
-  const rows = list.map(e => `
-    <div class="mf-item-row">
-      <div class="mf-date-col">${e.startDate ? esc(e.startDate) + ' — ' + (esc(e.endDate) || 'Present') : ''}</div>
-      <div class="mf-main-col">
-        <div class="mf-item-title">${esc(e.position)}, ${esc(e.company)}</div>
-        ${e.description ? `<div class="r-item-desc">${formatBullets(e.description)}</div>` : ''}
-      </div>
-      <div class="mf-loc-col">${esc(e.location)}</div>
-    </div>`).join('');
-  return `<div class="mf-section"><div class="mf-section-title">Work Experience</div><div class="mf-section-content">${rows}</div></div>`;
-}
-
-function mfEduSection() {
-  const list = state.education.filter(e => e.degree || e.institution);
-  if (!list.length) return '';
-  const rows = list.map(e => `
-    <div class="mf-item-row">
-      <div class="mf-date-col">${e.startDate ? esc(e.startDate) + ' — ' + (esc(e.endDate) || 'Present') : ''}</div>
-      <div class="mf-main-col">
-        <div class="mf-item-title">${esc(e.degree)}${e.field ? ' in ' + esc(e.field) : ''}, ${esc(e.institution)}</div>
-        ${e.description ? `<div class="r-item-desc">${formatBullets(e.description)}</div>` : ''}
-      </div>
-      <div class="mf-loc-col">${esc(e.location)}</div>
-    </div>`).join('');
-  return `<div class="mf-section"><div class="mf-section-title">Education</div><div class="mf-section-content">${rows}</div></div>`;
-}
-
-function mfSkillsSection() {
-  const list = state.skills.filter(s => s.name && s.name.trim());
-  if (!list.length) return '';
-  const tags = list.map(s => `
-    <div class="mf-skill-item">
-      <span class="mf-skill-name">${esc(s.name)}</span>
-      ${s.level ? `<span class="mf-skill-level">${esc(s.level)}</span>` : ''}
-    </div>
-  `).join('');
-  return `<div class="mf-section"><div class="mf-section-title">Skills</div><div class="mf-section-content"><div class="mf-skills">${tags}</div></div></div>`;
-}
-
-function mfLangSection() {
-  const list = state.languages.filter(l => l.name && l.name.trim());
-  if (!list.length) return '';
-  const tags = list.map(l => `
-    <div class="mf-skill-item">
-      <span class="mf-skill-name">${esc(l.name)}</span>
-      ${l.proficiency ? `<span class="mf-skill-level">${esc(l.proficiency)}</span>` : ''}
-    </div>
-  `).join('');
-  return `<div class="mf-section"><div class="mf-section-title">Languages</div><div class="mf-section-content"><div class="mf-skills">${tags}</div></div></div>`;
-}
-
-function mfSummarySection() {
-  if (!state.summary) return '';
-  return `<div class="mf-section"><div class="mf-section-title">Summary</div><div class="mf-section-content"><div class="r-summary" style="margin:0;">${esc(state.summary)}</div></div></div>`;
-}
-
-function mfRefSection() {
-  const list = state.references.filter(r => r.name);
-  if (!list.length) return '';
-  const rows = list.map(r => `
-    <div class="mf-item-row" style="margin-bottom: 12px;">
-      <div class="mf-date-col"></div>
-      <div class="mf-main-col">
-        <div class="mf-item-title">${esc(r.name)}${r.company ? ' — <span style="font-weight:normal">' + esc(r.company) + '</span>' : ''}</div>
-        <div class="r-item-desc" style="color: #333; margin-top:2px;">${[esc(r.email), esc(r.phone)].filter(Boolean).join(' – ')}</div>
-      </div>
-      <div class="mf-loc-col"></div>
-    </div>`).join('');
-  return `<div class="mf-section"><div class="mf-section-title">References</div><div class="mf-section-content">${rows}</div></div>`;
-}
-
-function mfCourseSection() {
-  const list = state.courses.filter(c => c.name || c.institution);
-  if (!list.length) return '';
-  const rows = list.map(c => `
-    <div class="mf-item-row">
-      <div class="mf-date-col">${esc(c.date)}</div>
-      <div class="mf-main-col">
-        <div class="mf-item-title">${esc(c.name)}</div>
-        ${c.institution ? `<div class="r-item-desc" style="margin-top:2px;">${esc(c.institution)}</div>` : ''}
-      </div>
-      <div class="mf-loc-col"></div>
-    </div>`).join('');
-  return `<div class="mf-section"><div class="mf-section-title" style="margin-bottom: 15px;">Courses</div>${rows}</div>`;
-}
-
-function mfCertSection() {
-  const list = state.certifications.filter(c => c.name && c.name.trim());
-  if (!list.length) return '';
-  const rows = list.map(c => `
-    <div class="mf-item-row">
-      <div class="mf-date-col">${esc(c.date || '')}</div>
-      <div class="mf-main-col">
-        <div class="mf-item-title">${esc(c.name)}</div>
-        ${c.issuer ? `<div class="r-item-desc" style="margin-top:2px;">${esc(c.issuer)}</div>` : ''}
-        ${c.url ? `<div class="r-item-desc">${linkify('website', c.url)}</div>` : ''}
-      </div>
-      <div class="mf-loc-col"></div>
-    </div>`).join('');
-  return `<div class="mf-section"><div class="mf-section-title" style="margin-bottom: 15px;">Certifications</div>${rows}</div>`;
-}
-
-function mfProjSection() {
-  const list = state.projects.filter(p => p.name && p.name.trim());
-  if (!list.length) return '';
-  const rows = list.map(pr => `
-    <div class="mf-item-row">
-      <div class="mf-date-col">${pr.startDate ? esc(pr.startDate) + ' — ' + (esc(pr.endDate) || 'Present') : ''}</div>
-      <div class="mf-main-col">
-        <div class="mf-item-title">${esc(pr.name)}${pr.url ? ` <span style="font-weight:400;font-size:0.85rem;color:#333;">↗ ${esc(pr.url)}</span>` : ''}</div>
-        ${pr.tech ? `<div class="r-item-sub" style="font-weight:600; font-size:0.9rem; margin-top:2px;">${esc(pr.tech)}</div>` : ''}
-        ${pr.description ? `<div class="r-item-desc">${formatBullets(pr.description)}</div>` : ''}
-      </div>
-      <div class="mf-loc-col"></div>
-    </div>`).join('');
-  return `<div class="mf-section"><div class="mf-section-title" style="margin-bottom: 15px;">Projects</div>${rows}</div>`;
-}
-
-function mfInternshipSection() {
-  const list = state.internships.filter(e => e.position || e.company);
-  if (!list.length) return '';
-  const rows = list.map(e => `
-    <div class="mf-item-row">
-      <div class="mf-date-col">${e.startDate ? esc(e.startDate) + ' — ' + (esc(e.endDate) || 'Present') : ''}</div>
-      <div class="mf-main-col">
-        <div class="mf-item-title">${esc(e.position)}, ${esc(e.company)}</div>
-        ${e.description ? `<div class="r-item-desc">${formatBullets(e.description)}</div>` : ''}
-      </div>
-      <div class="mf-loc-col">${esc(e.location)}</div>
-    </div>`).join('');
-  return `<div class="mf-section"><div class="mf-section-title" style="margin-bottom: 15px;">Internships</div>${rows}</div>`;
-}
-
-function mfActivitySection() {
-  const list = state.activities.filter(a => a.name || a.organization);
-  if (!list.length) return '';
-  const rows = list.map(a => `
-    <div class="mf-item-row">
-      <div class="mf-date-col">${esc(a.date)}</div>
-      <div class="mf-main-col">
-        <div class="mf-item-title">${esc(a.name)}, ${esc(a.organization)}</div>
-        ${a.description ? `<div class="r-item-desc">${formatBullets(a.description)}</div>` : ''}
-      </div>
-      <div class="mf-loc-col"></div>
-    </div>`).join('');
-  return `<div class="mf-section"><div class="mf-section-title" style="margin-bottom: 15px;">Extracurricular Activities</div>${rows}</div>`;
-}
-
-// ---- Traditional Serif ----
-function buildTraditionalSerif() {
-  const p = state.personal;
-  const contacts = [
-    (p.city || p.country) ? esc([p.city, p.country].filter(Boolean).join(', ')).toUpperCase() : '',
-    p.email ? `MAILTO:${esc(p.email).toUpperCase()}` : '',
-    p.phone ? esc(p.phone) : '',
-    p.linkedin ? esc(p.linkedin).toUpperCase() : '',
-    p.website ? esc(p.website).toUpperCase() : '',
-    ...[p.dob, p.pob, p.driverLicense, p.gender, p.nationality, p.civilStatus, p.customField].filter(Boolean).map(v => esc(v).toUpperCase())
-  ].filter(Boolean);
-
-  const tsSectionMap = {
-    summary: summarySection,
-    education: tsEduSection,
-    experience: tsExpSection,
-    skills: tsSkillsSection,
-    certifications: tsCertSection,
-    languages: tsLangSection,
-    projects: tsProjSection,
-    internships: tsInternshipSection,
-    activities: tsActivitySection,
-    hobbies: hobbySection,
-    courses: tsCourseSection,
-    references: referenceSection,
-    qualities: qualitySection,
-    achievements: achievementSection,
-    signature: signatureSection,
-    footer: footerSection,
-    custom: customSection
-  };
-
-  const sections = orderedVisibleSectionIds(state.sectionOrder)
-    .map(id => tsSectionMap[id] ? tsSectionMap[id]() : '')
-    .join('');
-
-  return `
-    <div class="ts-header">
-      ${state.photo ? `<div class="ts-avatar-wrap">${avatarHtml('ts-avatar', 'ts-avatar-placeholder')}</div>` : ''}
-      <div class="ts-contact">${contacts.join(' &bull; ')}</div>
-      <div class="ts-name">${getName()}</div>
-      <div class="ts-title">${getTitle()}</div>
-    </div>
-    <div class="ts-body">
-      ${sections}
-    </div>
-  `;
-}
-
-function tsExpSection() {
-  const list = state.experience.filter(e => e.position || e.company);
-  if (!list.length) return '';
-  const items = list.map(e => `
-    <div class="r-item ts-item">
-      <div class="ts-item-row">
-        <div class="ts-item-title">${esc(e.position)}</div>
-        <div class="ts-item-date">${e.startDate ? esc(e.startDate) + ' &mdash; ' + (esc(e.endDate) || 'Present') : ''}</div>
-      </div>
-      <div class="ts-item-row">
-        <div class="ts-item-sub">${esc(e.company)}</div>
-        <div class="ts-item-loc">${esc(e.location || '')}</div>
-      </div>
-      ${e.description ? `<div class="r-item-desc ts-item-desc">${esc(e.description)}</div>` : ''}
-    </div>`).join('');
-  return `<div class="r-section ts-section">${sectionTitle('Work Experience')}${items}</div>`;
-}
-
-function tsEduSection() {
-  const list = state.education.filter(e => e.degree || e.institution);
-  if (!list.length) return '';
-  const items = list.map(e => `
-    <div class="r-item ts-item">
-      <div class="ts-item-row">
-        <div class="ts-item-title">${esc(e.degree)}${e.field ? ' in ' + esc(e.field) : ''}</div>
-        <div class="ts-item-date">${e.startDate ? esc(e.startDate) + ' &mdash; ' + (esc(e.endDate) || 'Present') : ''}</div>
-      </div>
-      <div class="ts-item-row">
-        <div class="ts-item-sub">${esc(e.institution)}</div>
-        <div class="ts-item-loc">${esc(e.location || '')}</div>
-      </div>
-      ${e.description ? `<div class="r-item-desc ts-item-desc">${esc(e.description)}</div>` : ''}
-    </div>`).join('');
-  return `<div class="r-section ts-section">${sectionTitle('Education')}${items}</div>`;
-}
-
-function tsSkillsSection() {
-  const list = state.skills.filter(s => s.name && s.name.trim());
-  if (!list.length) return '';
-  const tags = list.map(s => `${esc(s.name)}${s.level ? ` (<em>${esc(s.level)}</em>)` : ''}`).join(', ');
-  return `<div class="r-section ts-section"><div class="r-section-title ts-section-title">Skills</div><div class="ts-skills" style="line-height:1.8;text-align:center;">${tags}</div></div>`;
-}
-
-function tsLangSection() {
-  const list = state.languages.filter(l => l.name && l.name.trim());
-  if (!list.length) return '';
-  const tags = list.map(l => `${esc(l.name)}${l.proficiency ? ` (<em>${esc(l.proficiency)}</em>)` : ''}`).join(', ');
-  return `<div class="r-section ts-section"><div class="r-section-title ts-section-title">Languages</div><div class="ts-skills" style="line-height:1.8;text-align:center;">${tags}</div></div>`;
-}
-
-function tsCertSection() {
-  const list = state.certifications.filter(c => c.name);
-  if (!list.length) return '';
-  const items = list.map(c => `
-    <div class="r-item ts-item">
-      <div class="ts-item-row">
-        <div class="ts-item-title">${esc(c.name)}</div>
-        <div class="ts-item-date">${esc(c.date || '')}</div>
-      </div>
-      <div class="ts-item-row">
-        <div class="ts-item-sub">${esc(c.issuer)}</div>
-        <div class="ts-item-loc">${c.url ? linkify('website', c.url) : ''}</div>
-      </div>
-    </div>`).join('');
-  return `<div class="r-section ts-section">${sectionTitle('Certifications')}${items}</div>`;
-}
-
-function tsProjSection() {
-  const list = state.projects.filter(p => p.name);
-  if (!list.length) return '';
-  const items = list.map(p => `
-    <div class="r-item ts-item">
-      <div class="ts-item-row">
-        <div class="ts-item-title">${esc(p.name).toUpperCase()} ${p.url ? linkify('website', p.url) : ''}</div>
-        <div class="ts-item-date"></div>
-      </div>
-      <div class="ts-item-row">
-        <div class="ts-item-sub">${esc(p.tech || '')}</div>
-        <div class="ts-item-loc"></div>
-      </div>
-      ${p.description ? `<div class="r-item-desc ts-item-desc">${esc(p.description)}</div>` : ''}
-    </div>`).join('');
-  return `<div class="r-section ts-section">${sectionTitle('Projects')}${items}</div>`;
-}
-
-function tsInternshipSection() {
-  const list = state.internships.filter(e => e.position || e.company);
-  if (!list.length) return '';
-  const items = list.map(e => `
-    <div class="r-item ts-item">
-      <div class="ts-item-row">
-        <div class="ts-item-title">${esc(e.position).toUpperCase()}</div>
-        <div class="ts-item-date">${e.startDate ? esc(e.startDate) + ' &mdash; ' + (esc(e.endDate) || 'Present') : ''}</div>
-      </div>
-      <div class="ts-item-row">
-        <div class="ts-item-sub">${esc(e.company)}</div>
-        <div class="ts-item-loc">${esc(e.location || '')}</div>
-      </div>
-      ${e.description ? `<div class="r-item-desc ts-item-desc">${esc(e.description)}</div>` : ''}
-    </div>`).join('');
-  return `<div class="r-section ts-section">${sectionTitle('Internships')}${items}</div>`;
-}
-
-function tsCourseSection() {
-  const list = state.courses.filter(c => c.name);
-  if (!list.length) return '';
-  const items = list.map(c => `
-    <div class="r-item ts-item">
-      <div class="ts-item-row">
-        <div class="ts-item-title">${esc(c.name)}</div>
-        <div class="ts-item-date">${esc(c.date || '')}</div>
-      </div>
-      <div class="ts-item-row">
-        <div class="ts-item-sub">${esc(c.institution)}</div>
-        <div class="ts-item-loc"></div>
-      </div>
-    </div>`).join('');
-  return `<div class="r-section ts-section">${sectionTitle('Courses')}${items}</div>`;
-}
-
-function tsActivitySection() {
-  const list = state.activities.filter(a => a.name || a.organization);
-  if (!list.length) return '';
-  const items = list.map(a => `
-    <div class="r-item ts-item">
-      <div class="ts-item-row">
-        <div class="ts-item-title">${esc(a.name)}</div>
-        <div class="ts-item-date">${esc(a.date || '')}</div>
-      </div>
-      <div class="ts-item-row">
-        <div class="ts-item-sub">${esc(a.organization)}</div>
-        <div class="ts-item-loc"></div>
-      </div>
-      ${a.description ? `<div class="r-item-desc ts-item-desc">${esc(a.description)}</div>` : ''}
-    </div>`).join('');
-  return `<div class="r-section ts-section">${sectionTitle('Extracurricular Activities')}${items}</div>`;
-}
-
-// ---- Europass ----
-function buildEuropass() {
-  const p = state.personal;
-  
-  const epSectionMap = {
-    summary: epSummarySection,
-    education: epEduSection,
-    experience: epExpSection,
-    skills: epSkillsSection,
-    certifications: certSection,
-    languages: epLangSection,
-    projects: projSection,
-    internships: epInternshipSection,
-    activities: activitySection,
-    hobbies: epHobbySection,
-    courses: courseSection,
-    references: epRefSection,
-    qualities: qualitySection,
-    achievements: achievementSection,
-    signature: signatureSection,
-    footer: footerSection,
-    custom: customSection
-  };
-
-  const sections = orderedVisibleSectionIds(state.sectionOrder)
-    .map(id => epSectionMap[id] ? epSectionMap[id]() : '')
-    .join('');
-
-  return `
-    <div class="ep-header">
-      <div class="ep-header-left">
-        ${avatarHtml('ep-avatar', 'ep-avatar-placeholder')}
-        <div class="ep-info">
-          <div class="ep-name">${getName()}</div>
-          <div class="ep-header-line"></div>
-          <div class="ep-contacts">
-            <div style="display:flex; flex-wrap:wrap; align-items:center;">
-              ${p.phone ? `<span class="ep-c-item"><strong>Phone:</strong> ${linkify('phone', p.phone)} <span style="margin: 0 8px; color: rgba(255,255,255,0.5);">|</span></span>` : ''}
-              ${p.email ? `<span class="ep-c-item"><strong>Email address:</strong> ${linkify('email', p.email)} <span style="margin: 0 8px; color: rgba(255,255,255,0.5);">|</span></span>` : ''}
-              ${p.linkedin ? `<span class="ep-c-item"><strong>LinkedIn:</strong> ${linkify('linkedin', p.linkedin)} <span style="margin: 0 8px; color: rgba(255,255,255,0.5);">|</span></span>` : ''}
-              ${p.website ? `<span class="ep-c-item"><strong>Website:</strong> ${linkify('website', p.website)} <span style="margin: 0 8px; color: rgba(255,255,255,0.5);">|</span></span>` : ''}
-            </div>
-            ${(p.address || p.city || p.country) ? `<div class="ep-c-item" style="margin-top:6px;"><strong>Address:</strong> ${esc([p.address, p.city, p.country].filter(Boolean).join(', '))}</div>` : ''}
-            ${[p.dob, p.pob, p.driverLicense, p.gender, p.nationality, p.civilStatus, p.customField].filter(Boolean).length ? `
-              <div class="ep-c-item" style="margin-top:6px;">
-                ${[
-                  p.dob ? `<strong>Date of birth:</strong> ${esc(p.dob)}` : '',
-                  p.pob ? `<strong>Place of birth:</strong> ${esc(p.pob)}` : '',
-                  p.driverLicense ? `<strong>Driving license:</strong> ${esc(p.driverLicense)}` : '',
-                  p.gender ? `<strong>Gender:</strong> ${esc(p.gender)}` : '',
-                  p.nationality ? `<strong>Nationality:</strong> ${esc(p.nationality)}` : '',
-                  p.civilStatus ? `<strong>Civil status:</strong> ${esc(p.civilStatus)}` : '',
-                  p.customField ? `<strong>Additional:</strong> ${esc(p.customField)}` : ''
-                ].filter(Boolean).join(' <span style="margin: 0 8px; color: rgba(255,255,255,0.5);">|</span> ')}
-              </div>
-            ` : ''}
-          </div>
-        </div>
-      </div>
-      <div class="ep-header-right">
-        <div class="ep-logo-wrap">
-          <svg width="60" height="40" viewBox="0 0 120 80">
-            <rect width="116" height="76" x="2" y="2" fill="transparent" stroke="#fff" stroke-width="2" stroke-dasharray="6 4"/>
-            <g transform="translate(60,40)">
-              ${Array.from({length: 12}).map((_, i) => {
-                const angle = (i * 30) * (Math.PI / 180);
-                const x = Math.cos(angle) * 24;
-                const y = Math.sin(angle) * 24;
-                return `<polygon points="0,-6 1.4,-1.8 5.8,-1.8 2.2,0.8 3.4,5 0,2.4 -3.4,5 -2.2,0.8 -5.8,-1.8 -1.4,-1.8" fill="#fff" transform="translate(${x},${y}) scale(0.8)"/>`;
-              }).join('')}
-            </g>
-          </svg>
-          <span class="ep-logo-text">europass</span>
-        </div>
-      </div>
-    </div>
-    <div class="ep-body">
-      ${sections}
-    </div>
-  `;
-}
-
-function epExpSection() {
-  const list = state.experience.filter(e => e.position || e.company);
-  if (!list.length) return '';
-  const rows = list.map(e => `
-    <div class="ep-item">
-      <div class="ep-item-meta">${e.startDate ? esc(e.startDate) + ' - ' + (esc(e.endDate) || 'Present') : ''}${e.location ? ' &bull; ' + esc(e.location) : ''}</div>
-      <div class="ep-item-title"><strong>${esc(e.position)}</strong> <span class="ep-item-company">${esc(e.company)}</span></div>
-      ${e.description ? `<div class="r-item-desc">${formatBullets(e.description)}</div>` : ''}
-    </div>`).join('');
-  return `<div class="ep-section"><div class="ep-section-title">Work Experience</div><div class="ep-section-content">${rows}</div></div>`;
-}
-
-function epEduSection() {
-  const list = state.education.filter(e => e.degree || e.institution);
-  if (!list.length) return '';
-  const rows = list.map(e => `
-    <div class="ep-item">
-      <div class="ep-item-meta">${e.startDate ? esc(e.startDate) + ' - ' + (esc(e.endDate) || 'Present') : ''}${e.location ? ' &bull; ' + esc(e.location) : ''}</div>
-      <div class="ep-item-title"><strong>${esc(e.degree)}${e.field ? ' ' + esc(e.field) : ''}</strong> <span class="ep-item-company">${esc(e.institution)}</span></div>
-      ${e.description ? `<div class="r-item-desc">${formatBullets(e.description)}</div>` : ''}
-    </div>`).join('');
-  return `<div class="ep-section"><div class="ep-section-title">Education & Training</div><div class="ep-section-content">${rows}</div></div>`;
-}
-
-function epInternshipSection() {
-  const list = state.internships.filter(e => e.position || e.company);
-  if (!list.length) return '';
-  const rows = list.map(e => `
-    <div class="ep-item">
-      <div class="ep-item-meta">${e.startDate ? esc(e.startDate) + ' - ' + (esc(e.endDate) || 'Present') : ''}${e.location ? ' &bull; ' + esc(e.location) : ''}</div>
-      <div class="ep-item-title"><strong>${esc(e.position)}</strong> <span class="ep-item-company">${esc(e.company)}</span></div>
-      ${e.description ? `<div class="r-item-desc">${formatBullets(e.description)}</div>` : ''}
-    </div>`).join('');
-  return `<div class="ep-section"><div class="ep-section-title">Internships</div><div class="ep-section-content">${rows}</div></div>`;
-}
-
-function epSkillsSection() {
-  const list = state.skills.filter(s => s.name && s.name.trim());
-  if (!list.length) return '';
-  const tags = list.map(s => `
-    <div class="ep-skill-item">
-      <span class="ep-skill-name">${esc(s.name)}</span>
-      ${s.level ? `<span class="ep-skill-level">${esc(s.level)}</span>` : ''}
-    </div>
-  `).join('');
-  return `<div class="ep-section"><div class="ep-section-title">Skills</div><div class="ep-section-content"><div class="ep-skills-grid">${tags}</div></div></div>`;
-}
-
-function epLangSection() {
-  const list = state.languages.filter(l => l.name && l.name.trim());
-  if (!list.length) return '';
-  const tags = list.map(l => `
-    <div class="ep-skill-item">
-      <span class="ep-skill-name">${esc(l.name)}</span>
-      ${l.proficiency ? `<span class="ep-skill-level">${esc(l.proficiency)}</span>` : ''}
-    </div>
-  `).join('');
-  return `<div class="ep-section"><div class="ep-section-title">Language Skills</div><div class="ep-section-content"><div class="ep-skills-grid">${tags}</div></div></div>`;
-}
-
-function epSummarySection() {
-  if (!state.summary) return '';
-  return `<div class="ep-section"><div class="ep-section-title">About Myself</div><div class="r-summary">${esc(state.summary)}</div></div>`;
-}
-
-function epRefSection() {
-  const list = state.references.filter(r => r.name);
-  if (!list.length) return '';
-  const rows = list.map(r => `
-    <div class="ep-item">
-      <div class="ep-item-title"><strong>${esc(r.name)}</strong> <span class="ep-item-company">${esc(r.company)}</span></div>
-      <div class="r-item-desc" style="color:#666;">${[esc(r.email), esc(r.phone)].filter(Boolean).join(' &bull; ')}</div>
-    </div>`).join('');
-  return `<div class="ep-section"><div class="ep-section-title">Recommendations</div><div class="ep-section-content">${rows}</div></div>`;
-}
-
-function epHobbySection() {
-  if (!state.hobbies) return '';
-  return `<div class="ep-section"><div class="ep-section-title">Hobbies</div><div class="r-summary">${esc(state.hobbies)}</div></div>`;
-}
-
-// ---- Modern Right ----
-function buildModernRight() {
-  const p = state.personal;
-  const contacts = [
-    p.phone ? `<div class="mr-contact-item">${getIcon('phone', 'modern-right')} ${linkify('phone', p.phone)}</div>` : '',
-    p.email ? `<div class="mr-contact-item">${getIcon('email', 'modern-right')} ${linkify('email', p.email)}</div>` : '',
-    p.linkedin ? `<div class="mr-contact-item">${getIcon('linkedin', 'modern-right')} ${linkify('linkedin', p.linkedin)}</div>` : '',
-    p.website ? `<div class="mr-contact-item">${getIcon('website', 'modern-right')} ${linkify('website', p.website)}</div>` : '',
-    (p.city || p.country) ? `<div class="mr-contact-item">${getIcon('location', 'modern-right')} ${esc([p.city, p.country].filter(Boolean).join(', '))}</div>` : '',
-    ...optionalPersonalContactItems('modern-right', 'mr-contact-item')
-  ].filter(Boolean);
-
-  const sidebarSections = ['skills', 'languages', 'courses', 'hobbies', 'qualities', 'certifications'];
-  const mainSections = orderedVisibleSectionIds(state.sectionOrder).filter(id => !sidebarSections.includes(id));
-
-  return `
-    <div class="mr-container">
-      <div class="mr-main">
-        <div class="mr-header">
-          <div class="mr-name">${getName()}</div>
-          <div class="mr-title">${getTitle()}</div>
-        </div>
-        ${renderOrderedSections(mainSections)}
-      </div>
-      <div class="mr-sidebar">
-        <div class="mr-avatar-wrap">
-          ${avatarHtml('mr-avatar', 'mr-avatar-placeholder')}
-        </div>
-        ${contacts.length ? `<div class="mr-sidebar-section"><div class="mr-sidebar-title">Contact</div>${contacts.join('')}</div>` : ''}
-        ${renderOrderedSections(sidebarSections)}
-      </div>
-    </div>
-  `;
-}
-
-// ---- Nordic ----
-function buildNordic() {
-  const p = state.personal;
-  const contacts = resumeContactItems('nordic');
-  return `
-    <div class="nx-header">
-      <div>
-        <div class="nx-kicker">${getTitle()}</div>
-        <div class="nx-name">${getName()}</div>
-      </div>
-      <div class="nx-photo">${avatarHtml('nx-avatar', 'nx-avatar-placeholder')}</div>
-    </div>
-    ${contacts ? `<div class="nx-contact">${contacts}</div>` : ''}
-    <div class="nx-body">${renderOrderedSections(state.sectionOrder)}</div>
-  `;
-}
-
-// ---- Timeline ----
-function buildTimeline() {
-  return `
-    <div class="tl-header">
-      <div class="tl-mark"></div>
-      <div>
-        <div class="tl-name">${getName()}</div>
-        <div class="tl-title">${getTitle()}</div>
-        <div class="tl-contact">${resumeContactItems('timeline')}</div>
-      </div>
-    </div>
-    <div class="tl-body">${renderOrderedSections(state.sectionOrder)}</div>
-  `;
-}
-
-// ---- Mono ----
-function buildMono() {
-  return `
-    <div class="mo-header">
-      <div class="mo-name">${getName()}</div>
-      <div class="mo-title">${getTitle()}</div>
-      <div class="mo-contact">${resumeContactItems('mono')}</div>
-    </div>
-    <div class="mo-rule"></div>
-    <div class="mo-body">${renderOrderedSections(state.sectionOrder)}</div>
-  `;
-}
-
-// ---- Compact ----
-function buildCompact() {
-  return `
-    <div class="cp-header">
-      <div>
-        <div class="cp-name">${getName()}</div>
-        <div class="cp-title">${getTitle()}</div>
-      </div>
-      <div class="cp-contact">${resumeContactItems('compact')}</div>
-    </div>
-    <div class="cp-body">${renderOrderedSections(state.sectionOrder)}</div>
-  `;
-}
-
-// ---- Portfolio ----
-function buildPortfolio() {
-  const sideSections = ['skills', 'languages', 'certifications', 'hobbies', 'qualities'];
-  const mainSections = orderedVisibleSectionIds(state.sectionOrder).filter(id => !sideSections.includes(id));
-  return `
-    <div class="pf-shell">
-      <aside class="pf-side">
-        ${avatarHtml('pf-avatar', 'pf-avatar-placeholder')}
-        <div class="pf-name">${getName()}</div>
-        <div class="pf-title">${getTitle()}</div>
-        <div class="pf-contact">${resumeContactItems('portfolio')}</div>
-        ${renderOrderedSections(sideSections)}
-      </aside>
-      <main class="pf-main">${renderOrderedSections(mainSections)}</main>
-    </div>
-  `;
-}
-
-// ---- Graduate ----
-function buildGraduate() {
-  const priority = ['education', 'skills', 'projects', 'certifications', 'courses', 'languages'];
-  const rest = orderedVisibleSectionIds(state.sectionOrder).filter(id => !priority.includes(id));
-  return `
-    <div class="gr-header">
-      <div class="gr-cap">Academic Resume</div>
-      <div class="gr-name">${getName()}</div>
-      <div class="gr-title">${getTitle()}</div>
-      <div class="gr-contact">${resumeContactItems('graduate')}</div>
-    </div>
-    <div class="gr-body">${renderSectionsByList([...priority, ...rest])}</div>
-  `;
-}
-
-// ---- Software Engineer ----
-function buildSoftwareEngineer() {
-  const sideSections = ['experience', 'education', 'certifications', 'achievements'];
-  const mainSections = orderedVisibleSectionIds(state.sectionOrder).filter(id => !sideSections.includes(id));
-  return `
-    <div class="se-layout">
-      <aside class="se-sidebar">
-        <div class="se-name-block">
-          <div class="se-name">${getName()}</div>
-        </div>
-        <div class="se-photo-wrap">${avatarHtml('se-avatar', 'se-avatar-placeholder')}</div>
-        <div class="se-role">${getTitle()}</div>
-        <div class="se-side-sections">${renderSoftwareEngineerSections(sideSections)}</div>
-      </aside>
-      <main class="se-main">
-        ${renderSoftwareEngineerSections(mainSections)}
-        <div class="se-contact-section">
-          <div class="r-section-title">Contact</div>
-          <div class="se-contact-grid">${softwareEngineerContactItems()}</div>
-        </div>
-      </main>
-    </div>
-  `;
-}
-
-function softwareEngineerContactItems() {
-  const p = state.personal;
-  return [
-    p.phone ? `<span><strong>Phone:</strong> ${linkify('phone', p.phone)}</span>` : '',
-    p.email ? `<span><strong>E-mail:</strong> ${linkify('email', p.email)}</span>` : '',
-    p.linkedin ? `<span><strong>Social:</strong> ${linkify('linkedin', p.linkedin)}</span>` : '',
-    p.website ? `<span><strong>Website:</strong> ${linkify('website', p.website)}</span>` : '',
-    (p.city || p.country) ? `<span><strong>Location:</strong> ${esc([p.city, p.country].filter(Boolean).join(', '))}</span>` : ''
-  ].filter(Boolean).join('');
-}
-
-function renderSoftwareEngineerSections(ids) {
-  const seSectionMap = {
-    ...sectionMap,
-    experience: softwareEngineerSidebarExperienceSection,
-    education: softwareEngineerSidebarEducationSection,
-    certifications: softwareEngineerSidebarCertificationSection,
-    achievements: softwareEngineerAdditionalSection,
-    custom: softwareEngineerAdditionalSection,
-    skills: softwareEngineerSkillsSection,
-    projects: softwareEngineerProjectSection
-  };
-
-  return orderedVisibleSectionIds(ids)
-    .map(id => seSectionMap[id] ? seSectionMap[id]() : '')
-    .join('');
-}
-
-function softwareEngineerSkillsSection() {
-  const list = state.skills.filter(s => s.name && s.name.trim());
-  if (!list.length) return '';
-  const rows = list.map((s, index) => {
-    const fallback = [90, 75, 80, 80][index % 4];
-    const rawLevel = Number.parseInt(s.level, 10);
-    const level = Number.isFinite(rawLevel) ? Math.max(0, Math.min(100, rawLevel)) : fallback;
-    return `
-      <div class="se-skill-row">
-        <div class="se-skill-name">${esc(s.name)}</div>
-        <div class="se-skill-track"><span style="width:${level}%"></span></div>
-        <div class="se-skill-value">${level}%</div>
-      </div>
-    `;
-  }).join('');
-  return `<div class="r-section se-skills-section">${sectionTitle('Technical Skills')}<div class="se-skill-bars">${rows}</div></div>`;
-}
-
-function softwareEngineerSidebarExperienceSection() {
-  const list = state.experience.filter(e => e.position || e.company);
-  if (!list.length) return '';
-  const items = list.map(e => `
-    <div class="se-side-item">
-      <div class="se-side-title">${esc(e.position)}</div>
-      <div class="se-side-meta">${[e.company, e.location].filter(Boolean).map(esc).join(' — ')}</div>
-      <div class="se-side-date">${e.startDate ? `${esc(e.startDate)} - ${esc(e.endDate) || 'Present'}` : ''}</div>
-    </div>`).join('');
-  return `<div class="r-section se-side-section">${sectionTitle('Work Experience')}${items}</div>`;
-}
-
-function softwareEngineerSidebarEducationSection() {
-  const list = state.education.filter(e => e.degree || e.institution);
-  if (!list.length) return '';
-  const items = list.map(e => `
-    <div class="se-side-item">
-      <div class="se-side-title">${esc(e.degree)}${e.field ? ` ${esc(e.field)}` : ''}</div>
-      <div class="se-side-meta">${esc(e.institution)}</div>
-      <div class="se-side-date">${e.startDate ? `${esc(e.startDate)} - ${esc(e.endDate) || ''}` : ''}</div>
-    </div>`).join('');
-  return `<div class="r-section se-side-section">${sectionTitle('Education')}${items}</div>`;
-}
-
-function softwareEngineerSidebarCertificationSection() {
-  const list = state.certifications.filter(c => c.name || c.issuer);
-  if (!list.length) return '';
-  const items = list.map(c => `
-    <div class="se-side-item">
-      <div class="se-side-title">${esc(c.name)}</div>
-      <div class="se-side-meta">${esc(c.issuer)}${c.date ? ` ${esc(c.date)}` : ''}</div>
-    </div>`).join('');
-  return `<div class="r-section se-side-section">${sectionTitle('Certifications')}${items}</div>`;
-}
-
-function softwareEngineerAdditionalSection() {
-  const bits = [
-    ...state.achievements.filter(a => a.name || a.description).map(a => a.description || a.name),
-    state.custom.content
-  ].filter(Boolean);
-  if (!bits.length) return '';
-  const items = bits.map(item => `<li>${esc(item)}</li>`).join('');
-  return `<div class="r-section se-side-section">${sectionTitle('Additional Information')}<ul class="se-additional">${items}</ul></div>`;
-}
-
-function softwareEngineerProjectSection() {
-  const list = state.projects.filter(p => p.name && p.name.trim());
-  if (!list.length) return '';
-  const items = list.map(pr => `
-    <div class="se-project">
-      <div class="se-project-title">${esc(pr.name)}</div>
-      ${pr.description ? `<div class="se-project-desc">${formatBullets(pr.description)}</div>` : ''}
-    </div>`).join('');
-  return `<div class="r-section">${sectionTitle('Projects')}${items}</div>`;
-}
-
-// ---- Quality Assurance Engineer ----
-function buildQaEngineer() {
-  const leftSections = ['summary', 'experience', 'education', 'courses', 'certifications', 'projects', 'internships', 'activities', 'custom', 'signature', 'footer'];
-  const rightSections = ['languages', 'achievements', 'skills', 'hobbies', 'references'];
-  return `
-    <div class="qa-page">
-      <div class="qa-dot-field"></div>
-      <header class="qa-header">
-        <div class="qa-name">${getName()}</div>
-        <div class="qa-title">${getTitle()}</div>
-        <div class="qa-contact">${resumeContactItems('qa-engineer')}</div>
-      </header>
-      <div class="qa-body">
-        <main class="qa-main-col">${renderQaEngineerSections(leftSections)}</main>
-        <aside class="qa-side-col">${renderQaEngineerSections(rightSections)}</aside>
-      </div>
-    </div>
-  `;
-}
-
-function renderQaEngineerSections(ids) {
-  const qaSectionMap = {
-    ...sectionMap,
-    summary: () => state.summary ? `<div class="r-section">${sectionTitle('Summary')}<p class="r-summary">${esc(state.summary)}</p></div>` : '',
-    experience: qaExperienceSection,
-    education: qaEducationSection,
-    languages: qaLanguageSection,
-    achievements: qaAchievementSection,
-    skills: qaSkillsSection,
-    qualities: qaSkillsSection,
-    hobbies: qaInterestSection,
-    courses: qaCourseSection
-  };
-
-  return orderedVisibleSectionIds(ids)
-    .map(id => qaSectionMap[id] ? qaSectionMap[id]() : '')
-    .join('');
-}
-
-function qaExperienceSection() {
-  const list = state.experience.filter(e => e.position || e.company);
-  if (!list.length) return '';
-  const items = list.map(e => `
-    <div class="qa-item">
-      <div class="qa-item-title">${esc(e.position)}</div>
-      <div class="qa-item-meta">
-        ${e.company ? `<span class="qa-company">${esc(e.company)}</span>` : ''}
-        ${e.startDate ? `<span>${getIcon('calendar', 'qa-engineer')} ${esc(e.startDate)} - ${esc(e.endDate) || 'Present'}</span>` : ''}
-        ${e.location ? `<span>${getIcon('location', 'qa-engineer')} ${esc(e.location)}</span>` : ''}
-      </div>
-      ${e.description ? `<div class="qa-item-desc">${formatBullets(e.description)}</div>` : ''}
-    </div>`).join('');
-  return `<div class="r-section">${sectionTitle('Experience')}${items}</div>`;
-}
-
-function qaEducationSection() {
-  const list = state.education.filter(e => e.degree || e.institution);
-  if (!list.length) return '';
-  const items = list.map(e => `
-    <div class="qa-item">
-      <div class="qa-item-title">${esc(e.degree)}${e.field ? ' in ' + esc(e.field) : ''}</div>
-      <div class="qa-item-meta">
-        ${e.institution ? `<span class="qa-company">${esc(e.institution)}</span>` : ''}
-        ${e.startDate ? `<span>${getIcon('calendar', 'qa-engineer')} ${esc(e.startDate)} - ${esc(e.endDate) || 'Present'}</span>` : ''}
-        ${e.location ? `<span>${getIcon('location', 'qa-engineer')} ${esc(e.location)}</span>` : ''}
-      </div>
-      ${e.description ? `<div class="qa-item-desc">${formatBullets(e.description)}</div>` : ''}
-    </div>`).join('');
-  return `<div class="r-section">${sectionTitle('Education')}${items}</div>`;
-}
-
-function qaCourseSection() {
-  const list = state.courses.filter(c => c.name || c.institution);
-  if (!list.length) return '';
-  const items = list.map(c => `
-    <div class="qa-course">
-      <div class="qa-course-name">${esc(c.name)}</div>
-      <div class="qa-course-meta">${esc(c.institution)}${c.date ? ` in ${esc(c.date)}` : ''}</div>
-    </div>`).join('');
-  return `<div class="r-section">${sectionTitle('Training / Courses')}<div class="qa-courses">${items}</div></div>`;
-}
-
-function qaLanguageSection() {
-  const list = state.languages.filter(l => l.name && l.name.trim());
-  if (!list.length) return '';
-  const rows = list.map((l, index) => {
-    const raw = Number.parseInt(l.proficiency, 10);
-    const filled = Number.isFinite(raw) ? Math.max(1, Math.min(6, Math.round(raw / 17))) : (index === 0 ? 6 : 4);
-    const dots = Array.from({ length: 6 }, (_, i) => `<span class="${i < filled ? 'is-filled' : ''}"></span>`).join('');
-    return `<div class="qa-lang-row"><span>${esc(l.name)}</span><em>${esc(l.proficiency || '')}</em><div class="qa-lang-dots">${dots}</div></div>`;
-  }).join('');
-  return `<div class="r-section">${sectionTitle('Languages')}<div class="qa-languages">${rows}</div></div>`;
-}
-
-function qaAchievementSection() {
-  const list = state.achievements.filter(a => a.name && a.name.trim());
-  if (!list.length) return '';
-  const icons = ['star', 'quality', 'flag', 'idea'];
-  const items = list.map((a, index) => `
-    <div class="qa-achievement">
-      <div class="qa-achievement-icon">${getIcon(icons[index % icons.length], 'qa-engineer')}</div>
-      <div>
-        <div class="qa-achievement-title">${esc(a.name)}</div>
-        ${a.description ? `<div class="qa-achievement-desc">${esc(a.description)}</div>` : ''}
-      </div>
-    </div>`).join('');
-  return `<div class="r-section">${sectionTitle('Key Achievements')}${items}</div>`;
-}
-
-function qaSkillsSection() {
-  const skillList = state.skills.filter(s => s.name && s.name.trim()).map(s => s.name);
-  const qualityList = state.qualities.filter(q => q.name && q.name.trim()).map(q => q.name);
-  const list = [...skillList, ...qualityList].filter((name, index, arr) => arr.indexOf(name) === index);
-  if (!list.length) return '';
-  return `<div class="r-section">${sectionTitle('Skills')}<div class="qa-skill-list">${list.map(name => `<span>${esc(name)}</span>`).join('')}</div></div>`;
-}
-
-function qaInterestSection() {
-  if (!state.hobbies) return '';
-  const items = state.hobbies.split('\n').map(line => line.trim()).filter(Boolean);
-  const content = items.length > 1
-    ? items.map(item => `<div class="qa-interest">${esc(item)}</div>`).join('')
-    : `<div class="qa-interest">${esc(state.hobbies)}</div>`;
-  return `<div class="r-section">${sectionTitle('Interests')}${content}</div>`;
-}
-
-// ---- Student ----
-function buildStudent() {
-  return `
-    <div class="st-header">
-      ${state.photo ? `<div class="st-photo">${avatarHtml('st-avatar', 'st-avatar-placeholder')}</div>` : ''}
-      <div class="st-label">Student Resume</div>
-      <div class="st-name">${getName()}</div>
-      <div class="st-title">${getTitle()}</div>
-      <div class="st-contact">${resumeContactItems('student')}</div>
-    </div>
-    <div class="st-body">${renderOrderedSections(state.sectionOrder)}</div>
-  `;
-}
-
-// ---- Freelancer ----
-function buildFreelancer() {
-  const sideSections = ['skills', 'languages', 'certifications', 'courses', 'qualities', 'hobbies', 'references'];
-  const mainSections = orderedVisibleSectionIds(state.sectionOrder).filter(id => !sideSections.includes(id));
-  return `
-    <div class="fl-shell">
-      <main class="fl-main">
-        <header>
-          <div class="fl-badge">Available for projects</div>
-          <div class="fl-name">${getName()}</div>
-          <div class="fl-title">${getTitle()}</div>
-        </header>
-        <div class="fl-rule"></div>
-        ${renderOrderedSections(mainSections)}
-      </main>
-      <aside class="fl-side">
-        ${avatarHtml('fl-avatar', 'fl-avatar-placeholder')}
-        <div class="fl-contact">${resumeContactItems('freelancer')}</div>
-        ${renderOrderedSections(sideSections)}
-      </aside>
-    </div>
-  `;
-}
-
-// ---- Clean Sidebar ----
-function buildCleanSidebar() {
-  const sideSections = ['skills', 'languages', 'courses', 'references'];
-  const mainSections = orderedVisibleSectionIds(state.sectionOrder).filter(id => !sideSections.includes(id));
-  return `
-    <div class="cs-layout">
-      <div class="cs-main">
-        <div class="cs-name">${getName()}</div>
-        <div class="cs-title">${getTitle()}</div>
-        ${renderOrderedSections(mainSections)}
-      </div>
-      <aside class="cs-side">
-        <div class="cs-contact">${resumeContactItems('clean-sidebar')}</div>
-        ${renderOrderedSections(sideSections)}
-      </aside>
-    </div>
-  `;
-}
-
-// ---- ATS Friendly ----
-function buildAtsFriendly() {
-  return `
-    <div class="ats-wrapper">
-      <div class="ats-header">
-        <h1 class="ats-name">${getName()}</h1>
-        <div class="ats-title">${getTitle()}</div>
-        <div class="ats-contact">${resumeContactItems('ats-friendly')}</div>
-      </div>
-      <div class="ats-body">
-        ${renderOrderedSections(['summary', 'experience', 'education', 'skills', 'languages', 'certifications', 'projects', 'internships', 'activities', 'hobbies', 'courses', 'references', 'qualities', 'achievements', 'custom', 'signature', 'footer'])}
-      </div>
-    </div>
-  `;
-}
-
-// ---- LaTeX Style ----
-function buildLatexStyle() {
-  return `
-    <div class="latex-wrapper">
-      <div class="latex-header">
-        <h1 class="latex-name">${getName()}</h1>
-        <div class="latex-title">${getTitle()}</div>
-        <div class="latex-contact">${resumeContactItems('latex-style')}</div>
-      </div>
-      <div class="latex-body">
-        ${renderOrderedSections(['summary', 'experience', 'education', 'skills', 'languages', 'certifications', 'projects', 'internships', 'activities', 'hobbies', 'courses', 'references', 'qualities', 'achievements', 'custom', 'signature', 'footer'])}
-      </div>
-    </div>
-  `;
-}
-
-// ---- Harvard Style ----
-function buildHarvardStyle() {
-  return `
-    <div class="harvard-wrapper">
-      <div class="harvard-header">
-        <h1 class="harvard-name">${getName()}</h1>
-        <div class="harvard-title">${getTitle()}</div>
-        <div class="harvard-contact">${resumeContactItems('harvard-style')}</div>
-      </div>
-      <div class="harvard-body">
-        ${renderOrderedSections(['summary', 'experience', 'education', 'skills', 'languages', 'certifications', 'projects', 'internships', 'activities', 'hobbies', 'courses', 'references', 'qualities', 'achievements', 'custom', 'signature', 'footer'])}
-      </div>
-    </div>
-  `;
-}
-
-// ---- Federal Style ----
-function buildFederalStyle() {
-  const p = state.personal;
-  const metaItems = [
-    p.dob ? `<div><strong>Date of Birth:</strong> ${esc(p.dob)}</div>` : '',
-    p.pob ? `<div><strong>Place of Birth:</strong> ${esc(p.pob)}</div>` : '',
-    p.nationality ? `<div><strong>Citizenship/Nationality:</strong> ${esc(p.nationality)}</div>` : '',
-    p.driverLicense ? `<div><strong>Driver's License:</strong> ${esc(p.driverLicense)}</div>` : '',
-    p.gender ? `<div><strong>Gender:</strong> ${esc(p.gender)}</div>` : '',
-    p.civilStatus ? `<div><strong>Civil Status:</strong> ${esc(p.civilStatus)}</div>` : '',
-    p.customField ? `<div><strong>Security/Clearance:</strong> ${esc(p.customField)}</div>` : ''
-  ].filter(Boolean).join('');
-  
-  const metaBlock = metaItems ? `<div class="fed-meta-block">${metaItems}</div>` : '';
-  
-  return `
-    <div class="fed-wrapper">
-      <div class="fed-header">
-        <h1 class="fed-name">${getName()}</h1>
-        <div class="fed-title">${getTitle()}</div>
-        <div class="fed-contact">${resumeContactItems('federal-style')}</div>
-        ${metaBlock}
-      </div>
-      <div class="fed-body">
-        ${renderOrderedSections(['summary', 'experience', 'education', 'skills', 'languages', 'certifications', 'projects', 'internships', 'activities', 'hobbies', 'courses', 'references', 'qualities', 'achievements', 'custom', 'signature', 'footer'])}
-      </div>
-    </div>
-  `;
-}
-
-// ---- Functional ----
-function buildFunctional() {
-  const otherSections = ['summary', 'experience', 'education', 'languages', 'certifications', 'projects', 'internships', 'activities', 'hobbies', 'courses', 'references', 'qualities', 'achievements', 'custom', 'signature', 'footer'];
-  return `
-    <div class="func-wrapper">
-      <div class="func-header">
-        <h1 class="func-name">${getName()}</h1>
-        <div class="func-title">${getTitle()}</div>
-        <div class="func-contact">${resumeContactItems('functional')}</div>
-      </div>
-      <div class="func-body">
-        ${renderOrderedSections(['skills'])}
-        ${renderOrderedSections(otherSections)}
-      </div>
-    </div>
-  `;
-}
-
-// ---- Chronological ----
-function buildChronological() {
-  return `
-    <div class="chron-wrapper">
-      <div class="chron-header">
-        <h1 class="chron-name">${getName()}</h1>
-        <div class="chron-title">${getTitle()}</div>
-        <div class="chron-contact">${resumeContactItems('chronological')}</div>
-      </div>
-      <div class="chron-body">
-        ${renderOrderedSections(['summary', 'experience', 'education', 'skills', 'languages', 'certifications', 'projects', 'internships', 'activities', 'hobbies', 'courses', 'references', 'qualities', 'achievements', 'custom', 'signature', 'footer'])}
-      </div>
-    </div>
-  `;
-}
-
-// ---- Consulting Style ----
-function buildConsultingStyle() {
-  return `
-    <div class="cons-wrapper">
-      <div class="cons-header">
-        <div class="cons-name-title">
-          <h1 class="cons-name">${getName()}</h1>
-          <div class="cons-title">${getTitle()}</div>
-        </div>
-        <div class="cons-contact">${resumeContactItems('consulting-style')}</div>
-      </div>
-      <div class="cons-body">
-        ${renderOrderedSections(['summary', 'experience', 'education', 'skills', 'languages', 'certifications', 'projects', 'internships', 'activities', 'hobbies', 'courses', 'references', 'qualities', 'achievements', 'custom', 'signature', 'footer'])}
-      </div>
-    </div>
-  `;
-}
-
-// ---- Academic CV ----
-function buildAcademicCv() {
-  return `
-    <div class="acad-wrapper">
-      <div class="acad-header">
-        <h1 class="acad-name">${getName()}</h1>
-        <div class="acad-title">${getTitle()}</div>
-        <div class="acad-contact">${resumeContactItems('academic-cv')}</div>
-      </div>
-      <div class="acad-body">
-        ${renderOrderedSections(['summary', 'education', 'experience', 'projects', 'certifications', 'skills', 'languages', 'internships', 'activities', 'hobbies', 'courses', 'references', 'qualities', 'achievements', 'custom', 'signature', 'footer'])}
-      </div>
-    </div>
-  `;
-}
-
-// ---- Infographic ----
-function buildInfographic() {
-  const sideSections = ['skills', 'languages', 'hobbies', 'qualities'];
-  const mainSections = orderedVisibleSectionIds(state.sectionOrder).filter(id => !sideSections.includes(id));
-  return `
-    <div class="info-layout">
-      <aside class="info-sidebar">
-        ${avatarHtml()}
-        <div class="info-contact">${resumeContactItems('infographic')}</div>
-        ${renderOrderedSections(sideSections)}
-      </aside>
-      <main class="info-main">
-        <div class="info-header">
-          <h1 class="info-name">${getName()}</h1>
-          <div class="info-title">${getTitle()}</div>
-        </div>
-        ${renderOrderedSections(mainSections)}
-      </main>
-    </div>
-  `;
-}
-
-// ---- Modern Executive ----
-function buildModernExecutive() {
-  const sideSections = ['education', 'skills', 'languages', 'certifications', 'qualities', 'courses', 'references', 'hobbies'];
-  const mainSections = orderedVisibleSectionIds(state.sectionOrder).filter(id => !sideSections.includes(id));
-  
-  return `
-    <div class="exec-layout">
-      <div class="exec-header">
-        <div class="exec-header-top">
-          ${state.photo ? avatarHtml('exec-avatar', 'exec-avatar-placeholder') : ''}
-          <div class="exec-title-block">
-            <h1 class="exec-name">${getName()}</h1>
-            <div class="exec-title">${getTitle()}</div>
-          </div>
-        </div>
-        <div class="exec-divider"></div>
-        <div class="exec-contact-grid">
-          ${resumeContactItems('modern-executive')}
-        </div>
-      </div>
-      
-      <div class="exec-columns">
-        <div class="exec-main-col">
-          ${renderOrderedSections(mainSections)}
-        </div>
-        <aside class="exec-side-col">
-          ${renderOrderedSections(sideSections)}
-        </aside>
-      </div>
-    </div>
-  `;
-}
-
-// ---- Elite ----
-function buildElite() {
-  const sideSections = ['skills', 'languages', 'education', 'certifications', 'hobbies', 'qualities'];
-  const mainSections = orderedVisibleSectionIds(state.sectionOrder).filter(id => !sideSections.includes(id));
-
-  return `
-    <div class="elite-layout">
-      <header class="elite-header">
-        <div class="elite-header-bg"></div>
-        <div class="elite-header-content">
-          <div class="elite-name-box">
-            <h1 class="elite-name">${getName()}</h1>
-            <div class="elite-title">${getTitle()}</div>
-          </div>
-          <div class="elite-contact-bar">${resumeContactItems('elite')}</div>
-        </div>
-      </header>
-      <div class="elite-body">
-        <aside class="elite-sidebar">
-          <div class="elite-avatar-container">
-            ${state.photo ? avatarHtml('elite-avatar', 'elite-avatar-placeholder') : ''}
-          </div>
-          <div class="elite-sidebar-content">
-            ${renderOrderedSections(sideSections)}
-          </div>
-        </aside>
-        <main class="elite-main">
-          ${renderOrderedSections(mainSections)}
-        </main>
-      </div>
-    </div>
-  `;
-}
-
-// ---- Editorial ----
-function buildEditorial() {
-  return `
-    <div class="ed-header">
-      <div class="ed-label">Profile</div>
-      <div class="ed-name">${getName()}</div>
-      <div class="ed-title">${getTitle()}</div>
-      <div class="ed-contact">${resumeContactItems('editorial')}</div>
-    </div>
-    <div class="ed-body">${renderOrderedSections(state.sectionOrder)}</div>
-  `;
-}
-
-function resumeContactItems(tmpl) {
-  const p = state.personal;
-  return [
-    p.email ? `<span>${getIcon('email', tmpl)} ${linkify('email', p.email)}</span>` : '',
-    p.phone ? `<span>${getIcon('phone', tmpl)} ${linkify('phone', p.phone)}</span>` : '',
-    (p.city || p.country) ? `<span>${getIcon('location', tmpl)} ${esc([p.city, p.country].filter(Boolean).join(', '))}</span>` : '',
-    p.linkedin ? `<span>${getIcon('linkedin', tmpl)} ${linkify('linkedin', p.linkedin)}</span>` : '',
-    p.website ? `<span>${getIcon('website', tmpl)} ${linkify('website', p.website)}</span>` : '',
-    ...optionalPersonalContactItems(tmpl)
-  ].filter(Boolean).join('');
-}
-
-function renderSectionsByList(ids) {
-  const order = Array.isArray(state.sectionOrder) ? state.sectionOrder : ids;
-  const visible = Array.isArray(state.visibleSections) ? state.visibleSections : ids;
-  return ids
-    .filter((id, index) => ids.indexOf(id) === index && order.includes(id) && visible.includes(id))
-    .map(id => sectionMap[id] ? sectionMap[id]() : '')
-    .join('');
-}
-
 function collectPdfLinks(root, pageWidthMm, pageHeightMm) {
   const rootRect = root.getBoundingClientRect();
   const pxToMm = pageWidthMm / rootRect.width;
@@ -4121,6 +2160,52 @@ function applyPdfLinks(pdf, links) {
     if (pdf.setPage) pdf.setPage(pageNumber);
     pdf.link(link.x, link.y, link.width, Math.max(link.height, 3), { url: link.href });
   });
+}
+
+// html2canvas 1.4 has no object-fit support: it draws every <img> stretched to its
+// box, which squashed any photo that was not already the box's shape. Before the
+// capture, each cover/contain image in the export copy is redrawn at the size it is
+// shown, cropped exactly as the browser crops it, so nothing is left to stretch.
+async function flattenImagesForPdf(root) {
+  const imgs = Array.from(root.querySelectorAll('img'));
+  await Promise.all(imgs.map(async img => {
+    const cs = getComputedStyle(img);
+    const fit = cs.objectFit;
+    if (fit !== 'cover' && fit !== 'contain' && fit !== 'scale-down') return;
+    const w = img.clientWidth, h = img.clientHeight;
+    const nw = img.naturalWidth, nh = img.naturalHeight;
+    if (!w || !h || !nw || !nh) return;
+    const [px, py] = (cs.objectPosition || '50% 50%').split(' ').map(v => {
+      if (v === 'left' || v === 'top') return 0;
+      if (v === 'right' || v === 'bottom') return 1;
+      return v.endsWith('%') ? parseFloat(v) / 100 : 0.5;
+    });
+    const scale = 3;
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(w * scale);
+    canvas.height = Math.round(h * scale);
+    const ctx = canvas.getContext('2d');
+    try {
+      if (fit === 'cover') {
+        const s = Math.max(w / nw, h / nh);
+        const sw = w / s, sh = h / s;
+        ctx.drawImage(img, (nw - sw) * px, (nh - sh) * (py ?? 0.5), sw, sh, 0, 0, canvas.width, canvas.height);
+      } else {
+        const s = Math.min(w / nw, h / nh, fit === 'scale-down' ? 1 : Infinity);
+        const dw = nw * s, dh = nh * s;
+        ctx.drawImage(img, (w - dw) * px * scale, (h - dh) * (py ?? 0.5) * scale, dw * scale, dh * scale);
+      }
+      const url = canvas.toDataURL('image/png');
+      await new Promise(resolve => {
+        img.onload = resolve;
+        img.onerror = resolve;
+        img.src = url;
+      });
+      img.style.objectFit = 'fill';
+    } catch (err) {
+      // A cross-origin image taints the canvas; leave it as it was.
+    }
+  }));
 }
 
 // ---- Download PDF ----
@@ -4178,6 +2263,7 @@ function bindDownloadBtn() {
           img.onerror = resolve;
         });
       }));
+      await flattenImagesForPdf(exportElement);
       paginateResume(exportElement, { gap: 0, bottomGuard: 24 });
       if (!window.html2canvas) {
         throw new Error('html2canvas library is not loaded');
@@ -4228,220 +2314,6 @@ function bindDownloadBtn() {
       resetDownloadButton();
     }
   });
-}
-
-// ============================================================
-// ---- 2026 TRENDING TEMPLATES ----
-// ============================================================
-
-// ---- Aurora (soft gradient mesh header, glass section cards) ----
-function buildAurora() {
-  const sideSections = ['skills', 'languages', 'qualities', 'hobbies'];
-  const mainSections = orderedVisibleSectionIds(state.sectionOrder).filter(id => !sideSections.includes(id));
-  return `
-    <div class="au-shell">
-      <header class="au-hero">
-        <div class="au-hero-glow"></div>
-        <div class="au-hero-inner">
-          ${state.photo ? `<div class="au-photo">${avatarHtml('au-avatar', 'au-avatar-placeholder')}</div>` : ''}
-          <div class="au-id">
-            <h1 class="au-name">${getName()}</h1>
-            <div class="au-role">${getTitle()}</div>
-          </div>
-        </div>
-        <div class="au-contact">${resumeContactItems('aurora')}</div>
-      </header>
-      <div class="au-body">
-        <main class="au-main">${renderOrderedSections(mainSections)}</main>
-        <aside class="au-rail">${renderOrderedSections(sideSections)}</aside>
-      </div>
-    </div>
-  `;
-}
-
-// ---- Swiss (International Typographic Style, hairline grid) ----
-function buildSwiss() {
-  return `
-    <div class="sw-shell">
-      <header class="sw-head">
-        <div class="sw-head-left">
-          <h1 class="sw-name">${getName()}</h1>
-          <div class="sw-role">${getTitle()}</div>
-        </div>
-        <div class="sw-head-right">${resumeContactItems('swiss')}</div>
-      </header>
-      <div class="sw-rule"></div>
-      <div class="sw-body">${renderOrderedSections(state.sectionOrder)}</div>
-    </div>
-  `;
-}
-
-// ---- Brutalist (hard borders, offset shadows, mono labels) ----
-function buildBrutalist() {
-  return `
-    <div class="br-shell">
-      <header class="br-head">
-        <div class="br-head-main">
-          <h1 class="br-name">${getName()}</h1>
-          <div class="br-role">${getTitle()}</div>
-        </div>
-        ${state.photo ? `<div class="br-photo">${avatarHtml('br-avatar', 'br-avatar-placeholder')}</div>` : ''}
-      </header>
-      <div class="br-contact">${resumeContactItems('brutalist')}</div>
-      <div class="br-body">${renderOrderedSections(state.sectionOrder)}</div>
-    </div>
-  `;
-}
-
-// ---- Vogue (editorial fashion serif, centred masthead) ----
-function buildVogue() {
-  return `
-    <div class="vg-shell">
-      <header class="vg-head">
-        <div class="vg-eyebrow">Curriculum Vitae</div>
-        <h1 class="vg-name">${getName()}</h1>
-        <div class="vg-hair"></div>
-        <div class="vg-role">${getTitle()}</div>
-        <div class="vg-contact">${resumeContactItems('vogue')}</div>
-      </header>
-      <div class="vg-body">${renderOrderedSections(state.sectionOrder)}</div>
-    </div>
-  `;
-}
-
-// ---- Terminal (developer dark IDE aesthetic) ----
-function buildTerminal() {
-  const sideSections = ['skills', 'languages', 'certifications', 'qualities'];
-  const mainSections = orderedVisibleSectionIds(state.sectionOrder).filter(id => !sideSections.includes(id));
-  const slug = String(state.personal.lastName || 'candidate').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'candidate';
-  return `
-    <div class="tm-shell">
-      <div class="tm-bar">
-        <span class="tm-dot tm-dot-r"></span><span class="tm-dot tm-dot-y"></span><span class="tm-dot tm-dot-g"></span>
-        <span class="tm-path">~/resume/${esc(slug)}.md</span>
-      </div>
-      <header class="tm-head">
-        <div class="tm-prompt">$ whoami</div>
-        <h1 class="tm-name">${getName()}</h1>
-        <div class="tm-role">${getTitle()}<span class="tm-caret"></span></div>
-        <div class="tm-contact">${resumeContactItems('terminal')}</div>
-      </header>
-      <div class="tm-body">
-        <main class="tm-main">${renderOrderedSections(mainSections)}</main>
-        <aside class="tm-rail">${renderOrderedSections(sideSections)}</aside>
-      </div>
-    </div>
-  `;
-}
-
-// ---- Metro (diagonal two-tone split header) ----
-function buildMetro() {
-  const sideSections = ['skills', 'languages', 'certifications', 'courses', 'hobbies', 'qualities'];
-  const mainSections = orderedVisibleSectionIds(state.sectionOrder).filter(id => !sideSections.includes(id));
-  return `
-    <div class="mt-shell">
-      <header class="mt-head">
-        <div class="mt-head-wedge"></div>
-        <div class="mt-head-inner">
-          ${state.photo ? avatarHtml('mt-avatar', 'mt-avatar-placeholder') : ''}
-          <div class="mt-id">
-            <h1 class="mt-name">${getName()}</h1>
-            <div class="mt-role">${getTitle()}</div>
-          </div>
-        </div>
-      </header>
-      <div class="mt-contact">${resumeContactItems('metro')}</div>
-      <div class="mt-body">
-        <main class="mt-main">${renderOrderedSections(mainSections)}</main>
-        <aside class="mt-rail">${renderOrderedSections(sideSections)}</aside>
-      </div>
-    </div>
-  `;
-}
-
-// ---- Luxe (ivory & gold, high-end minimal serif) ----
-function buildLuxe() {
-  return `
-    <div class="lx-shell">
-      <header class="lx-head">
-        ${state.photo ? `<div class="lx-photo">${avatarHtml('lx-avatar', 'lx-avatar-placeholder')}</div>` : ''}
-        <h1 class="lx-name">${getName()}</h1>
-        <div class="lx-ornament"><span></span><i>&#10022;</i><span></span></div>
-        <div class="lx-role">${getTitle()}</div>
-        <div class="lx-contact">${resumeContactItems('luxe')}</div>
-      </header>
-      <div class="lx-body">${renderOrderedSections(state.sectionOrder)}</div>
-    </div>
-  `;
-}
-
-// ---- Impact (metric-forward, bold left accent bars) ----
-function buildImpact() {
-  const sideSections = ['skills', 'languages', 'certifications', 'qualities', 'hobbies'];
-  const mainSections = orderedVisibleSectionIds(state.sectionOrder).filter(id => !sideSections.includes(id));
-  return `
-    <div class="ip-shell">
-      <header class="ip-head">
-        <div class="ip-head-id">
-          <h1 class="ip-name">${getName()}</h1>
-          <div class="ip-role">${getTitle()}</div>
-        </div>
-        <div class="ip-head-contact">${resumeContactItems('impact')}</div>
-      </header>
-      <div class="ip-body">
-        <main class="ip-main">${renderOrderedSections(mainSections)}</main>
-        <aside class="ip-rail">
-          ${state.photo ? `<div class="ip-photo">${avatarHtml('ip-avatar', 'ip-avatar-placeholder')}</div>` : ''}
-          ${renderOrderedSections(sideSections)}
-        </aside>
-      </div>
-    </div>
-  `;
-}
-
-// ---- Atelier (asymmetric grid, vertical rotated name spine) ----
-function buildAtelier() {
-  return `
-    <div class="at-shell">
-      <div class="at-spine">
-        <div class="at-spine-name">${getName()}</div>
-        <div class="at-spine-line"></div>
-      </div>
-      <div class="at-content">
-        <header class="at-head">
-          <div class="at-role">${getTitle()}</div>
-          ${state.photo ? avatarHtml('at-avatar', 'at-avatar-placeholder') : ''}
-        </header>
-        <div class="at-contact">${resumeContactItems('atelier')}</div>
-        <div class="at-body">${renderOrderedSections(state.sectionOrder)}</div>
-      </div>
-    </div>
-  `;
-}
-
-// ---- Spectrum (gradient spine, gradient section headings) ----
-function buildSpectrum() {
-  const sideSections = ['skills', 'languages', 'qualities', 'hobbies', 'courses'];
-  const mainSections = orderedVisibleSectionIds(state.sectionOrder).filter(id => !sideSections.includes(id));
-  return `
-    <div class="sp-shell">
-      <div class="sp-spine"></div>
-      <div class="sp-inner">
-        <header class="sp-head">
-          ${state.photo ? avatarHtml('sp-avatar', 'sp-avatar-placeholder') : ''}
-          <div class="sp-id">
-            <h1 class="sp-name">${getName()}</h1>
-            <div class="sp-role">${getTitle()}</div>
-            <div class="sp-contact">${resumeContactItems('spectrum')}</div>
-          </div>
-        </header>
-        <div class="sp-body">
-          <main class="sp-main">${renderOrderedSections(mainSections)}</main>
-          <aside class="sp-rail">${renderOrderedSections(sideSections)}</aside>
-        </div>
-      </div>
-    </div>
-  `;
 }
 
 // ============================================================
@@ -4528,23 +2400,30 @@ function updateTemplateToggleLabel() {
 }
 
 // ---- Accent colour presets ----
+// The picker shows the colour actually in use: the template's own until the
+// person chooses one.
+function syncAccentInputs() {
+  const current = effectiveAccent(state.template).toLowerCase();
+  const input = document.getElementById('accent-color');
+  if (input && input.value.toLowerCase() !== current) input.value = current;
+  document.querySelectorAll('#accent-swatches .accent-swatch').forEach(sw => {
+    sw.classList.toggle('is-active', (sw.dataset.color || '').toLowerCase() === current);
+    sw.setAttribute('aria-pressed', String(sw.classList.contains('is-active')));
+  });
+}
+
 function bindAccentSwatches() {
   const wrap = document.getElementById('accent-swatches');
   const input = document.getElementById('accent-color');
   if (!wrap) return;
 
-  function syncActive() {
-    const current = (state.accentColor || '#2563eb').toLowerCase();
-    wrap.querySelectorAll('.accent-swatch').forEach(sw => {
-      sw.classList.toggle('is-active', (sw.dataset.color || '').toLowerCase() === current);
-      sw.setAttribute('aria-pressed', String(sw.classList.contains('is-active')));
-    });
-  }
+  const syncActive = syncAccentInputs;
 
   wrap.addEventListener('click', (e) => {
     const sw = e.target.closest('.accent-swatch');
     if (!sw) return;
     state.accentColor = sw.dataset.color;
+    state.accentCustom = true;
     if (input) input.value = state.accentColor;
     syncActive();
     renderTemplateThumbnails();
@@ -4607,7 +2486,7 @@ function paintLiveThumb(el) {
   if (!tmpl) return;
   el.dataset.thumbPainted = '1';
   try {
-    el.innerHTML = `<div class="thumbnail-page resume-page tmpl-${tmpl}">${buildTemplateThumbnailHtml(tmpl)}</div>`;
+    el.innerHTML = thumbnailPageHtml(tmpl, buildTemplateThumbnailHtml(tmpl));
     setThumbScale(el);
   } catch (err) {
     el.classList.add('thumb-failed');
