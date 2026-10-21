@@ -1,7 +1,7 @@
 {
   "name": "ResumeElite \u2014 Free Resume Builder",
   "short_name": "ResumeElite",
-  "description": "Build an ATS-friendly resume with 50 free templates and instant PDF export.",
+  "description": "Build an ATS-friendly resume with 80 free templates and instant PDF export.",
   "start_url": "/?utm_source=pwa",
   "display": "standalone",
   "background_color": "#f7fbff",

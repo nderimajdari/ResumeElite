@@ -690,7 +690,7 @@ def build_manifest():
     write("site.webmanifest", json.dumps({
         "name": "%s — Free Resume Builder" % S.NAME,
         "short_name": S.NAME,
-        "description": "Build an ATS-friendly resume with 50 free templates and instant PDF export.",
+        "description": "Build an ATS-friendly resume with %d free templates and instant PDF export." % S.TOTAL,
         "start_url": "/?utm_source=pwa",
         "display": "standalone",
         "background_color": "#f7fbff",
@@ -727,6 +727,10 @@ MARKERS = {
     "FOOTER": S.footer_html,
     "HEADSCRIPTS": S.head_common,
     "COLLECTIONS": S.collections_html,
+    "GALLERY_FILTERS": S.gallery_filters_html,
+    "GALLERY_GRID": lambda: "\n".join(template_card(t[0]) for t in S.TEMPLATES),
+    "EDITOR_CATS": S.editor_cats_html,
+    "EDITOR_GRID": S.editor_grid_html,
 }
 
 

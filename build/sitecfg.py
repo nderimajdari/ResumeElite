@@ -30,6 +30,68 @@ GA4_ID = ""                  # e.g. "G-XXXXXXXXXX"
 TEMPLATES = [
     ("professional", "Professional", "professional trending", "popular", "Editor's pick",
      "Two-column layout with a timeline spine and photo header — the all-round favourite for corporate applications."),
+    # ---- 2026 trend set ----
+    ("bento", "Bento", "trending creative", "new", "New",
+     "Bento-grid resume: every section in its own rounded tile, with a dark name card. The look of 2026 product sites."),
+    ("glass", "Glass", "trending creative tech", "new", "New",
+     "Glassmorphism on a night-blue page: frosted cards, a soft colour glow and bright accents."),
+    ("notion", "Notion Style", "trending professional tech", "new", "New",
+     "Reads like a tidy workspace page: callout summary, property-style contacts and colourful tag chips."),
+    ("docs-style", "Docs Style", "trending ats professional", "new", "New",
+     "The clean shared-document resume everyone recognises: serif name, coral labels, one plain column."),
+    ("simple", "Simple", "trending ats professional", "new", "New",
+     "A genuinely simple resume: centred name, hairline rules, one column. Nothing to distract, nothing to break."),
+    ("pastel", "Pastel", "trending creative", "new", "New",
+     "Soft peach-to-lilac header, pill headings and a lilac side card. Friendly without looking young."),
+    ("midnight", "Midnight", "trending tech creative", "new", "New",
+     "Full dark-mode resume with a glowing accent and a deep side rail. Stands out in any inbox."),
+    ("retro", "Retro", "creative", "new", "New",
+     "Seventies stripes, cream paper and Fraunces italics. Warm, characterful and still easy to read."),
+    ("gradient", "Gradient", "trending creative", "new", "New",
+     "A colour-wash sidebar that carries your name and photo, with a clean white main column."),
+    ("two-column", "Two Column", "professional", "new", "New",
+     "The classic two-column resume done properly: centred nameplate, ruled columns, square markers."),
+    ("bauhaus", "Bauhaus", "creative", "new", "New",
+     "Primary-colour shapes, heavy black rules and stacked uppercase type. Design-school confident."),
+    ("zen", "Zen", "creative professional", "new", "New",
+     "Japanese-minimal: one red sun, wide margins and quiet serif type. Calm and very senior."),
+    ("gazette", "Gazette", "creative", "new", "New",
+     "Broadsheet masthead, ruled columns and a drop cap. Your career as front-page news."),
+    ("blueprint", "Blueprint", "tech", "new", "New",
+     "Drafting-grid header, mono labels and numbered sections for engineers and technical roles."),
+    ("profile", "Profile", "trending professional", "new", "New",
+     "Social-profile layout: cover banner, overlapping photo and card sections everyone already knows how to read."),
+    # ---- Job-specific set ----
+    ("nurse", "Nurse", "jobs professional", "new", "Healthcare",
+     "Nursing resume with a clinical teal rail: licences and clinical skills up front, experience named the way hospitals expect."),
+    ("teacher", "Teacher", "jobs professional", "new", "Education",
+     "Chalkboard header and highlighter headings, with sections for teaching experience, licensure and classroom skills."),
+    ("sales", "Sales", "jobs professional", "new", "Sales",
+     "Numbers first: a Key Wins block of KPI cards sits above experience, under a dark growth-arrow header."),
+    ("marketing", "Marketing", "jobs creative", "new", "Marketing",
+     "Brand-voice headings, campaign cards with a hard accent shadow, and a tinted skills rail."),
+    ("data-analyst", "Data Analyst", "jobs tech", "new", "Data",
+     "Dark data rail with skill bars, chart-mark headings and analytics projects ahead of experience."),
+    ("product-manager", "Product Manager", "jobs tech professional", "new", "Product",
+     "Product Impact metric cards, a timeline of roles and a role pill under your name."),
+    ("accountant", "Accountant", "jobs professional ats", "new", "Finance",
+     "Ledger-style section rows, tabular dates and a double rule. Conservative, exact and ATS-safe."),
+    ("customer-service", "Customer Service", "jobs professional", "new", "Support",
+     "Chat-bubble headings and a warm rail for service skills, soft skills and languages."),
+    ("project-manager", "Project Manager", "jobs professional", "new", "PMP",
+     "A phase bar under the header, Gantt-style date tags and room for PMP and PRINCE2 certifications."),
+    ("ux-designer", "UX Designer", "jobs creative tech", "new", "Design",
+     "A design-tool frame around your name and case-study cards ahead of experience."),
+    ("engineering", "Engineering", "jobs tech", "new", "Engineering",
+     "Safety-yellow title label, hazard-stripe headings and a dark rail for technical skills."),
+    ("legal", "Legal", "jobs professional ats", "new", "Law",
+     "Garamond, a centred caption and employer-first entries: the conventions law firms read for."),
+    ("hospitality", "Hospitality", "jobs professional", "new", "Hotels",
+     "Hotel-menu elegance: italic serif name, a sand side rail and guest-service skills."),
+    ("entry-level", "Entry Level", "jobs academic", "new", "First job",
+     "For a first job: education, internships and projects lead, with numbered section badges."),
+    ("admin-assistant", "Admin Assistant", "jobs professional ats", "new", "Office",
+     "Folder-tab header and a checkbox skills grid for executive and administrative assistants."),
     ("aurora", "Aurora", "trending creative", "new", "New",
      "Gradient mesh masthead with a glass side rail. Built for design, marketing and product roles."),
     ("spectrum", "Spectrum", "trending creative", "new", "New",
@@ -131,11 +193,13 @@ TEMPLATES = [
 ]
 
 TEMPLATE_BY_ID = {t[0]: t for t in TEMPLATES}
+TOTAL = len(TEMPLATES)
 
-CATEGORY_ORDER = ["all", "trending", "professional", "ats", "creative", "tech", "academic"]
+CATEGORY_ORDER = ["all", "trending", "jobs", "professional", "ats", "creative", "tech", "academic"]
 CATEGORY_LABELS = {
     "all": "All templates",
     "trending": "Trending 2026",
+    "jobs": "By job",
     "professional": "Professional",
     "ats": "ATS / Plain",
     "creative": "Creative",
@@ -218,7 +282,7 @@ def footer_html():
             <span class="logo-icon" aria-hidden="true">RE</span>
             <span class="logo-text">%(name)s</span>
           </a>
-          <p>Create professional, ATS-friendly resumes in minutes with 50 clean, modern templates. Free, private, and no
+          <p>Create professional, ATS-friendly resumes in minutes with %(total)d clean, modern templates. Free, private, and no
             signup required.</p>
         </div>
         <nav class="footer-col" aria-labelledby="footer-cat-title">
@@ -252,7 +316,7 @@ def footer_html():
         </p>
       </div>
     </div>
-  </footer>''' % {"name": NAME, "cats": cats, "legal": legal, "year": YEAR}
+  </footer>''' % {"name": NAME, "cats": cats, "legal": legal, "year": YEAR, "total": TOTAL}
 
 
 # ---------------------------------------------------------------------------
@@ -332,3 +396,30 @@ def collections_html():
             '          <em>%d templates &rarr;</em>\n'
             '        </a>' % (href, title, blurb, len(templates_in(cat))))
     return "\n".join(cards)
+
+
+# ---------------------------------------------------------------------------
+# Template pickers. The homepage gallery filters and the editor's template
+# drawer are generated from TEMPLATES, so a new template needs one catalogue
+# line (plus its CV_TEMPLATES entry and CSS) and nothing hand-copied.
+# ---------------------------------------------------------------------------
+def gallery_filters_html():
+    return "\n".join(
+        '          <button class="tfilter%s" type="button" data-cat="%s">%s</button>'
+        % (" is-active" if c == "all" else "", c, CATEGORY_LABELS[c])
+        for c in CATEGORY_ORDER)
+
+
+def editor_cats_html():
+    return "\n".join(
+        '                            <button class="tcat%s" type="button" data-cat="%s">%s</button>'
+        % (" is-active" if c == "all" else "", c, "All" if c == "all" else CATEGORY_LABELS[c])
+        for c in CATEGORY_ORDER)
+
+
+def editor_grid_html():
+    return "\n".join(
+        '                        <button class="tmpl-btn" type="button" data-tmpl="%(id)s" data-cat="%(cats)s" '
+        'data-name="%(name)s" title="%(name)s"><span class="tmpl-thumb thumb-%(id)s"></span>'
+        '<span class="tmpl-name">%(name)s</span></button>' % {"id": t[0], "name": t[1], "cats": t[2]}
+        for t in TEMPLATES)

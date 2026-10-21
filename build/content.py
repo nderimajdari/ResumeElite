@@ -8,6 +8,7 @@ Nothing here contains markup beyond the small Markdown subset mdlite supports.
 
 import datetime
 
+import sitecfg as S                        # noqa: E402
 from posts import POSTS, BLOG_HUB          # noqa: F401  (re-exported for build.py)
 
 _MONTHS = ["January", "February", "March", "April", "May", "June", "July",
@@ -151,7 +152,7 @@ That paste test takes twenty seconds and catches almost everything.
             ("How many keywords should I put in my resume?",
              "Enough to describe what you genuinely did, using the posting's own wording. Keyword stuffing and white-text keyword lists are detectable and will end an application when a human reads it. Mirror the vocabulary, do not pad it."),
             ("Are these ATS templates really free?",
-             "Yes. All 50 templates, every editor feature and PDF export are free, with no signup, no trial and no watermark."),
+             "Yes. All %d templates, every editor feature and PDF export are free, with no signup, no trial and no watermark." % S.TOTAL),
         ],
     },
 
@@ -267,7 +268,7 @@ years old. There is more on this in our guide to
             ("Do I need a summary section?",
              "It helps when you are changing direction, when your job titles do not describe what you actually did, or when you are senior enough that positioning matters. Three or four lines maximum, and no adjectives you cannot evidence."),
             ("Can I switch templates after I have written everything?",
-             "Yes. Content is stored separately from the design, so you can move between all 50 templates and every section, date and bullet carries across instantly."),
+             "Yes. Content is stored separately from the design, so you can move between all %d templates and every section, date and bullet carries across instantly." % S.TOTAL),
         ],
     },
 
@@ -1516,3 +1517,7 @@ There is a fuller walkthrough in
         ],
     },
 ]
+
+# Job-specific template guides (nurse, teacher, sales ...) live in their own file.
+from content_roles import ROLE_PAGES   # noqa: E402
+TEMPLATE_PAGES += ROLE_PAGES

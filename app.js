@@ -6,6 +6,7 @@ const state = {
   accentColor: '#2563eb',
   accentCustom: false,
   photo: null,
+  showJobTitle: true,
   personal: { 
     firstName: '', lastName: '', jobTitle: '', email: '', phone: '', 
     city: '', country: '', linkedin: '', website: '', 
@@ -123,6 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
   bindTemplateToggle();
   bindAccentColor();
   bindPersonalFields();
+  bindJobTitleToggle();
   bindSummaryField();
   bindSimpleFields();
   bindPhotoUpload();
@@ -162,6 +164,62 @@ function initLanding() {
   initFaq();
   initReveal();
   initLiveThumbnails();
+  initHeroShowcase();
+  initShelf();
+}
+
+// Homepage hero: the front sheet cycles through templates to show that one set of
+// content can take many designs. Pauses on hover/focus, when the tab is hidden, and
+// never auto-plays for people who ask for reduced motion.
+function initHeroShowcase() {
+  const root = document.getElementById('lp-show');
+  if (!root) return;
+  const slides = Array.from(root.querySelectorAll('.lp-slide'));
+  const label = document.getElementById('lp-show-name');
+  const dots = document.getElementById('lp-show-dots');
+  if (slides.length < 2) return;
+
+  if (dots) dots.innerHTML = slides.map(() => '<i></i>').join('');
+  const dotEls = dots ? Array.from(dots.children) : [];
+  let index = 0;
+  let timer = null;
+
+  const go = (n) => {
+    index = (n + slides.length) % slides.length;
+    slides.forEach((s, i) => s.classList.toggle('is-active', i === index));
+    dotEls.forEach((d, i) => d.classList.toggle('on', i === index));
+    const slide = slides[index];
+    if (label) {
+      label.textContent = slide.dataset.label || slide.dataset.liveThumb;
+      label.href = `editor.html?template=${slide.dataset.liveThumb}`;
+    }
+  };
+  go(0);
+
+  root.querySelector('.lp-show-front')?.addEventListener('click', () => {
+    window.location.href = `editor.html?template=${slides[index].dataset.liveThumb}`;
+  });
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const start = () => { if (!timer) timer = setInterval(() => go(index + 1), 2600); };
+  const stop = () => { clearInterval(timer); timer = null; };
+  root.addEventListener('mouseenter', stop);
+  root.addEventListener('mouseleave', start);
+  root.addEventListener('focusin', stop);
+  root.addEventListener('focusout', start);
+  document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
+  start();
+}
+
+function initShelf() {
+  const shelf = document.getElementById('lp-shelf');
+  if (!shelf) return;
+  document.querySelectorAll('[data-shelf]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const dir = btn.dataset.shelf === 'next' ? 1 : -1;
+      shelf.scrollBy({ left: dir * shelf.clientWidth * 0.8, behavior: 'smooth' });
+    });
+  });
 }
 
 function initFromUrl() {
@@ -199,6 +257,7 @@ function normalizeState() {
     state.accentCustom = !!state.accentColor && state.accentColor.toLowerCase() !== '#2563eb';
   }
   state.custom = { ...defaultState.custom, ...(state.custom || {}) };
+  if (typeof state.showJobTitle !== 'boolean') state.showJobTitle = true;
 
   [
     'experience', 'education', 'skills', 'languages', 'projects', 'certifications',
@@ -312,6 +371,25 @@ function bindPersonalFields() {
       renderPreview();
       saveToStorage();
     });
+  });
+}
+
+// The job title can be switched off without deleting it, for people who would rather
+// let the summary position them or who are applying across several kinds of role.
+function bindJobTitleToggle() {
+  const toggle = document.getElementById('jobTitle-toggle');
+  const input = document.getElementById('jobTitle');
+  if (!toggle) return;
+  const sync = () => {
+    toggle.checked = state.showJobTitle !== false;
+    input?.closest('.form-group')?.classList.toggle('is-field-off', !toggle.checked);
+  };
+  sync();
+  toggle.addEventListener('change', () => {
+    state.showJobTitle = toggle.checked;
+    sync();
+    renderPreview();
+    saveToStorage();
   });
 }
 
@@ -1155,9 +1233,24 @@ function paginateResume(root, options = {}) {
   // Sub-pixel layout rounding routinely leaves a few stray pixels past the page
   // edge. Counting those as a new page produced an entirely blank trailing sheet
   // in the preview and in the exported PDF, so ignore anything under the guard.
-  const totalHeight = Math.max(root.scrollHeight, pageHeight);
+  // Engine templates measure where the content ends instead: a sidebar's bottom
+  // padding alone could otherwise push scrollHeight past the page and add an
+  // empty sheet. Professional keeps the scrollHeight rule it was tuned against.
+  const totalHeight = root.classList.contains('cv2')
+    ? Math.max(cvContentBottom(root), pageHeight)
+    : Math.max(root.scrollHeight, pageHeight);
   const pageCount = Math.max(1, Math.ceil((totalHeight - bottomGuard) / pagePitch));
   root.style.minHeight = `${(pageCount * pageHeight) + ((pageCount - 1) * pageGap)}px`;
+}
+
+function cvContentBottom(root) {
+  const top = root.getBoundingClientRect().top;
+  let bottom = 0;
+  root.querySelectorAll('.cv-head, .cv-photo, .cv-sec, .cv-signature, .cv-footer').forEach(el => {
+    const r = el.getBoundingClientRect();
+    if (r.height) bottom = Math.max(bottom, r.bottom - top);
+  });
+  return Math.ceil(bottom);
 }
 
 function buildTemplateHtml(tmpl) {
@@ -1257,7 +1350,187 @@ const CV_TEMPLATES = {
   'atelier':           { accent: '#4d7c0f', layout: 'single', contactStyle: 'plain', skills: 'inline', langs: 'inline', quals: 'inline' },
   'spectrum':          { accent: '#db2777', layout: 'split', skills: 'chips', langs: 'dots', quals: 'chips' },
   'metro':             { accent: '#0ea5e9', layout: 'split', skills: 'bars', langs: 'list', quals: 'chips' },
-  'terminal':          { accent: '#22c55e', layout: 'split', contactStyle: 'plain', decor: '<div class="cv-window"><i></i><i></i><i></i></div>', skills: 'chips', langs: 'list', quals: 'chips' }
+  'terminal':          { accent: '#22c55e', layout: 'split', contactStyle: 'plain', decor: '<div class="cv-window"><i></i><i></i><i></i></div>', skills: 'chips', langs: 'list', quals: 'chips' },
+
+  // ---- 2026 trend set ----
+  'bento':             { accent: '#6366f1', layout: 'split', skills: 'chips', langs: 'dots', quals: 'chips', side: ['skills', 'languages', 'qualities', 'hobbies', 'certifications', 'courses'] },
+  'glass':             { accent: '#22d3ee', layout: 'split', skills: 'chips', langs: 'bars', quals: 'chips' },
+  'notion':            { accent: '#0f7b6c', layout: 'single', skills: 'chips', langs: 'chips', quals: 'chips' },
+  'docs-style':        { accent: '#e8615a', layout: 'single', photo: false, contactStyle: 'plain', skills: 'inline', langs: 'inline', quals: 'inline' },
+  'simple':            { accent: '#2563eb', layout: 'single', photo: false, contactStyle: 'plain', skills: 'inline', langs: 'inline', quals: 'inline' },
+  'pastel':            { accent: '#ec4899', layout: 'split', skills: 'chips', langs: 'dots', quals: 'chips' },
+  'midnight':          { accent: '#a78bfa', layout: 'left', head: 'main', contact: 'side', photoIn: 'side', skills: 'bars', langs: 'dots', quals: 'chips' },
+  'retro':             { accent: '#d9480f', layout: 'split', skills: 'chips', langs: 'list', quals: 'chips' },
+  'gradient':          { accent: '#ec4899', layout: 'left', head: 'side', contact: 'side', photoIn: 'side', skills: 'bars', langs: 'list', quals: 'chips' },
+  'two-column':        { accent: '#0f766e', layout: 'split', skills: 'list', langs: 'dots', quals: 'list' },
+  'bauhaus':           { accent: '#d62828', layout: 'split', decor: '<div class="cv-geo"><i></i><i></i><i></i><i></i><i></i><i></i></div>', skills: 'chips', langs: 'list', quals: 'chips' },
+  'zen':               { accent: '#c0392b', layout: 'single', contactStyle: 'plain', dates: 'left', skills: 'inline', langs: 'inline', quals: 'inline' },
+  'gazette':           { accent: '#8b0000', layout: 'split', photoIn: 'side', contactStyle: 'plain', kicker: 'The Professional Record', dropcap: true, skills: 'list', langs: 'list', quals: 'list' },
+  'blueprint':         { accent: '#0b5ed7', layout: 'split', numbered: true, skills: 'bars', langs: 'list', quals: 'chips' },
+  'profile':           { accent: '#0a66c2', layout: 'split', skills: 'chips', langs: 'list', quals: 'chips', titles: { summary: 'About' } },
+
+  // ---- Job-specific set: section names and order follow each field's conventions ----
+  'nurse':             { accent: '#0e7490', layout: 'left', head: 'main', contact: 'side', photoIn: 'side', skills: 'list', langs: 'dots', quals: 'list',
+                         side: ['skills', 'certifications', 'languages', 'qualities', 'courses', 'hobbies', 'references'],
+                         titles: { experience: 'Clinical Experience', certifications: 'Licenses & Certifications', skills: 'Clinical Skills' } },
+  'teacher':           { accent: '#f59e0b', layout: 'split', skills: 'chips', langs: 'list', quals: 'chips',
+                         titles: { summary: 'Teaching Profile', experience: 'Teaching Experience', skills: 'Classroom Skills', certifications: 'Certification & Licensure' } },
+  'sales':             { accent: '#16a34a', layout: 'single', first: ['summary', 'achievements'], skills: 'chips', langs: 'inline', quals: 'chips',
+                         titles: { achievements: 'Key Wins', experience: 'Sales Experience', skills: 'Sales Skills' } },
+  'marketing':         { accent: '#e11d48', layout: 'right', head: 'main', contact: 'side', photoIn: 'side', first: ['summary', 'projects'], skills: 'bars', langs: 'list', quals: 'chips',
+                         titles: { projects: 'Campaigns', skills: 'Marketing Skills' } },
+  'data-analyst':      { accent: '#2563eb', layout: 'left', head: 'main', contact: 'side', photoIn: 'side', first: ['summary', 'projects'], skills: 'bars', langs: 'list', quals: 'list',
+                         titles: { projects: 'Analytics Projects', skills: 'Tools & Methods' } },
+  'product-manager':   { accent: '#7c3aed', layout: 'split', first: ['summary', 'achievements'], skills: 'chips', langs: 'list', quals: 'chips',
+                         titles: { achievements: 'Product Impact', projects: 'Launches' } },
+  'accountant':        { accent: '#065f46', layout: 'single', contactStyle: 'plain', dates: 'left', skills: 'grid', langs: 'inline', quals: 'inline',
+                         titles: { experience: 'Professional Experience', certifications: 'Certifications & Licences' } },
+  'customer-service':  { accent: '#f97316', layout: 'left', head: 'main', contact: 'side', photoIn: 'side', skills: 'list', langs: 'dots', quals: 'chips',
+                         titles: { skills: 'Service Skills', qualities: 'Soft Skills' } },
+  'project-manager':   { accent: '#1d4ed8', layout: 'split', dates: 'above', skills: 'list', langs: 'list', quals: 'chips',
+                         side: ['skills', 'certifications', 'languages', 'qualities', 'courses', 'hobbies', 'references'],
+                         titles: { experience: 'Project Leadership', skills: 'Core Competencies' } },
+  'ux-designer':       { accent: '#ff4f81', layout: 'single', first: ['summary', 'projects'], kicker: 'Frame 01 — Résumé', skills: 'chips', langs: 'inline', quals: 'chips',
+                         titles: { projects: 'Case Studies' } },
+  'engineering':       { accent: '#eab308', layout: 'left', head: 'top', skills: 'list', langs: 'list', quals: 'list',
+                         titles: { skills: 'Technical Skills', projects: 'Engineering Projects' } },
+  'legal':             { accent: '#a16207', layout: 'single', photo: false, contactStyle: 'plain', orgFirst: true, skills: 'inline', langs: 'inline', quals: 'inline',
+                         titles: { experience: 'Legal Experience', education: 'Education & Admissions' } },
+  'hospitality':       { accent: '#b45309', layout: 'right', head: 'top', skills: 'list', langs: 'dots', quals: 'list',
+                         titles: { skills: 'Guest Service Skills' } },
+  'entry-level':       { accent: '#10b981', layout: 'single', numbered: true, first: ['summary', 'education', 'internships', 'projects'], skills: 'chips', langs: 'chips', quals: 'chips',
+                         titles: { summary: 'Profile' } },
+  'admin-assistant':   { accent: '#4f46e5', layout: 'single', skills: 'grid', langs: 'list', quals: 'inline',
+                         titles: { skills: 'Office & Software Skills' } }
+};
+
+// Thumbnail sample content for the job-specific templates, so a nurse sees a nurse's
+// resume in the gallery rather than the product designer every other card shows.
+// Only what differs from the shared sample is listed; see applyThumbnailState().
+const CV_SAMPLES = {
+  'nurse': {
+    name: ['Amelia', 'Brooks'], title: 'Registered Nurse, ICU',
+    summary: 'ICU nurse with six years of acute-care experience, trusted with ventilated patients and the preceptor for new graduates on a 32-bed unit.',
+    exp: [['ICU Registered Nurse', "St. Mary's Hospital", 'Cared for 2–3 critical patients per shift; cut central-line infections to zero for 14 months.'],
+          ['Staff Nurse, Med-Surg', 'City General Hospital', 'Led discharge teaching that lowered 30-day readmissions on the unit.']],
+    edu: ['BSc Nursing', 'Boston College'],
+    skills: [['Critical Care', 95], ['Patient Assessment', 90], ['IV Therapy', 85]],
+    certs: [['Registered Nurse Licence', 'State Board of Nursing'], ['BLS & ACLS', 'American Heart Association']]
+  },
+  'teacher': {
+    name: ['Daniel', 'Okafor'], title: 'Secondary English Teacher',
+    summary: 'English teacher with eight years in mixed-ability classrooms; raised GCSE pass rates 18 points through structured feedback and reading programmes.',
+    exp: [['English Teacher', 'Riverside High School', 'Teach five classes across Years 9–13; designed the department reading curriculum.'],
+          ['Teaching Assistant', 'Oak Park Academy', 'Supported SEN learners and ran small-group literacy interventions.']],
+    edu: ['PGCE Secondary English', 'University of Leeds'],
+    skills: [['Curriculum Design', 90], ['Classroom Management', 92], ['Differentiation', 85]]
+  },
+  'sales': {
+    name: ['Marcus', 'Reed'], title: 'Senior Account Executive',
+    summary: 'B2B SaaS seller who builds pipeline as well as closing it. Five years over quota in mid-market and enterprise.',
+    exp: [['Senior Account Executive', 'Northwind SaaS', 'Closed $3.4M new ARR in 2025 across 41 mid-market accounts.'],
+          ['Sales Development Rep', 'Brightline', 'Booked 210 qualified meetings; promoted in 11 months.']],
+    edu: ['BA Business', 'University of Texas'],
+    skills: [['Pipeline Generation', 90], ['Negotiation', 88], ['Salesforce', 85]],
+    achievements: [['142% of annual quota', 'Top performer of 28 AEs in 2025.'], ["President's Club ×2", 'Awarded in 2024 and 2025.']]
+  },
+  'marketing': {
+    name: ['Sofia', 'Marin'], title: 'Growth Marketing Manager',
+    summary: 'Full-funnel marketer who pairs brand instinct with experiment discipline. Grew paid acquisition 3× at a flat CAC.',
+    exp: [['Growth Marketing Manager', 'Lumen Apps', 'Own a $1.2M paid budget across Meta, Google and TikTok.'],
+          ['Marketing Specialist', 'Fable & Co', 'Launched lifecycle email that drove 22% of revenue.']],
+    edu: ['BA Marketing', 'Bocconi University'],
+    skills: [['Paid Social', 92], ['SEO & Content', 84], ['Analytics', 80]],
+    projects: [['Spring Relaunch Campaign', 'Paid social, CRM', 'Integrated campaign that lifted trial sign-ups 41% in six weeks.']]
+  },
+  'data-analyst': {
+    name: ['Priya', 'Nair'], title: 'Data Analyst',
+    summary: 'Analyst who turns messy product data into decisions. SQL-first, comfortable owning a dashboard from query to stakeholder review.',
+    exp: [['Data Analyst', 'Kite Commerce', 'Built the weekly revenue model used by finance and leadership.'],
+          ['Junior Analyst', 'Metric Labs', 'Automated reporting, saving the team ten hours a week.']],
+    edu: ['BSc Statistics', 'University of Toronto'],
+    skills: [['SQL', 95], ['Python', 82], ['Tableau', 88]],
+    projects: [['Churn Prediction Dashboard', 'SQL, Python, Tableau', 'Flagged at-risk accounts two months earlier, saving $400K ARR.']]
+  },
+  'product-manager': {
+    name: ['Jonas', 'Weber'], title: 'Senior Product Manager',
+    summary: 'Product manager for B2B platforms. Ships in small increments, measures everything, and writes the spec people actually read.',
+    exp: [['Senior Product Manager', 'Atlas Cloud', 'Lead a 9-person squad on billing and onboarding.'],
+          ['Product Manager', 'Shiftly', 'Launched mobile scheduling, now 60% of weekly active use.']],
+    edu: ['MSc Computer Science', 'TU Munich'],
+    skills: [['Discovery', 90], ['Roadmapping', 88], ['SQL & Analytics', 80]],
+    achievements: [['+31% activation', 'Rebuilt onboarding around the first key action.'], ['$2.1M new ARR', 'From usage-based pricing launched in Q2.']]
+  },
+  'accountant': {
+    name: ['Grace', 'Holloway'], title: 'Senior Accountant, CPA',
+    summary: 'CPA with seven years in audit and corporate accounting. Closes the month in four days and leaves a clean audit trail behind.',
+    exp: [['Senior Accountant', 'Harbor Logistics', 'Own the month-end close for three entities and $90M revenue.'],
+          ['Audit Associate', 'Baker & Lowe LLP', 'Audited manufacturing and retail clients up to $250M revenue.']],
+    edu: ['BSc Accounting', 'University of Illinois'],
+    skills: [['GAAP & IFRS', 92], ['Month-End Close', 95], ['NetSuite', 85]],
+    certs: [['Certified Public Accountant', 'State Board of Accountancy']]
+  },
+  'customer-service': {
+    name: ['Lena', 'Morales'], title: 'Customer Success Specialist',
+    summary: 'Support specialist with a 97% satisfaction score across 9,000+ tickets. Calm on the phone, fast in chat, and good at fixing the cause.',
+    exp: [['Customer Success Specialist', 'Brightdesk', 'Handle 60+ chats and calls a day across billing and technical issues.'],
+          ['Customer Service Associate', 'Urban Retail', 'Resolved in-store escalations and trained four new hires.']],
+    edu: ['Associate Degree, Business', 'Miami Dade College'],
+    skills: [['Zendesk', 90], ['De-escalation', 92], ['Product Knowledge', 85]]
+  },
+  'project-manager': {
+    name: ['Omar', 'Haddad'], title: 'Project Manager, PMP',
+    summary: 'PMP-certified project manager delivering infrastructure and software programmes up to $8M, on schedule and on budget.',
+    exp: [['Project Manager', 'Vertex Engineering', 'Run four concurrent projects with teams of up to 25.'],
+          ['Project Coordinator', 'Cobalt Systems', 'Kept 30+ milestones on track across a CRM rollout.']],
+    edu: ['BEng Civil Engineering', 'University of Manchester'],
+    skills: [['Agile & Scrum', 90], ['Risk Management', 88], ['MS Project', 85]],
+    certs: [['PMP', 'Project Management Institute']]
+  },
+  'ux-designer': {
+    title: 'UX/UI Designer',
+    projects: [['Checkout Redesign', 'Case study · Figma', 'Cut checkout drop-off 23% through research-led simplification.'],
+               ['Design System 2.0', 'Case study · Tokens', 'Unified 4 products on one component library.']]
+  },
+  'engineering': {
+    name: ['Ethan', 'Clarke'], title: 'Mechanical Engineer',
+    summary: 'Chartered mechanical engineer with eight years in product design and manufacturing, from CAD model to production line.',
+    exp: [['Mechanical Engineer', 'Kestrel Robotics', 'Designed drive assemblies for a 40,000-unit production run.'],
+          ['Graduate Engineer', 'Aston Motors', 'Ran FEA studies that cut bracket weight 18%.']],
+    edu: ['MEng Mechanical Engineering', 'Imperial College London'],
+    skills: [['SolidWorks', 92], ['FEA / ANSYS', 85], ['GD&T', 88]]
+  },
+  'legal': {
+    name: ['Charlotte', 'Avery'], title: 'Corporate Associate',
+    summary: 'Corporate associate focused on M&A and venture financings, with deal experience from seed rounds to $400M acquisitions.',
+    exp: [['Corporate Associate', 'Whitmore & Lane LLP', 'Drafted and negotiated purchase agreements on 20+ transactions.'],
+          ['Judicial Law Clerk', 'Court of Appeals', 'Drafted bench memoranda and opinions for a sitting judge.']],
+    edu: ['Juris Doctor', 'Columbia Law School'],
+    skills: [['M&A', 90], ['Due Diligence', 92], ['Contract Drafting', 90]]
+  },
+  'hospitality': {
+    name: ['Isabella', 'Conti'], title: 'Front Office Manager',
+    summary: 'Hospitality manager from five-star hotels, known for calm service recovery and front desks that guests mention in reviews.',
+    exp: [['Front Office Manager', 'The Grand Riviera', 'Lead a 22-person team across reception, concierge and reservations.'],
+          ['Guest Relations Supervisor', 'Hotel Belvedere', 'Raised review scores from 8.6 to 9.3.']],
+    edu: ['BA Hospitality Management', 'Les Roches'],
+    skills: [['Guest Relations', 95], ['Opera PMS', 88], ['Revenue Management', 80]]
+  },
+  'entry-level': {
+    name: ['Mia', 'Johnson'], title: 'Business Graduate',
+    summary: 'Business graduate with two internships and a final-year project on retail pricing. Quick to learn, organised, and comfortable with data.',
+    exp: [['Sales Assistant (part-time)', 'Target', 'Served 150+ customers a day during peak trading.']],
+    edu: ['BA Business Administration', 'Ohio State University'],
+    skills: [['Excel', 85], ['Research', 80], ['Presentation', 82]]
+  },
+  'admin-assistant': {
+    name: ['Hannah', 'Price'], title: 'Executive Assistant',
+    summary: 'Executive assistant to C-level leaders for six years. Runs complex calendars, travel and board packs so nothing slips.',
+    exp: [['Executive Assistant to the CEO', 'Meridian Group', 'Manage calendar, travel and board materials for the CEO.'],
+          ['Office Administrator', 'Clearwater Partners', 'Ran office operations for a team of 40.']],
+    edu: ['Diploma, Business Administration', 'Pitman Training'],
+    skills: [['Microsoft 365', 95], ['Calendar Management', 92], ['Minute Taking', 88]]
+  }
 };
 
 const CV_DEFAULTS = {
@@ -1491,7 +1764,7 @@ function cvHeader(cfg) {
   const name = (first || last)
     ? `<span class="cv-first">${first}</span>${first && last ? ' ' : ''}<span class="cv-last">${last}</span>`
     : '<span class="cv-first">Your</span> <span class="cv-last">Name</span>';
-  const title = esc(p.jobTitle);
+  const title = state.showJobTitle === false ? '' : esc(p.jobTitle);
   return `<header class="cv-head">
       ${cvPhoto(cfg, 'header')}
       <div class="cv-id">
@@ -1618,6 +1891,7 @@ function snapshotThumbnailState() {
   return {
     accentColor: state.accentColor,
     photo: state.photo,
+    showJobTitle: state.showJobTitle,
     personal: { ...state.personal },
     summary: state.summary,
     experience: state.experience,
@@ -1643,6 +1917,7 @@ function snapshotThumbnailState() {
 function applyThumbnailState(tmpl) {
   state.template = tmpl;
   state.accentColor = state.accentColor || '#2563eb';
+  state.showJobTitle = true;
   state.photo = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%23dbeafe'/%3E%3Ccircle cx='60' cy='44' r='24' fill='%2393c5fd'/%3E%3Cpath d='M20 118c6-30 28-48 40-48s34 18 40 48' fill='%232563eb'/%3E%3C/svg%3E";
   Object.assign(state.personal, {
     firstName: 'Josephine',
@@ -1701,12 +1976,37 @@ function applyThumbnailState(tmpl) {
   state.footer = 'ResumeElite sample resume';
   state.custom = { title: 'Selected Work', content: 'Available portfolio case studies on request.' };
   state.visibleSections = ['summary', 'experience', 'education', 'skills', 'languages', 'projects', 'certifications'];
+  applyThumbnailSample(CV_SAMPLES[tmpl]);
+}
+
+function applyThumbnailSample(sample) {
+  if (!sample) return;
+  if (sample.name) Object.assign(state.personal, { firstName: sample.name[0], lastName: sample.name[1] });
+  if (sample.title) state.personal.jobTitle = sample.title;
+  if (sample.summary) state.summary = sample.summary;
+  if (sample.exp) {
+    state.experience = sample.exp.map(([position, company, description], i) => ({
+      position, company, location: '', description,
+      startDate: i === 0 ? '2021' : '2017', endDate: i === 0 ? 'Present' : '2021'
+    }));
+  }
+  if (sample.edu) {
+    state.education = [{ degree: sample.edu[0], institution: sample.edu[1], field: '', location: '', startDate: '2013', endDate: '2017', description: '' }];
+  }
+  if (sample.skills) state.skills = sample.skills.map(([name, level]) => ({ name, level }));
+  if (sample.certs) state.certifications = sample.certs.map(([name, issuer]) => ({ name, issuer, date: '2022', description: '' }));
+  if (sample.projects) state.projects = sample.projects.map(([name, tech, description]) => ({ name, tech, url: '', description }));
+  if (sample.achievements) {
+    state.achievements = sample.achievements.map(([name, description]) => ({ name, description }));
+    state.visibleSections = [...state.visibleSections, 'achievements'];
+  }
 }
 
 function restoreThumbnailState(original, originalTemplate) {
   state.template = originalTemplate;
   state.accentColor = original.accentColor;
   state.photo = original.photo;
+  state.showJobTitle = original.showJobTitle;
   Object.assign(state.personal, original.personal);
   state.summary = original.summary;
   state.experience = original.experience;
@@ -1894,12 +2194,10 @@ function buildProfessional() {
       <div class="prof-header">
         <div class="prof-header-content">
           <div class="prof-name">${getName()}</div>
-          <div class="prof-job-title">${getTitle()}</div>
+          ${state.showJobTitle === false ? '' : `<div class="prof-job-title">${getTitle()}</div>`}
           <div class="prof-contacts">${contacts.join('')}</div>
         </div>
-        <div class="prof-photo">
-          ${avatarHtml('prof-img', 'prof-ph')}
-        </div>
+        ${state.photo ? `<div class="prof-photo">${avatarHtml('prof-img', 'prof-ph')}</div>` : ''}
       </div>
       <div class="prof-body">
         ${sections}
@@ -2162,6 +2460,130 @@ function applyPdfLinks(pdf, links) {
   });
 }
 
+// The PDF page itself is a picture (html2canvas), so on its own it has no text for an
+// applicant tracking system to read, copy or search. Every visible line is therefore
+// also written as invisible PDF text, laid exactly over its picture and stretched to
+// the same width so a selection highlights the right words. Lines are emitted in
+// document order, which keeps each section together for parsers even in two-column
+// layouts.
+//
+// jsPDF's built-in Helvetica has no Unicode map, so anything beyond ASCII (ë, ç, ü,
+// –, ·) extracts as garbage. The text layer therefore uses a subset of Noto Sans
+// (fonts/pdf-text.ttf: Latin, Greek, Cyrillic and punctuation, ~105 KB, OFL), fetched
+// on the first export. If it cannot load, the layer falls back to ASCII Helvetica.
+const PDF_TEXT_FONT_URL = '/fonts/pdf-text.ttf';
+let pdfTextFontData = null;
+
+async function loadPdfTextFont(pdf) {
+  try {
+    if (!pdfTextFontData) {
+      const res = await fetch(PDF_TEXT_FONT_URL);
+      if (!res.ok) throw new Error(res.status);
+      const bytes = new Uint8Array(await res.arrayBuffer());
+      let bin = '';
+      for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+      pdfTextFontData = btoa(bin);
+    }
+    pdf.addFileToVFS('pdf-text.ttf', pdfTextFontData);
+    pdf.addFont('pdf-text.ttf', 'PdfText', 'normal');
+    return 'PdfText';
+  } catch (err) {
+    return null;
+  }
+}
+
+function pdfSafeText(str, unicode) {
+  str = str.replace(/[   ]/g, ' ').replace(/[​-‍﻿]/g, '');
+  if (unicode) return str;
+  return str
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[‐-―−]/g, '-')
+    .replace(/[·•]/g, '|')
+    .replace(/[‘’]/g, "'").replace(/[“”]/g, '"')
+    .replace(/[^\x20-\x7e]/g, '');
+}
+
+function collectPdfText(root, pageWidthMm, pageHeightMm) {
+  const rootRect = root.getBoundingClientRect();
+  const pxToMm = pageWidthMm / rootRect.width;
+  const lines = [];
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      if (!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      const el = node.parentElement;
+      if (!el || !el.getClientRects().length) return NodeFilter.FILTER_REJECT;
+      const cs = getComputedStyle(el);
+      if (cs.visibility === 'hidden' || cs.opacity === '0') return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+
+  const range = document.createRange();
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    const cs = getComputedStyle(node.parentElement);
+    const fontPx = parseFloat(cs.fontSize) || 12;
+    const transform = cs.textTransform;
+    const text = node.nodeValue;
+    let line = null;
+
+    const flush = () => {
+      if (!line) return;
+      let str = text.slice(line.start, line.end).replace(/\s+/g, ' ');
+      if (transform === 'uppercase') str = str.toUpperCase();
+      else if (transform === 'lowercase') str = str.toLowerCase();
+      if (str.trim()) {
+        const top = (line.top - rootRect.top) * pxToMm;
+        const page = Math.floor(top / pageHeightMm);
+        lines.push({
+          page,
+          x: (line.left - rootRect.left) * pxToMm,
+          y: top - page * pageHeightMm + (line.bottom - line.top) * pxToMm * 0.8,
+          width: (line.right - line.left) * pxToMm,
+          sizePt: fontPx * pxToMm * (72 / 25.4),
+          text: str
+        });
+      }
+      line = null;
+    };
+
+    for (const m of text.matchAll(/\S+/g)) {
+      range.setStart(node, m.index);
+      range.setEnd(node, m.index + m[0].length);
+      const r = range.getClientRects()[0];
+      if (!r || !r.width) continue;
+      if (line && Math.abs(r.top - line.top) < fontPx * 0.5 && r.left >= line.right - 1) {
+        line.end = m.index + m[0].length;
+        line.right = r.right;
+        line.bottom = Math.max(line.bottom, r.bottom);
+      } else {
+        flush();
+        line = { start: m.index, end: m.index + m[0].length, left: r.left, right: r.right, top: r.top, bottom: r.bottom };
+      }
+    }
+    flush();
+  }
+  range.detach();
+  return lines;
+}
+
+// Each line is stretched with horizontal scaling rather than character spacing:
+// added spacing makes extractors read letter-spaced headings as "M A N A G E R".
+function applyPdfText(pdf, lines, fontName) {
+  const pageCount = pdf.getNumberOfPages ? pdf.getNumberOfPages() : 0;
+  pdf.setFont(fontName || 'helvetica', 'normal');
+  lines.forEach(line => {
+    const pageNumber = line.page + 1;
+    if (pageNumber < 1 || (pageCount && pageNumber > pageCount)) return;
+    const text = pdfSafeText(line.text, !!fontName);
+    if (!text.trim()) return;
+    pdf.setPage(pageNumber);
+    pdf.setFontSize(line.sizePt);
+    const natural = pdf.getTextWidth(text);
+    const horizontalScale = natural > 0 ? Math.min(4, Math.max(0.25, line.width / natural)) : 1;
+    pdf.text(text, line.x, line.y, { renderingMode: 'invisible', horizontalScale });
+  });
+}
+
 // html2canvas 1.4 has no object-fit support: it draws every <img> stretched to its
 // box, which squashed any photo that was not already the box's shape. Before the
 // capture, each cover/contain image in the export copy is redrawn at the size it is
@@ -2273,7 +2695,11 @@ function bindDownloadBtn() {
         throw new Error('jsPDF library is not loaded');
       }
       const exportBounds = exportElement.getBoundingClientRect();
-      const exportHeight = Math.ceil(Math.max(exportBounds.height, exportElement.scrollHeight, 1122));
+      // Engine pages are sized by paginateResume() to whole sheets; their scrollHeight
+      // can include clipped sidebar padding, which must not become an extra page.
+      const exportHeight = exportElement.classList.contains('cv2')
+        ? Math.ceil(Math.max(parseFloat(exportElement.style.minHeight) || exportBounds.height, 1122))
+        : Math.ceil(Math.max(exportBounds.height, exportElement.scrollHeight, 1122));
       const canvas = await html2canvas(exportElement, {
         scale: 2,
         useCORS: true,
@@ -2290,6 +2716,7 @@ function bindDownloadBtn() {
       const pageWidth = 210;
       const pageHeight = 297;
       const pdfLinks = collectPdfLinks(exportElement, pageWidth, pageHeight);
+      const pdfText = collectPdfText(exportElement, pageWidth, pageHeight);
       const imgData = canvas.toDataURL('image/jpeg', 0.98);
       const imgHeight = (canvas.height * pageWidth) / canvas.width;
       let position = 0;
@@ -2305,6 +2732,7 @@ function bindDownloadBtn() {
         heightLeft -= pageHeight;
       }
 
+      applyPdfText(pdf, pdfText, await loadPdfTextFont(pdf));
       applyPdfLinks(pdf, pdfLinks);
       pdf.save(fn);
     } catch (err) {

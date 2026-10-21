@@ -19,7 +19,7 @@ ARTICLES = [
     "related": ["/blog/professional-summary-examples/", "/blog/resume-action-verbs/",
                 "/blog/common-resume-mistakes/", "/blog/how-ats-works/"],
     "cta": {"h": "Skip the blank page",
-            "p": "Fifty templates with the structure already set. Fill it in, watch it update, download the PDF.",
+            "p": "Eighty templates with the structure already set. Fill it in, watch it update, download the PDF.",
             "href": "/editor.html?template=professional", "label": "Open the builder"},
     "faq": [
         ("How long should it take to write a resume?",

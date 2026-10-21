@@ -7,11 +7,11 @@
     <meta name="theme-color" content="#0b1120" />
     <title>Resume Builder Editor | ResumeElite</title>
     <meta name="description"
-        content="Build your resume with 50 templates, live preview, drag-and-drop sections and instant PDF download. No signup required." />
+        content="Build your resume with 80 templates, live preview, drag-and-drop sections and instant PDF download. No signup required." />
     <meta name="robots" content="noindex, follow" />
     <link rel="canonical" href="https://resume-elite.com/editor.html" />
     <meta property="og:title" content="ResumeElite Resume Editor" />
-    <meta property="og:description" content="50 templates, live preview and instant PDF export." />
+    <meta property="og:description" content="80 templates, live preview and instant PDF export." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://resume-elite.com/editor.html" />
     <meta property="og:image" content="https://resume-elite.com/og-image.jpg" />
@@ -75,7 +75,7 @@
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                     <circle cx="11" cy="11" r="7" /><path d="M20 20l-4.3-4.3" />
                                 </svg>
-                                <input type="search" id="template-search" placeholder="Search 50 templates&hellip;" autocomplete="off" aria-label="Search templates" />
+                                <input type="search" id="template-search" placeholder="Search templates&hellip;" autocomplete="off" aria-label="Search templates" />
                             </label>
                             <button class="template-drawer-close" id="template-drawer-close" type="button" aria-label="Close template picker">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
@@ -84,17 +84,51 @@
                             </button>
                         </div>
                         <div class="template-cats" id="template-cats" role="group" aria-label="Filter templates by category">
+                            <!-- EDITOR_CATS:START -->
                             <button class="tcat is-active" type="button" data-cat="all">All</button>
                             <button class="tcat" type="button" data-cat="trending">Trending 2026</button>
+                            <button class="tcat" type="button" data-cat="jobs">By job</button>
                             <button class="tcat" type="button" data-cat="professional">Professional</button>
                             <button class="tcat" type="button" data-cat="ats">ATS / Plain</button>
                             <button class="tcat" type="button" data-cat="creative">Creative</button>
                             <button class="tcat" type="button" data-cat="tech">Tech</button>
                             <button class="tcat" type="button" data-cat="academic">Academic</button>
+  <!-- EDITOR_CATS:END -->
                         </div>
                     </div>
                     <div class="template-grid" id="template-grid">
+                        <!-- EDITOR_GRID:START -->
                         <button class="tmpl-btn" type="button" data-tmpl="professional" data-cat="professional trending" data-name="Professional" title="Professional"><span class="tmpl-thumb thumb-professional"></span><span class="tmpl-name">Professional</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="bento" data-cat="trending creative" data-name="Bento" title="Bento"><span class="tmpl-thumb thumb-bento"></span><span class="tmpl-name">Bento</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="glass" data-cat="trending creative tech" data-name="Glass" title="Glass"><span class="tmpl-thumb thumb-glass"></span><span class="tmpl-name">Glass</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="notion" data-cat="trending professional tech" data-name="Notion Style" title="Notion Style"><span class="tmpl-thumb thumb-notion"></span><span class="tmpl-name">Notion Style</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="docs-style" data-cat="trending ats professional" data-name="Docs Style" title="Docs Style"><span class="tmpl-thumb thumb-docs-style"></span><span class="tmpl-name">Docs Style</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="simple" data-cat="trending ats professional" data-name="Simple" title="Simple"><span class="tmpl-thumb thumb-simple"></span><span class="tmpl-name">Simple</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="pastel" data-cat="trending creative" data-name="Pastel" title="Pastel"><span class="tmpl-thumb thumb-pastel"></span><span class="tmpl-name">Pastel</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="midnight" data-cat="trending tech creative" data-name="Midnight" title="Midnight"><span class="tmpl-thumb thumb-midnight"></span><span class="tmpl-name">Midnight</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="retro" data-cat="creative" data-name="Retro" title="Retro"><span class="tmpl-thumb thumb-retro"></span><span class="tmpl-name">Retro</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="gradient" data-cat="trending creative" data-name="Gradient" title="Gradient"><span class="tmpl-thumb thumb-gradient"></span><span class="tmpl-name">Gradient</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="two-column" data-cat="professional" data-name="Two Column" title="Two Column"><span class="tmpl-thumb thumb-two-column"></span><span class="tmpl-name">Two Column</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="bauhaus" data-cat="creative" data-name="Bauhaus" title="Bauhaus"><span class="tmpl-thumb thumb-bauhaus"></span><span class="tmpl-name">Bauhaus</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="zen" data-cat="creative professional" data-name="Zen" title="Zen"><span class="tmpl-thumb thumb-zen"></span><span class="tmpl-name">Zen</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="gazette" data-cat="creative" data-name="Gazette" title="Gazette"><span class="tmpl-thumb thumb-gazette"></span><span class="tmpl-name">Gazette</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="blueprint" data-cat="tech" data-name="Blueprint" title="Blueprint"><span class="tmpl-thumb thumb-blueprint"></span><span class="tmpl-name">Blueprint</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="profile" data-cat="trending professional" data-name="Profile" title="Profile"><span class="tmpl-thumb thumb-profile"></span><span class="tmpl-name">Profile</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="nurse" data-cat="jobs professional" data-name="Nurse" title="Nurse"><span class="tmpl-thumb thumb-nurse"></span><span class="tmpl-name">Nurse</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="teacher" data-cat="jobs professional" data-name="Teacher" title="Teacher"><span class="tmpl-thumb thumb-teacher"></span><span class="tmpl-name">Teacher</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="sales" data-cat="jobs professional" data-name="Sales" title="Sales"><span class="tmpl-thumb thumb-sales"></span><span class="tmpl-name">Sales</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="marketing" data-cat="jobs creative" data-name="Marketing" title="Marketing"><span class="tmpl-thumb thumb-marketing"></span><span class="tmpl-name">Marketing</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="data-analyst" data-cat="jobs tech" data-name="Data Analyst" title="Data Analyst"><span class="tmpl-thumb thumb-data-analyst"></span><span class="tmpl-name">Data Analyst</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="product-manager" data-cat="jobs tech professional" data-name="Product Manager" title="Product Manager"><span class="tmpl-thumb thumb-product-manager"></span><span class="tmpl-name">Product Manager</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="accountant" data-cat="jobs professional ats" data-name="Accountant" title="Accountant"><span class="tmpl-thumb thumb-accountant"></span><span class="tmpl-name">Accountant</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="customer-service" data-cat="jobs professional" data-name="Customer Service" title="Customer Service"><span class="tmpl-thumb thumb-customer-service"></span><span class="tmpl-name">Customer Service</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="project-manager" data-cat="jobs professional" data-name="Project Manager" title="Project Manager"><span class="tmpl-thumb thumb-project-manager"></span><span class="tmpl-name">Project Manager</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="ux-designer" data-cat="jobs creative tech" data-name="UX Designer" title="UX Designer"><span class="tmpl-thumb thumb-ux-designer"></span><span class="tmpl-name">UX Designer</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="engineering" data-cat="jobs tech" data-name="Engineering" title="Engineering"><span class="tmpl-thumb thumb-engineering"></span><span class="tmpl-name">Engineering</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="legal" data-cat="jobs professional ats" data-name="Legal" title="Legal"><span class="tmpl-thumb thumb-legal"></span><span class="tmpl-name">Legal</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="hospitality" data-cat="jobs professional" data-name="Hospitality" title="Hospitality"><span class="tmpl-thumb thumb-hospitality"></span><span class="tmpl-name">Hospitality</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="entry-level" data-cat="jobs academic" data-name="Entry Level" title="Entry Level"><span class="tmpl-thumb thumb-entry-level"></span><span class="tmpl-name">Entry Level</span></button>
+                        <button class="tmpl-btn" type="button" data-tmpl="admin-assistant" data-cat="jobs professional ats" data-name="Admin Assistant" title="Admin Assistant"><span class="tmpl-thumb thumb-admin-assistant"></span><span class="tmpl-name">Admin Assistant</span></button>
                         <button class="tmpl-btn" type="button" data-tmpl="aurora" data-cat="trending creative" data-name="Aurora" title="Aurora"><span class="tmpl-thumb thumb-aurora"></span><span class="tmpl-name">Aurora</span></button>
                         <button class="tmpl-btn" type="button" data-tmpl="spectrum" data-cat="trending creative" data-name="Spectrum" title="Spectrum"><span class="tmpl-thumb thumb-spectrum"></span><span class="tmpl-name">Spectrum</span></button>
                         <button class="tmpl-btn" type="button" data-tmpl="impact" data-cat="trending professional tech" data-name="Impact" title="Impact"><span class="tmpl-thumb thumb-impact"></span><span class="tmpl-name">Impact</span></button>
@@ -144,6 +178,7 @@
                         <button class="tmpl-btn" type="button" data-tmpl="chronological" data-cat="ats professional" data-name="Chronological" title="Chronological"><span class="tmpl-thumb thumb-chronological"></span><span class="tmpl-name">Chronological</span></button>
                         <button class="tmpl-btn" type="button" data-tmpl="consulting-style" data-cat="professional" data-name="Consulting" title="Consulting"><span class="tmpl-thumb thumb-consulting-style"></span><span class="tmpl-name">Consulting</span></button>
                         <button class="tmpl-btn" type="button" data-tmpl="academic-cv" data-cat="academic" data-name="Academic CV" title="Academic CV"><span class="tmpl-thumb thumb-academic-cv"></span><span class="tmpl-name">Academic CV</span></button>
+  <!-- EDITOR_GRID:END -->
                     </div>
                     <p class="template-empty" id="template-empty" hidden>No templates match that search.</p>
                 </div>
@@ -242,7 +277,16 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>Job Title / Position</label>
+                            <div class="label-with-switch">
+                                <label for="jobTitle">Job Title / Position</label>
+                                <label class="field-switch" title="Show the job title on the resume">
+                                    <span class="field-switch-text">Show on resume</span>
+                                    <span class="switch">
+                                        <input type="checkbox" id="jobTitle-toggle" checked />
+                                        <span class="slider"></span>
+                                    </span>
+                                </label>
+                            </div>
                             <input type="text" id="jobTitle" placeholder="Senior Software Engineer"
                                 data-field="jobTitle" />
                         </div>
