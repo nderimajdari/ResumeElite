@@ -1157,6 +1157,73 @@ function renderPreview() {
   }
 }
 
+// The preview page is scaled with a CSS transform, so getBoundingClientRect()
+// returns scaled pixels. Pagination works in the page's own 794x1122 px, so every
+// measurement is divided by the current scale (1 during PDF export).
+function pageScale(root) {
+  const w = root.getBoundingClientRect().width;
+  return root.offsetWidth && w ? w / root.offsetWidth : 1;
+}
+
+function pageRect(root, el, scale = pageScale(root)) {
+  const rr = root.getBoundingClientRect();
+  const r = el.getBoundingClientRect();
+  return {
+    top: (r.top - rr.top) / scale,
+    bottom: (r.bottom - rr.top) / scale,
+    left: (r.left - rr.left) / scale,
+    right: (r.right - rr.left) / scale,
+    height: r.height / scale
+  };
+}
+
+const isTransparentColor = c => !c || c === 'transparent' || /rgba\([^)]*,0\)$/.test(c.replace(/\s/g, ''));
+
+function backdropColor(el, root) {
+  for (let n = el.parentElement; n; n = n.parentElement) {
+    const c = getComputedStyle(n).backgroundColor;
+    if (!isTransparentColor(c)) return c;
+    if (n === root) break;
+  }
+  return '#ffffff';
+}
+
+// A "page box" is a visible card (background, border or rounded corners) that
+// does not bleed off the side of the paper. When one runs over a page break it
+// must be closed at the foot of the page and reopened on the next one, like
+// `box-decoration-break: clone`, instead of being sliced open.
+function isPageBox(el, root, rect, rootWidth) {
+  if (!root.classList.contains('cv2') || el === root) return false;
+  const cs = getComputedStyle(el);
+  const border = s => parseFloat(cs[`border${s}Width`]) > 0 && cs[`border${s}Style`] !== 'none';
+  const sides = border('Left') || border('Right');
+  const anyBorder = sides || border('Top') || border('Bottom');
+  const bg = (!isTransparentColor(cs.backgroundColor) && cs.backgroundColor !== backdropColor(el, root)) || cs.backgroundImage !== 'none';
+  // A white card on white paper is only visible through its shadow.
+  const shadow = !!cs.boxShadow && cs.boxShadow !== 'none';
+  if (!bg && !anyBorder && !shadow) return false;
+  const radius = ['TopLeft', 'TopRight', 'BottomLeft', 'BottomRight'].some(c => parseFloat(cs[`border${c}Radius`]) > 0);
+  // A column that touches the paper edge (a full-height sidebar, with or without
+  // a divider line) is meant to run through every page, so it is left alone.
+  const fullBleed = rect.left <= 1 || rect.right >= rootWidth - 1;
+  if (fullBleed) return radius;
+  return sides || radius || bg || shadow;
+}
+
+// Padding+border of every page box around `el`: content pushed to a new page must
+// clear them so the reopened box gets a proper top margin.
+function pageBoxInsets(el, root, scale) {
+  const rootWidth = root.offsetWidth;
+  let top = 0, bottom = 0;
+  for (let n = el.parentElement; n && n !== root; n = n.parentElement) {
+    if (!isPageBox(n, root, pageRect(root, n, scale), rootWidth)) continue;
+    const cs = getComputedStyle(n);
+    top += (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.borderTopWidth) || 0);
+    bottom += (parseFloat(cs.paddingBottom) || 0) + (parseFloat(cs.borderBottomWidth) || 0);
+  }
+  return { top, bottom };
+}
+
 function paginateResume(root, options = {}) {
   if (!root) return;
   const pageHeight = options.pageHeight || 1122;
@@ -1165,68 +1232,107 @@ function paginateResume(root, options = {}) {
   const rootStyle = getComputedStyle(root);
   const rootTopPadding = parseFloat(rootStyle.paddingTop) || 0;
   const pagePitch = pageHeight + pageGap;
+  // Rows: the smallest unit that is kept whole. Lists (skills bars/dots/list
+  // items/chips) are split row by row, so a long Skills or Languages list no
+  // longer jumps to the next page as one block and leaves half a page empty.
+  const ROW_SEL = '.cv-item, .cv-bar-row, .cv-dot-row, .cv-list > li, .cv-chip, .prof-content-side, .prof-skill-item';
+  const SECTION_SEL = '.cv-sec, .prof-section, .r-section';
   const selector = [
     '.r-section',
     '.prof-section',
-    '.cv-keep'
+    '.cv-keep',
+    ROW_SEL
   ].join(',');
 
   root.querySelectorAll('.resume-page-spacer').forEach(el => el.remove());
   root.querySelectorAll('.resume-page-gap-visual').forEach(el => el.remove());
+  root.querySelectorAll('.resume-page-cap').forEach(el => el.remove());
   root.querySelectorAll('.resume-page-break-before').forEach(el => el.classList.remove('resume-page-break-before'));
   root.style.removeProperty('min-height');
 
-  const getTop = (el) => el.getBoundingClientRect().top - root.getBoundingClientRect().top;
+  const scale = pageScale(root);
+  const getTop = (el) => pageRect(root, el, scale).top;
   const candidates = Array.from(root.querySelectorAll(selector))
     // We now ALLOW sidebar elements to be paginated, so they break correctly!
     .filter(el => el.offsetParent !== null && el.offsetHeight > 0)
-    .sort((a, b) => {
-      const aTop = getTop(a);
-      const bTop = getTop(b);
-      return aTop - bTop;
-    });
+    // A section made of rows is split between its rows instead of moved whole.
+    .filter(el => !(el.matches(SECTION_SEL) && el.querySelector(ROW_SEL)))
+    // A row inside another row (e.g. chips inside an entry) moves with its parent.
+    .filter(el => !(el.matches(ROW_SEL) && el.parentElement.closest(ROW_SEL)))
+    .sort((a, b) => getTop(a) - getTop(b));
 
   const visualGapsAdded = new Set();
 
   candidates.forEach(el => {
-    // The first entry of a cv section moves together with the section heading,
-    // so a heading is never left alone at the foot of a page.
-    let target = el;
-    if (el.classList.contains('cv-item') && !el.previousElementSibling) {
-      target = el.closest('.cv-sec') || el;
+    let target = el;    // what the spacer is inserted before
+    let anchor = el;    // what is measured (differs for display:contents rows)
+    // Professional entries are display:contents rows inside a grid section, so
+    // the row's content cell is measured and the spacer goes before the row,
+    // spanning the grid.
+    if (el.classList.contains('prof-content-side')) {
+      target = el.closest('.prof-item-row');
+      if (!target) return;
     }
-    const top = getTop(target);
-    const bottom = getTop(el) + el.getBoundingClientRect().height;
+    // The first row of a section moves together with the section heading, so a
+    // heading is never left alone at the foot of a page.
+    if (el.matches(ROW_SEL)) {
+      const sec = el.closest(SECTION_SEL);
+      if (sec && sec.querySelector(ROW_SEL) === el) target = anchor = sec;
+    }
+    const top = getTop(anchor);
+    const bottom = pageRect(root, el, scale).bottom;
     const height = bottom - top;
     if (height >= pageHeight - 120) return;
 
-    const pageStart = Math.floor(top / pagePitch) * pagePitch;
+    const pageIndex = Math.floor(top / pagePitch);
+    const pageStart = pageIndex * pagePitch;
     const pageEnd = pageStart + pageHeight;
-    if (top > pageStart + bottomGuard && bottom > pageEnd - bottomGuard) {
-      const parentTopPadding = parseFloat(getComputedStyle(target.parentElement).paddingTop) || 0;
-      const nextPageTopPadding = Math.max(rootTopPadding, parentTopPadding, 34);
-      const remainingPageSpace = Math.max(0, pageEnd - top);
-      const spacerHeight = remainingPageSpace + pageGap + nextPageTopPadding;
-      
-      // 1. Physical spacer (pushes content inside the specific template column)
+    const insets = root.classList.contains('cv2') ? pageBoxInsets(target, root, scale) : { top: 0, bottom: 0 };
+    const parentTopPadding = parseFloat(getComputedStyle(target.parentElement).paddingTop) || 0;
+    const nextPageTopPadding = Math.max(rootTopPadding, parentTopPadding, 34) + insets.top;
+    const footGuard = bottomGuard + insets.bottom;
+
+    // Inserts a spacer so the target starts at wantedTop. The spacer can change
+    // the target's own margin (an adjacent-sibling rule such as
+    // `.cv-item + .cv-item` stops matching), which left page 2 content ~13px from
+    // the top edge, so the result is measured and the spacer corrected.
+    const pushTo = (wantedTop) => {
+      const spacerHeight = wantedTop - top;
       const spacer = document.createElement('div');
       spacer.className = 'resume-page-spacer';
       spacer.style.height = `${Math.ceil(spacerHeight)}px`;
       target.classList.add('resume-page-break-before');
       target.parentNode.insertBefore(spacer, target);
-      
-      // 2. Visual gap overlay (attached to root to span the entire paper width)
-      // We only want ONE visual gap per physical page boundary to avoid dark overlapping shadows.
-      if (!visualGapsAdded.has(pageEnd)) {
-        visualGapsAdded.add(pageEnd);
-        const visualGap = document.createElement('div');
-        visualGap.className = 'resume-page-gap-visual';
-        visualGap.style.setProperty('--resume-page-gap', `${pageGap}px`);
-        visualGap.style.setProperty('--resume-page-remainder', `${Math.ceil(remainingPageSpace)}px`);
-        visualGap.style.setProperty('--spacer-y', `${Math.ceil(top)}px`);
-        visualGap.style.height = `${Math.ceil(spacerHeight)}px`;
-        root.appendChild(visualGap);
+      const landedTop = getTop(anchor);
+      if (Math.abs(landedTop - wantedTop) > 0.5) {
+        spacer.style.height = `${Math.max(0, Math.ceil(spacerHeight + wantedTop - landedTop))}px`;
       }
+    };
+
+    // One visual gap overlay per page boundary, attached to the root so it spans
+    // the whole paper width (including sidebars).
+    const addVisualGap = (boundary, y, remainder, h) => {
+      if (visualGapsAdded.has(boundary)) return;
+      visualGapsAdded.add(boundary);
+      const visualGap = document.createElement('div');
+      visualGap.className = 'resume-page-gap-visual';
+      visualGap.style.setProperty('--resume-page-gap', `${pageGap}px`);
+      visualGap.style.setProperty('--resume-page-remainder', `${Math.ceil(remainder)}px`);
+      visualGap.style.setProperty('--spacer-y', `${Math.ceil(y)}px`);
+      visualGap.style.height = `${Math.ceil(h)}px`;
+      root.appendChild(visualGap);
+    };
+
+    if (top > pageStart + bottomGuard && bottom > pageEnd - footGuard) {
+      // Crosses the foot of the page: move it to the top of the next one.
+      const remainingPageSpace = Math.max(0, pageEnd - top);
+      pushTo(pageEnd + pageGap + nextPageTopPadding);
+      addVisualGap(pageEnd, top, remainingPageSpace, remainingPageSpace + pageGap + nextPageTopPadding);
+    } else if (pageIndex > 0 && top >= pageStart && top < pageStart + nextPageTopPadding - 1) {
+      // Flowed naturally onto a new page but starts inside its top margin
+      // (e.g. a heading printed 3px from the paper edge): give it the margin.
+      pushTo(pageStart + nextPageTopPadding);
+      addVisualGap(pageStart - pageGap, pageStart - pageGap, 0, pageGap);
     }
   });
 
@@ -1241,14 +1347,114 @@ function paginateResume(root, options = {}) {
     : Math.max(root.scrollHeight, pageHeight);
   const pageCount = Math.max(1, Math.ceil((totalHeight - bottomGuard) / pagePitch));
   root.style.minHeight = `${(pageCount * pageHeight) + ((pageCount - 1) * pageGap)}px`;
+
+  capPageBoxes(root, pageCount, pageHeight, pageGap, scale);
+}
+
+// Fragments of each page box, per page, in page px. The PDF shadow pass draws a
+// card's shadow per fragment too.
+const pageBoxFragments = new WeakMap();
+
+function capPageBoxes(root, pageCount, pageHeight, pageGap, scale) {
+  if (pageCount < 2 || !root.classList.contains('cv2')) return;
+  const pitch = pageHeight + pageGap;
+  const rootWidth = root.offsetWidth;
+  const skip = '.resume-page-spacer, .resume-page-gap-visual, .resume-page-cap, .pdf-shadow-layer';
+  const crossesBreak = (r, slack) => {
+    for (let k = 1; k < pageCount; k++) {
+      if (r.top < k * pitch - pageGap - slack && r.bottom > k * pitch + slack) return true;
+    }
+    return false;
+  };
+  const boxes = [];
+  root.querySelectorAll('*').forEach(el => {
+    if (el.closest(skip)) return;
+    const r = pageRect(root, el, scale);
+    if (r.height < 40 || !crossesBreak(r, 2)) return;
+    if (isPageBox(el, root, r, rootWidth)) boxes.push({ el, r });
+  });
+
+  const addLayer = (css) => {
+    const d = document.createElement('div');
+    d.className = 'resume-page-cap';
+    d.style.cssText = `position:absolute;z-index:4;pointer-events:none;margin:0;box-sizing:border-box;${css}`;
+    root.appendChild(d);
+  };
+
+  boxes.forEach(({ el, r }) => {
+    // What the box actually holds, page by page. Anything still sliced by a
+    // break (too tall to move) means the box must stay as it is.
+    const leaves = [];
+    let sliced = false;
+    el.querySelectorAll('*').forEach(n => {
+      if (n.closest(skip) || n.children.length) return;
+      const nr = pageRect(root, n, scale);
+      if (!nr.height) return;
+      if (crossesBreak(nr, 1)) sliced = true;
+      leaves.push(nr);
+    });
+    if (sliced) return;
+
+    const cs = getComputedStyle(el);
+    const px = v => parseFloat(v) || 0;
+    const padTop = px(cs.paddingTop) + px(cs.borderTopWidth);
+    const padBottom = px(cs.paddingBottom) + px(cs.borderBottomWidth);
+    const capTop = Math.max(px(cs.borderTopLeftRadius), px(cs.borderTopRightRadius), px(cs.borderTopWidth)) + 1;
+    const capBottom = Math.max(px(cs.borderBottomLeftRadius), px(cs.borderBottomRightRadius), px(cs.borderBottomWidth)) + 1;
+    const firstPage = Math.floor(r.top / pitch);
+    const lastPage = Math.min(pageCount - 1, Math.floor((r.bottom - 1) / pitch));
+
+    const frags = [];
+    for (let p = firstPage; p <= lastPage; p++) {
+      const pTop = p * pitch, pBottom = pTop + pageHeight;
+      const onPage = leaves.filter(l => l.top >= pTop - 1 && l.bottom <= pBottom + 1);
+      const cTop = onPage.length ? Math.min(...onPage.map(l => l.top)) : null;
+      const cBottom = onPage.length ? Math.max(...onPage.map(l => l.bottom)) : null;
+      if (p !== firstPage && cTop === null) continue;
+      const top = p === firstPage ? r.top : Math.max(pTop + 8, cTop - padTop);
+      let bottom;
+      if (p === lastPage) bottom = Math.min(r.bottom, pBottom);
+      else if (cBottom === null) bottom = Math.min(r.bottom, pBottom - 24);
+      else bottom = Math.min(pBottom - 4, Math.max(cBottom + padBottom, cBottom + capBottom));
+      if (bottom > top) frags.push({ top, bottom });
+    }
+    if (!frags.length) return;
+
+    const backdrop = backdropColor(el, root);
+    const left = r.left, width = r.right - r.left;
+    const erase = (from, to) => {
+      if (to - from > 0.5) addLayer(`left:${left}px;top:${from}px;width:${width}px;height:${to - from}px;background:${backdrop};`);
+    };
+    const look = `background-color:${cs.backgroundColor};background-image:${cs.backgroundImage};`;
+    const edge = side => {
+      const S = side[0].toUpperCase() + side.slice(1);
+      return `border-${side}:${cs[`border${S}Width`]} ${cs[`border${S}Style`]} ${cs[`border${S}Color`]};`;
+    };
+
+    frags.forEach((f, i) => {
+      const next = frags[i + 1];
+      erase(f.bottom, next ? next.top : r.bottom);
+      if (f.bottom < r.bottom - 0.5) {
+        addLayer(`left:${left}px;top:${f.bottom - capBottom}px;width:${width}px;height:${capBottom}px;${look}` +
+          edge('left') + edge('right') + edge('bottom') +
+          `border-bottom-left-radius:${cs.borderBottomLeftRadius};border-bottom-right-radius:${cs.borderBottomRightRadius};`);
+      }
+      if (f.top > r.top + 0.5) {
+        addLayer(`left:${left}px;top:${f.top}px;width:${width}px;height:${capTop}px;${look}` +
+          edge('left') + edge('right') + edge('top') +
+          `border-top-left-radius:${cs.borderTopLeftRadius};border-top-right-radius:${cs.borderTopRightRadius};`);
+      }
+    });
+    pageBoxFragments.set(el, frags);
+  });
 }
 
 function cvContentBottom(root) {
-  const top = root.getBoundingClientRect().top;
+  const scale = pageScale(root);
   let bottom = 0;
   root.querySelectorAll('.cv-head, .cv-photo, .cv-sec, .cv-signature, .cv-footer').forEach(el => {
-    const r = el.getBoundingClientRect();
-    if (r.height) bottom = Math.max(bottom, r.bottom - top);
+    const r = pageRect(root, el, scale);
+    if (r.height) bottom = Math.max(bottom, r.bottom);
   });
   return Math.ceil(bottom);
 }
@@ -2630,6 +2836,110 @@ async function flattenImagesForPdf(root) {
   }));
 }
 
+// html2canvas 1.4 does not paint box-shadow, so photo rings, card shadows and the
+// hard offset blocks of brutalist/marketing vanished from the PDF. Each outer
+// shadow in the export copy is drawn onto a canvas laid over the page instead.
+// The element's own border box is cut out of that canvas (an outer shadow is
+// never visible inside it), so the overlay can sit on top without hiding anything.
+function splitCssList(value) {
+  const parts = [];
+  let depth = 0, start = 0;
+  for (let i = 0; i < value.length; i++) {
+    const ch = value[i];
+    if (ch === '(') depth++;
+    else if (ch === ')') depth--;
+    else if (ch === ',' && depth === 0) { parts.push(value.slice(start, i)); start = i + 1; }
+  }
+  parts.push(value.slice(start));
+  return parts.map(s => s.trim()).filter(Boolean);
+}
+
+function parseBoxShadows(value) {
+  if (!value || value === 'none') return [];
+  return splitCssList(value).map(part => {
+    const color = (part.match(/(rgba?|hsla?)\([^)]*\)|#[0-9a-f]{3,8}\b/i) || ['rgba(0,0,0,0.5)'])[0];
+    const rest = part.replace(color, ' ');
+    const lengths = (rest.match(/-?[\d.]+px|\b0\b/g) || []).map(parseFloat);
+    return {
+      color,
+      inset: /\binset\b/.test(rest),
+      x: lengths[0] || 0,
+      y: lengths[1] || 0,
+      blur: Math.max(0, lengths[2] || 0),
+      spread: lengths[3] || 0
+    };
+  }).filter(s => !s.inset && !/rgba\([^)]*,\s*0\)$/.test(s.color.replace(/\s/g, '')));
+}
+
+function flattenShadowsForPdf(root) {
+  const scale = 2;
+  const rootRect = root.getBoundingClientRect();
+  const originX = rootRect.left + root.clientLeft;
+  const originY = rootRect.top + root.clientTop;
+  const jobs = [];
+  root.querySelectorAll('*').forEach(el => {
+    if (el.closest('.resume-page-gap-visual, .resume-page-cap')) return;
+    const cs = getComputedStyle(el);
+    if (cs.display === 'none' || cs.visibility === 'hidden') return;
+    const shadows = parseBoxShadows(cs.boxShadow);
+    if (!shadows.length) return;
+    const r = el.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    const radius = corner => {
+      const [h] = cs[corner].split(' ');
+      return h.endsWith('%') ? (parseFloat(h) / 100) * Math.min(r.width, r.height) : (parseFloat(h) || 0);
+    };
+    const radii = ['borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius'].map(radius);
+    // A card split over pages by capPageBoxes() casts one shadow per piece.
+    const frags = pageBoxFragments.get(el) || [{ top: r.top - originY, bottom: r.bottom - originY }];
+    frags.forEach(f => jobs.push({ el, shadows, x: r.left - originX, y: f.top, w: r.width, h: f.bottom - f.top, radii }));
+  });
+
+  const roundRect = (ctx, x, y, w, h, radii) => {
+    const max = Math.min(w, h) / 2;
+    ctx.roundRect(x, y, w, h, radii.map(v => Math.max(0, Math.min(v, max))));
+  };
+
+  jobs.forEach(({ el, shadows, x, y, w, h, radii }) => {
+    let pad = 0;
+    shadows.forEach(s => { pad = Math.max(pad, Math.abs(s.x) + s.blur * 1.5 + Math.max(0, s.spread), Math.abs(s.y) + s.blur * 1.5 + Math.max(0, s.spread)); });
+    pad = Math.ceil(pad) + 2;
+    const cw = w + pad * 2, ch = h + pad * 2;
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.ceil(cw * scale);
+    canvas.height = Math.ceil(ch * scale);
+    const ctx = canvas.getContext('2d');
+    if (!ctx || !ctx.roundRect) return;
+    ctx.scale(scale, scale);
+    // Everything outside the element's border box.
+    ctx.beginPath();
+    ctx.rect(0, 0, cw, ch);
+    roundRect(ctx, pad, pad, w, h, radii);
+    ctx.clip('evenodd');
+    // CSS paints the first listed shadow on top.
+    shadows.slice().reverse().forEach(s => {
+      const sw = w + s.spread * 2, sh = h + s.spread * 2;
+      if (sw <= 0 || sh <= 0) return;
+      const sr = radii.map(v => (v > 0 ? Math.max(0, v + s.spread) : 0));
+      const far = cw + ch + 100; // shape drawn off-canvas; only its shadow lands
+      ctx.save();
+      ctx.shadowColor = s.color;
+      ctx.shadowBlur = s.blur * scale;
+      ctx.shadowOffsetX = (s.x + far) * scale;
+      ctx.shadowOffsetY = s.y * scale;
+      ctx.fillStyle = '#000';
+      ctx.beginPath();
+      roundRect(ctx, pad - s.spread - far, pad - s.spread, sw, sh, sr);
+      ctx.fill();
+      ctx.restore();
+    });
+    canvas.className = 'pdf-shadow-layer';
+    canvas.style.cssText = `position:absolute;z-index:4;left:${x - pad}px;top:${y - pad}px;width:${cw}px;height:${ch}px;pointer-events:none;margin:0;`;
+    root.appendChild(canvas);
+    el.style.boxShadow = 'none';
+  });
+}
+
 // ---- Download PDF ----
 function bindDownloadBtn() {
   const btn = document.getElementById('download-btn');
@@ -2687,6 +2997,7 @@ function bindDownloadBtn() {
       }));
       await flattenImagesForPdf(exportElement);
       paginateResume(exportElement, { gap: 0, bottomGuard: 24 });
+      flattenShadowsForPdf(exportElement);
       if (!window.html2canvas) {
         throw new Error('html2canvas library is not loaded');
       }
@@ -2912,6 +3223,24 @@ function paintLiveThumb(el) {
   if (el.dataset.thumbPainted === '1') return;
   const tmpl = el.dataset.liveThumb;
   if (!tmpl) return;
+  // Generated pages ship a pre-rendered <img> (build/render_thumbs.py). Keep it:
+  // search engines index it, and it saves building the template markup. Fall
+  // back to the live render only if the image fails to load.
+  const staticImg = el.querySelector('img.thumb-static');
+  if (staticImg && staticImg.complete && staticImg.currentSrc && !staticImg.naturalWidth) {
+    el.classList.add('thumb-img-failed');   // already failed before we got here
+  }
+  if (staticImg && !el.classList.contains('thumb-img-failed')) {
+    if (!staticImg.dataset.fallbackBound) {
+      staticImg.dataset.fallbackBound = '1';
+      staticImg.addEventListener('error', () => {
+        el.classList.add('thumb-img-failed');
+        el.dataset.thumbPainted = '';
+        paintLiveThumb(el);
+      }, { once: true });
+    }
+    return;
+  }
   el.dataset.thumbPainted = '1';
   try {
     el.innerHTML = thumbnailPageHtml(tmpl, buildTemplateThumbnailHtml(tmpl));

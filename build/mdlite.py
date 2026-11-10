@@ -117,11 +117,21 @@ def render(markdown):
 
         # blockquote
         if stripped.startswith("> "):
-            body = []
-            while i < n and lines[i].strip().startswith("> "):
-                body.append(lines[i].strip()[2:])
+            # A bare ">" line separates paragraphs inside the same quote.
+            paras, body = [], []
+            while i < n and (lines[i].strip().startswith("> ") or lines[i].strip() == ">"):
+                s = lines[i].strip()
+                if s == ">":
+                    if body:
+                        paras.append(body)
+                    body = []
+                else:
+                    body.append(s[2:])
                 i += 1
-            html.append("<blockquote><p>%s</p></blockquote>" % _inline(" ".join(body)))
+            if body:
+                paras.append(body)
+            html.append("<blockquote>%s</blockquote>" % "".join(
+                "<p>%s</p>" % _inline(" ".join(p)) for p in paras))
             continue
 
         # lists

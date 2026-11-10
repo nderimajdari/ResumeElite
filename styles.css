@@ -9691,3 +9691,16 @@ body.lp .lp-final-card .lp-final-note { margin: 18px auto 0; font-size: .9rem; c
 .field-switch .switch input:focus-visible + .slider { outline: 2px solid #93c5fd; outline-offset: 2px; }
 .form-group.is-field-off input[type="text"] { opacity: .45; }
 .form-group.is-field-off .field-switch-text::after { content: " (off)"; }
+
+/* Pre-rendered template previews (build/render_thumbs.py) */
+.template-preview > img.thumb-static {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 794 / 1122;
+  object-fit: cover;
+  object-position: top;
+}
+.template-preview.thumb-img-failed > img.thumb-static { display: none; }
+.template-name > a { color: inherit; text-decoration: none; }
+.template-name > a:hover, .template-name > a:focus-visible { text-decoration: underline; text-underline-offset: 3px; }

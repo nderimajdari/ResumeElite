@@ -1521,3 +1521,5 @@ There is a fuller walkthrough in
 # Job-specific template guides (nurse, teacher, sales ...) live in their own file.
 from content_roles import ROLE_PAGES   # noqa: E402
 TEMPLATE_PAGES += ROLE_PAGES
+from content_formats import FORMAT_PAGES   # noqa: E402
+TEMPLATE_PAGES += FORMAT_PAGES

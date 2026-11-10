@@ -47,7 +47,7 @@ def esc(t):
 
 
 # ------------------------------------------------------------------------- head
-def head(title, description, url, *, schema=None, image=None, extra="",
+def head(title, description, url, *, schema=None, image=None, image_alt=None, extra="",
          robots="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"):
     image = image or (S.SITE + "/og-image.jpg")
     blocks = ""
@@ -80,6 +80,7 @@ def head(title, description, url, *, schema=None, image=None, extra="",
   <meta property="og:image" content="%(image)s" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="%(image_alt)s" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="%(title)s" />
   <meta name="twitter:description" content="%(desc)s" />
@@ -94,7 +95,7 @@ def head(title, description, url, *, schema=None, image=None, extra="",
 </head>
 ''' % {
         "title": esc(title), "desc": esc(description), "url": url, "name": S.NAME,
-        "image": image, "v": S.ASSET_V, "robots": robots,
+        "image": image, "image_alt": esc(image_alt or title), "v": S.ASSET_V, "robots": robots,
         "scripts": S.head_common(), "schema": blocks, "extra": extra,
     }
 
@@ -148,20 +149,51 @@ def crumb_html(trail):
 
 
 # ----------------------------------------------------------------- components
+THUMB_DIR = os.path.join(ROOT, "img", "templates")
+
+
+def has_thumb(tid):
+    """True when build/render_thumbs.py has produced the static images for tid."""
+    return os.path.exists(os.path.join(THUMB_DIR, tid + ".webp"))
+
+
+def thumb_url(tid, suffix=""):
+    return "/img/templates/%s%s.webp" % (tid, suffix)
+
+
+def thumb_img(tid, alt, *, large=False):
+    """A real <img> inside a [data-live-thumb] box. app.js leaves a box that
+    already holds one alone, so crawlers and visitors see the same image."""
+    if not has_thumb(tid):
+        return ""
+    if large:
+        return ('<img class="thumb-static" src="%s" width="1000" height="1413" alt="%s" '
+                'fetchpriority="high" decoding="async">' % (thumb_url(tid), alt))
+    return ('<img class="thumb-static" src="%s" srcset="%s 400w, %s 1000w" '
+            'sizes="(max-width: 640px) 90vw, 300px" width="400" height="565" alt="%s" '
+            'loading="lazy" decoding="async">'
+            % (thumb_url(tid, "-400"), thumb_url(tid, "-400"), thumb_url(tid), alt))
+
+
 def template_card(tid, *, heading="h3"):
     tpl = S.TEMPLATE_BY_ID[tid]
     _, name, cats, badge, badge_text, desc = tpl
     return '''        <article class="template-card" data-template="%(id)s" data-cat="%(cats)s" data-name="%(name)s">
-          <div class="template-preview" data-live-thumb="%(id)s" role="img" aria-label="%(name)s resume template preview"></div>
+          <div class="template-preview" data-live-thumb="%(id)s"%(aria)s>%(img)s</div>
           <div class="template-info">
-            <%(h)s class="template-name">%(name)s</%(h)s>
+            <%(h)s class="template-name">%(name_html)s</%(h)s>
             <span class="template-badge %(badge)s">%(badge_text)s</span>
           </div>
           <p class="template-desc">%(desc)s</p>
           <a href="/editor.html?template=%(id)s" class="btn-template">Use this template<span aria-hidden="true"> &rarr;</span></a>
         </article>''' % {
         "id": tid, "cats": cats, "name": esc(name), "badge": badge,
-        "badge_text": esc(badge_text), "desc": esc(desc), "h": heading}
+        "badge_text": esc(badge_text), "desc": esc(desc), "h": heading,
+        "img": thumb_img(tid, esc(name) + " resume template preview"),
+        "name_html": ('<a href="%s">%s</a>' % (guide_for(tid)["path"], esc(name))
+                      if guide_for(tid) else esc(name)),
+        "aria": "" if has_thumb(tid) else
+                ' role="img" aria-label="%s resume template preview"' % esc(name)}
 
 
 def faq_block(pairs, title="Frequently asked questions"):
@@ -185,13 +217,43 @@ def faq_block(pairs, title="Frequently asked questions"):
     </section>''' % (esc(title), items)
 
 
-def related_links(items, title="Keep reading"):
+def related_links(items, title="Keep reading", ident="related-title"):
     if not items:
         return ""
     lis = "".join('<li><a href="%s">%s</a></li>' % (h, esc(t)) for h, t in items)
-    return ('<section class="related" aria-labelledby="related-title">'
-            '<h2 id="related-title">%s</h2><ul>%s</ul></section>'
-            % (esc(title), lis))
+    return ('<section class="related" aria-labelledby="%s">'
+            '<h2 id="%s">%s</h2><ul>%s</ul></section>'
+            % (ident, ident, esc(title), lis))
+
+
+def guide_for(tid):
+    """The /templates/<slug>/ guide page for a template id, if one exists."""
+    for p in content.TEMPLATE_PAGES:
+        if p["id"] == tid:
+            return p
+    return None
+
+
+# Template guides each blog post links to (by template id), so the guide pages
+# get links from the articles that answer the same question.
+POST_TEMPLATE_GUIDES = {
+    "/blog/how-to-write-a-resume/": ["chronological", "simple", "functional", "two-column"],
+    "/blog/resume-length/": ["compact", "executive", "federal-style"],
+    "/blog/resume-with-no-experience/": ["student", "entry-level", "graduate", "functional"],
+    "/blog/how-ats-works/": ["ats-friendly", "simple", "minimal", "two-column"],
+    "/blog/resume-photo-on-resume/": ["europass", "two-column", "professional"],
+    "/blog/resume-vs-cv/": ["academic-cv", "europass", "latex-style"],
+    "/blog/common-resume-mistakes/": ["simple", "chronological", "compact"],
+    "/blog/resume-keywords/": ["ats-friendly", "federal-style", "qa-engineer"],
+    "/blog/professional-summary-examples/": ["executive", "professional", "freelancer"],
+    "/blog/resume-action-verbs/": ["consulting-style", "corporate", "sales"],
+}
+
+
+def guide_label(p):
+    """Link text for a guide page: its <h1> minus the leading article."""
+    h1 = p["title_h1"]
+    return h1[4:] if h1.startswith("The ") else h1
 
 
 # ------------------------------------------------------------- category pages
@@ -302,7 +364,11 @@ def build_categories():
             "grid_sub": esc(cat["grid_sub"]),
             "cards": cards,
             "body": body_html,
-            "siblings": related_links(siblings, "Other template collections"),
+            "siblings": related_links(
+                [(g["path"], guide_label(g)) for g in
+                 (guide_for(t[0]) for t in tpls) if g],
+                "Template guides in this collection", "guides-title")
+                + related_links(siblings, "Other template collections"),
             "faq": faq_block(cat["faq"]),
             "cta_h": esc(cat["cta_h"]),
             "cta_p": esc(cat["cta_p"]),
@@ -414,7 +480,11 @@ def build_blog():
             "cta_label": esc(post["cta"]["label"]),
             "related": related_links(
                 [(p["path"], p["title_h1"]) for p in posts
-                 if p["path"] in post.get("related", [])]),
+                 if p["path"] in post.get("related", [])])
+                + related_links(
+                    [(g["path"], guide_label(g)) for g in
+                     (guide_for(t) for t in POST_TEMPLATE_GUIDES.get(post["path"], [])) if g],
+                    "Templates that fit this guide", "templates-title"),
             "faq": faq_block(post["faq"], "Common questions") if post.get("faq") else "",
             "ad_top": S.ad_slot("leaderboard"),
             "ad_bottom": S.ad_slot("footer"),
@@ -529,11 +599,20 @@ def build_template_pages():
             },
             faq_schema(tp["faq"]),
         ]
+        og_image = None
+        if has_thumb(tid):
+            schema[1]["primaryImageOfPage"] = {
+                "@type": "ImageObject", "url": S.SITE + thumb_url(tid),
+                "width": 1000, "height": 1413,
+                "caption": "%s resume template" % tpl[1]}
+            og_image = S.SITE + "/img/templates/%s-og.jpg" % tid
 
-        siblings = [(p["path"], S.TEMPLATE_BY_ID[p["id"]][1] + " template")
-                    for p in content.TEMPLATE_PAGES if p["id"] != tid][:6]
+        others = [p for p in content.TEMPLATE_PAGES if p["id"] != tid]
+        others.sort(key=lambda p: p["category_path"] != tp["category_path"])  # stable
+        siblings = [(p["path"], guide_label(p)) for p in others][:8]
 
-        page = head(tp["title"], tp["description"], url, schema=schema) + '''
+        page = head(tp["title"], tp["description"], url, schema=schema, image=og_image,
+                    image_alt="%s resume template" % tpl[1]) + '''
 <body class="landing-page template-page">
 
 %(nav)s
@@ -555,8 +634,7 @@ def build_template_pages():
           </div>
         </div>
         <div class="tpl-hero-preview">
-          <div class="template-preview tpl-preview-large" data-live-thumb="%(id)s" role="img"
-            aria-label="Full preview of the %(name)s resume template"></div>
+          <div class="template-preview tpl-preview-large" data-live-thumb="%(id)s"%(hero_aria)s>%(hero_img)s</div>
         </div>
       </div>
     </section>
@@ -601,8 +679,11 @@ def build_template_pages():
             "id": tid,
             "name": esc(tpl[1]),
             "cat_path": tp["category_path"],
-            "cat_lower": esc(tp["category_name"].lower()),
+            "cat_lower": esc(" ".join(w if w.isupper() else w.lower() for w in tp["category_name"].split())),
             "body": mdlite.render(tp["body"]),
+            "hero_img": thumb_img(tid, "Full preview of the %s resume template" % esc(tpl[1]), large=True),
+            "hero_aria": "" if has_thumb(tid) else
+                         ' role="img" aria-label="Full preview of the %s resume template"' % esc(tpl[1]),
             "alts": "\n".join(template_card(a) for a in tp["alternatives"]),
             "faq": faq_block(tp["faq"]),
             "siblings": related_links(siblings, "Other template guides"),
@@ -624,16 +705,32 @@ def build_sitemap():
              ("/privacy.html", "0.3", "yearly"), ("/cookies.html", "0.3", "yearly"),
              ("/terms.html", "0.3", "yearly"), ("/disclaimer.html", "0.3", "yearly")]
 
+    # Image sitemap entries: the static template previews each page shows.
+    images = {"/": [t[0] for t in S.TEMPLATES]}
+    for c in content.CATEGORIES:
+        images[c["path"]] = [t[0] for t in S.templates_in(c["filter"])]
+    for t in content.TEMPLATE_PAGES:
+        images[t["path"]] = [t["id"]] + list(t["alternatives"])
+
+    def image_tags(path):
+        out = ""
+        for tid in images.get(path, []):
+            if has_thumb(tid):
+                out += ("\n    <image:image><image:loc>%s%s</image:loc></image:image>"
+                        % (S.SITE, thumb_url(tid)))
+        return out
+
     body = "".join('''
   <url>
     <loc>%s%s</loc>
     <lastmod>%s</lastmod>
     <changefreq>%s</changefreq>
-    <priority>%s</priority>
-  </url>''' % (S.SITE, path, S.TODAY, freq, pri) for path, pri, freq in urls)
+    <priority>%s</priority>%s
+  </url>''' % (S.SITE, path, S.TODAY, freq, pri, image_tags(path)) for path, pri, freq in urls)
 
     write("sitemap.xml", '''<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">%s
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">%s
 </urlset>
 ''' % body)
     return len(urls)

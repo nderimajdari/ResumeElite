@@ -9,8 +9,9 @@ markers that build.py rewrites, so there is a single source of truth.
 
 SITE = "https://resume-elite.com"
 NAME = "ResumeElite"
-ASSET_V = "v=growth-2026-08"
-TODAY = "2026-08-24"
+ASSET_V = "v=2026-11-10"
+# Build date: used as <lastmod> in the sitemap and in the RSS feed.
+TODAY = "2026-11-10"
 YEAR = "2026"
 
 # ---------------------------------------------------------------------------
